@@ -1,12 +1,28 @@
 {
   "name": "jansahay-ai",
   "version": "2.0.0",
-  "description": "JanSahay AI - Smart Document Guidance & Government Scheme Discovery for Indian Citizens",
+  "description": "JanSahay AI - Intelligent Government Scheme Discovery & Smart Document Guidance for Indian Citizens",
   "type": "module",
   "scripts": {
-    "server": "cd server && mvn spring-boot:run",
+    "server": "cd server && npm start",
+    "server:dev": "cd server && npm run dev",
     "client": "cd client && npm run dev",
+    "client:build": "cd client && npm run build",
     "build": "cd client && npm run build",
-    "start": "cd server && java -jar target/jansahay-backend-1.0.0.jar"
-  }
+    "test": "cd server && npm test",
+    "start": "cd server && npm start"
+  },
+  "keywords": [
+    "govtech",
+    "react",
+    "nodejs",
+    "express",
+    "welfare-schemes",
+    "india",
+    "rts-act",
+    "rag",
+    "gemini"
+  ],
+  "author": "JanSahay Contributors",
+  "license": "MIT"
 }
