@@ -1,0 +1,216 @@
+// ==============================================================================
+// JanSahay AI — Production Relational Database Schema (Prisma ORM)
+// PostgreSQL 16 Target Engine
+// ==============================================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// 1. Users Table (Core Identity & RBAC)
+model User {
+  id           Int            @id @default(autoincrement())
+  name         String
+  email        String         @unique
+  passwordHash String         @map("password_hash")
+  role         String         @default("CITIZEN") // "ADMIN", "CITIZEN"
+  createdAt    DateTime       @default(now()) @map("created_at")
+  updatedAt    DateTime       @default(now()) @updatedAt @map("updated_at")
+
+  profile      Profile?
+  userDocs     UserDocument[]
+  chatSessions ChatSession[]
+  feedback     Feedback[]
+
+  @@map("users")
+}
+
+// 2. Profiles Table (Demographics & Socio-Economic Criteria)
+model Profile {
+  id                 Int       @id @default(autoincrement())
+  userId             Int       @unique @map("user_id")
+  category           String?   // "STUDENT", "FARMER", "BUSINESS_OWNER", "GENERAL_CITIZEN"
+  state              String?   @default("Maharashtra")
+  district           String?
+  occupation         String?
+  incomeRange        String?   @map("income_range") // "BELOW_1_LAKH", "BELOW_2_LAKH", etc.
+  educationLevel     String?   @map("education_level") // "SECONDARY", "UNDERGRADUATE", etc.
+  course             String?
+  currentYear        Int?      @map("current_year")
+  instituteName      String?   @map("institute_name")
+  farmingType        String?   @map("farming_type") // "SMALL_MARGINAL", "LARGE", etc.
+  cropActivity       String?   @map("crop_activity")
+  landArea           Float?    @map("land_area")
+  landOwnership      String?   @map("land_ownership")
+  businessType       String?   @map("business_type")
+  businessStage      String?   @map("business_stage")
+  msmeStatus         String?   @map("msme_status")
+  businessDescription String?  @map("business_description")
+  profileComplete    Boolean   @default(false) @map("profile_complete")
+  updatedAt          DateTime  @default(now()) @updatedAt @map("updated_at")
+
+  user               User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("profiles")
+}
+
+// 3. Schemes Table (50+ Verified Central & State Programs)
+model Scheme {
+  id                 Int          @id @default(autoincrement())
+  name               String
+  code               String?      @unique
+  category           String       // "EDUCATION", "AGRICULTURE", "HEALTH", etc.
+  department         String?
+  governmentLevel    String       @default("CENTRAL") @map("government_level") // "CENTRAL", "STATE"
+  state              String       @default("All India")
+  targetBeneficiaries String?     @map("target_beneficiaries")
+  summary            String?      @db.Text
+  description        String       @db.Text
+  benefit            String       @db.Text
+  maxBenefitAmount   Float?       @map("max_benefit_amount")
+  sourceUrl          String       @map("source_url")
+  applicationSteps   Json?        @map("application_steps")
+  requiredDocuments  Json?        @map("required_documents")
+  lastVerifiedAt     String       @default("2026-03-01") @map("last_verified_at")
+  active             Boolean      @default(true)
+  verificationStatus String       @default("VERIFIED") @map("verification_status")
+  viewCount          Int          @default(0) @map("view_count")
+  createdAt          DateTime     @default(now()) @map("created_at")
+  updatedAt          DateTime     @default(now()) @updatedAt @map("updated_at")
+
+  rules              SchemeRule[]
+  feedback           Feedback[]
+
+  @@map("schemes")
+}
+
+// 4. Scheme Rules Table (Relational Eligibility Conditions)
+model SchemeRule {
+  id          Int      @id @default(autoincrement())
+  schemeId    Int      @map("scheme_id")
+  field       String   // e.g. "category", "incomeRange", "state", "landArea"
+  operator    String   // "EQUALS", "IN", "LESS_THAN", "GREATER_THAN", etc.
+  value       String   // e.g. "Maharashtra", "BELOW_2_LAKH", "2.0"
+  description String?
+  required    Boolean  @default(true)
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  scheme      Scheme   @relation(fields: [schemeId], references: [id], onDelete: Cascade)
+
+  @@map("scheme_rules")
+}
+
+// 5. Document Guides Table (14+ Statutory RTS Acquisition Roadmaps)
+model DocumentGuide {
+  id                          Int        @id @default(autoincrement())
+  documentType                String     @unique @map("document_type") // e.g. "INCOME_CERTIFICATE"
+  title                       String
+  simpleDescription           String     @map("simple_description") @db.Text
+  applicableState             String     @default("Maharashtra") @map("applicable_state")
+  issuingAuthority            String     @map("issuing_authority")
+  eligibilityOrPrerequisites  String?    @map("eligibility_or_prerequisites") @db.Text
+  requiredSupportingDocuments Json?      @map("required_supporting_documents")
+  applicationSteps            Json?      @map("application_steps")
+  applicationMethod           String     @default("BOTH") @map("application_method") // "ONLINE", "OFFLINE", "BOTH"
+  officialApplicationUrl      String?    @map("official_application_url")
+  officialInformationUrl      String?    @map("official_information_url")
+  possibleFees                String?    @default("₹33.60") @map("possible_fees")
+  expectedProcessingTime      String?    @default("15 working days") @map("expected_processing_time")
+  lastVerifiedAt              String     @default("2026-03-01") @map("last_verified_at")
+  verificationStatus          String     @default("VERIFIED") @map("verification_status")
+  publicationStatus           String     @default("PUBLISHED") @map("publication_status")
+  additionalNotes             String?    @map("additional_notes") @db.Text
+  createdAt                   DateTime   @default(now()) @map("created_at")
+  updatedAt                   DateTime   @default(now()) @updatedAt @map("updated_at")
+
+  feedback                    Feedback[]
+
+  @@map("document_guides")
+}
+
+// 6. User Documents Table (Citizen In-Hand Tracking)
+model UserDocument {
+  id           Int      @id @default(autoincrement())
+  userId       Int      @map("user_id")
+  documentType String   @map("document_type")
+  documentName String   @map("document_name")
+  status       String   @default("AVAILABLE") // "AVAILABLE", "MISSING", "NEEDS_VERIFICATION"
+  notes        String?
+  updatedAt    DateTime @default(now()) @updatedAt @map("updated_at")
+
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, documentType])
+  @@map("user_documents")
+}
+
+// 7. Policy Updates Table (Real-time Government Portal News & Press Releases)
+model PolicyUpdate {
+  id            Int      @id @default(autoincrement())
+  title         String
+  description   String   @db.Text
+  category      String   // "EDUCATION", "AGRICULTURE", "GENERAL"
+  source        String
+  sourceUrl     String?  @map("source_url")
+  publishedDate String   @map("published_date")
+  relevanceTags String?  @map("relevance_tags")
+  active        Boolean  @default(true)
+  isLive        Boolean  @default(false) @map("is_live")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  @@map("policy_updates")
+}
+
+// 8. Chat Sessions Table (Conversational Memory & Dynamic Agent Context)
+model ChatSession {
+  id           String        @id @default(uuid())
+  userId       Int?          @map("user_id")
+  sessionToken String        @unique @map("session_token")
+  language     String        @default("en") // "en", "mr", "hi"
+  createdAt    DateTime      @default(now()) @map("created_at")
+  updatedAt    DateTime      @default(now()) @updatedAt @map("updated_at")
+
+  user         User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+  messages     ChatMessage[]
+
+  @@map("chat_sessions")
+}
+
+// 9. Chat Messages Table (Tool Call Traces & Grounded Citations)
+model ChatMessage {
+  id         String      @id @default(uuid())
+  sessionId  String      @map("session_id")
+  role       String      // "user", "assistant", "system", "tool"
+  content    String      @db.Text
+  sources    Json?       // Array of cited schemes and verified dates
+  toolCalls  Json?       @map("tool_calls") // Log of tools executed (name, duration, args)
+  createdAt  DateTime    @default(now()) @map("created_at")
+
+  session    ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@map("chat_messages")
+}
+
+// 10. Feedback Table (Citizen Error Reports & Quality Feedback)
+model Feedback {
+  id              Int            @id @default(autoincrement())
+  userId          Int?           @map("user_id")
+  schemeId        Int?           @map("scheme_id")
+  guideId         Int?           @map("guide_id")
+  feedbackType    String         @default("CORRECTION") @map("feedback_type") // "CORRECTION", "SUGGESTION", "RATING"
+  comment         String         @db.Text
+  rating          Int?           // 1 to 5
+  status          String         @default("PENDING") // "PENDING", "RESOLVED", "REJECTED"
+  createdAt       DateTime       @default(now()) @map("created_at")
+
+  user            User?          @relation(fields: [userId], references: [id], onDelete: SetNull)
+  scheme          Scheme?        @relation(fields: [schemeId], references: [id], onDelete: SetNull)
+  guide           DocumentGuide? @relation(fields: [guideId], references: [id], onDelete: SetNull)
+
+  @@map("feedback")
+}

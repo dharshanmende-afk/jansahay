@@ -1,8 +1,11 @@
 import fs from 'fs';
 import path from 'path';
+import crypto from 'crypto';
+import bcrypt from 'bcryptjs';
 import { fileURLToPath } from 'url';
 import { initialSeedData } from './seedData.js';
 import pgClient, { checkPostgresConnectivity, runMigrations } from './pgClient.js';
+import { prisma, checkPrismaConnectivity } from './prismaClient.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -28,7 +31,12 @@ class Database {
       chat_logs: []
     };
     this.postgresConnected = false;
+    this.prisma = prisma;
     this.init();
+  }
+
+  async isPrismaConnected() {
+    return await checkPrismaConnectivity();
   }
 
   async init() {
@@ -75,17 +83,31 @@ class Database {
     // In production mode, disable demo accounts entirely
     let users = [];
     if (!isProduction) {
-      users = initialSeedData.users || [];
+      const demoRoles = [
+        { id: 1, name: 'Government Administrator', email: 'admin@jansahay.gov.in', role: 'ADMIN' },
+        { id: 2, name: 'Rahul Patil', email: 'student@jansahay.ai', role: 'CITIZEN' },
+        { id: 3, name: 'Ramesh Shinde', email: 'farmer@jansahay.ai', role: 'CITIZEN' },
+        { id: 4, name: 'Priya Deshmukh', email: 'business@jansahay.ai', role: 'CITIZEN' }
+      ];
       console.log('------------------------------------------------------------------');
-      console.log('🔑 [DEV SEED] Development Demo Credentials (NODE_ENV != production)');
-      console.log('   • Administrator: admin@jansahay.gov.in (Admin@123)');
-      console.log('   • Student:       student@jansahay.ai   (Student@123)');
-      console.log('   • Farmer:        farmer@jansahay.ai    (Farmer@123)');
-      console.log('   • Business:      business@jansahay.ai  (Business@123)');
-      console.log('   ⚠️  Note: Demo accounts are automatically disabled in production.');
+      console.log('🔑 [DEV SEED] Generated Random Demo Credentials (NODE_ENV=development):');
+      for (const u of demoRoles) {
+        const randomPass = `Jan_${crypto.randomBytes(6).toString('hex')}`;
+        const passwordHash = bcrypt.hashSync(randomPass, 10);
+        users.push({
+          id: u.id,
+          name: u.name,
+          email: u.email,
+          passwordHash,
+          role: u.role,
+          createdAt: new Date().toISOString()
+        });
+        console.log(`   • [${u.role.padEnd(7)}] ${u.email.padEnd(25)} -> Password: ${randomPass}`);
+      }
+      console.log('   ⚠️  Zero demo accounts are created in production mode.');
       console.log('------------------------------------------------------------------');
     } else {
-      console.log('[PROD SEED] Production mode active: Default demo accounts omitted.');
+      console.log('🔒 [PROD SEED] Production mode active: Zero demo accounts seeded.');
     }
 
     this.data = {
