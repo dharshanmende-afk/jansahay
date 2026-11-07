@@ -1,6 +1,8 @@
 import express from 'express';
 import { db } from '../db/database.js';
 import { authMiddleware } from '../middleware/authMiddleware.js';
+import { validate } from '../middleware/validate.js';
+import { profileSchema } from '../schemas/validationSchemas.js';
 
 const router = express.Router();
 
@@ -53,15 +55,10 @@ const saveProfileHandler = (req, res) => {
       businessType,
       businessStage,
       msmeStatus,
-      businessDescription
+      businessDescription,
+      disabilityStatus,
+      inHandDocuments
     } = req.body;
-
-    if (!category || !state || !incomeRange) {
-      return res.status(400).json({
-        success: false,
-        message: 'Category, State, and Income Range are required'
-      });
-    }
 
     const existingProfile = db.findOne('profiles', p => String(p.userId) === String(userId));
 
@@ -78,12 +75,14 @@ const saveProfileHandler = (req, res) => {
       instituteName: instituteName || null,
       farmingType: farmingType || null,
       cropActivity: cropActivity || null,
-      landArea: landArea ? parseFloat(landArea) : null,
+      landArea: landArea !== undefined && landArea !== null ? parseFloat(landArea) : null,
       landOwnership: landOwnership || null,
       businessType: businessType || null,
       businessStage: businessStage || null,
       msmeStatus: msmeStatus || null,
       businessDescription: businessDescription || null,
+      disabilityStatus: disabilityStatus || 'NONE',
+      inHandDocuments: inHandDocuments || [],
       profileComplete: true,
       updatedAt: new Date().toISOString()
     };
@@ -106,11 +105,15 @@ const saveProfileHandler = (req, res) => {
     });
   } catch (err) {
     console.error('[Profile] Save error:', err);
-    return res.status(500).json({ success: false, message: 'Server error while saving profile' });
+    return res.status(500).json({
+      success: false,
+      error: 'ServerError',
+      message: 'Server error while saving profile'
+    });
   }
 };
 
-router.post('/', authMiddleware, saveProfileHandler);
-router.put('/', authMiddleware, saveProfileHandler);
+router.post('/', authMiddleware, validate(profileSchema), saveProfileHandler);
+router.put('/', authMiddleware, validate(profileSchema), saveProfileHandler);
 
 export default router;

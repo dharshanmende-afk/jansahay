@@ -1,6 +1,8 @@
 import express from 'express';
 import { db } from '../db/database.js';
 import { authMiddleware } from '../middleware/authMiddleware.js';
+import { validate } from '../middleware/validate.js';
+import { updateDocumentStatusSchema } from '../schemas/validationSchemas.js';
 import { DocumentAnalysisService } from '../services/documentAnalysisService.js';
 import { EligibilityEngine } from '../services/eligibilityEngine.js';
 
@@ -15,20 +17,11 @@ router.get('/', authMiddleware, (req, res) => {
   });
 });
 
-// PUT /api/documents/status (Update document status: AVAILABLE, MISSING, NEEDS_VERIFICATION)
-router.put('/status', authMiddleware, (req, res) => {
+// PUT /api/documents/status (Update document status)
+router.put('/status', authMiddleware, validate(updateDocumentStatusSchema), (req, res) => {
   try {
     const userId = req.user.id;
     const { documentName, documentType, status, notes } = req.body;
-
-    if (!documentName || !status) {
-      return res.status(400).json({ success: false, message: 'Document name and status are required' });
-    }
-
-    const validStatuses = ['AVAILABLE', 'MISSING', 'NEEDS_VERIFICATION', 'NOT_YET_CHECKED'];
-    if (!validStatuses.includes(status)) {
-      return res.status(400).json({ success: false, message: 'Invalid status value' });
-    }
 
     // Check if user already has an entry for this document
     const existing = db.findOne('userDocuments', doc =>
@@ -63,18 +56,26 @@ router.put('/status', authMiddleware, (req, res) => {
     });
   } catch (err) {
     console.error('[Documents] Update status error:', err);
-    return res.status(500).json({ success: false, message: 'Server error updating document status' });
+    return res.status(500).json({
+      success: false,
+      error: 'ServerError',
+      message: 'Server error updating document status'
+    });
   }
 });
 
-// PUT /api/checklists/:schemeId (Update checklist items for a specific scheme)
+// PUT /api/documents/checklists/:schemeId (Update checklist items for a specific scheme)
 router.put('/checklists/:schemeId', authMiddleware, (req, res) => {
   try {
     const userId = req.user.id;
     const { documentName, documentType, status } = req.body;
 
     if (!documentName || !status) {
-      return res.status(400).json({ success: false, message: 'Document name and status required' });
+      return res.status(400).json({
+        success: false,
+        error: 'ValidationError',
+        message: 'Document name and status required'
+      });
     }
 
     const existing = db.findOne('userDocuments', doc =>
@@ -99,12 +100,16 @@ router.put('/checklists/:schemeId', authMiddleware, (req, res) => {
 
     return res.json({
       success: true,
-      message: `Checklist updated for scheme`,
+      message: 'Checklist updated for scheme',
       data: result
     });
   } catch (err) {
     console.error('[Checklist] Error:', err);
-    return res.status(500).json({ success: false, message: 'Server error updating checklist' });
+    return res.status(500).json({
+      success: false,
+      error: 'ServerError',
+      message: 'Server error updating checklist'
+    });
   }
 });
 
@@ -144,7 +149,11 @@ router.get('/preparation-dashboard', authMiddleware, (req, res) => {
     });
   } catch (err) {
     console.error('[Preparation Dashboard] Error:', err);
-    return res.status(500).json({ success: false, message: 'Server error calculating document preparation dashboard' });
+    return res.status(500).json({
+      success: false,
+      error: 'ServerError',
+      message: 'Server error calculating document preparation dashboard'
+    });
   }
 });
 

@@ -1,53 +1,28 @@
 import express from 'express';
 import { AIService } from '../services/aiService.js';
 import { db } from '../db/database.js';
+import { aiLimiter } from '../middleware/rateLimiter.js';
+import { validate } from '../middleware/validate.js';
+import { aiChatSchema, aiExplainSchema } from '../schemas/validationSchemas.js';
 
 const router = express.Router();
 
 const SUPPORTED_LANGUAGES = ['en', 'hi', 'mr'];
 
-// POST /api/ai/chat (Authenticated citizen or guest)
-router.post('/chat', async (req, res) => {
+// POST /api/ai/chat (Authenticated citizen or guest, rate-limited and Zod-validated)
+router.post('/chat', aiLimiter, validate(aiChatSchema), async (req, res) => {
   try {
-    const { question, schemeId, language = 'en' } = req.body;
+    const { question, message, schemeId, language = 'en' } = req.body;
+    const queryText = (question || message || '').trim();
 
-    // 1. Validate question input
-    if (question === undefined || question === null) {
-      return res.status(400).json({
-        success: false,
-        message: 'Question parameter is required.'
-      });
-    }
-
-    if (typeof question !== 'string') {
-      return res.status(400).json({
-        success: false,
-        message: 'Question must be a valid text string.'
-      });
-    }
-
-    const trimmedQuestion = question.trim();
-    if (trimmedQuestion.length === 0) {
-      return res.status(400).json({
-        success: false,
-        message: 'Question cannot be empty. Please enter your inquiry.'
-      });
-    }
-
-    if (trimmedQuestion.length > 1000) {
-      return res.status(400).json({
-        success: false,
-        message: 'Question exceeds maximum allowed length of 1000 characters. Please provide a more concise inquiry.'
-      });
-    }
-
-    // 2. Validate optional schemeId
+    // Validate optional schemeId
     let validatedSchemeId = null;
     if (schemeId !== undefined && schemeId !== null && schemeId !== '') {
       const numId = Number(schemeId);
       if (isNaN(numId) || numId <= 0) {
         return res.status(400).json({
           success: false,
+          error: 'ValidationError',
           message: 'Invalid scheme identifier. Must be a valid positive number.'
         });
       }
@@ -55,25 +30,23 @@ router.post('/chat', async (req, res) => {
       if (!existingScheme) {
         return res.status(404).json({
           success: false,
+          error: 'NotFound',
           message: `Scheme with ID ${schemeId} was not found in the verified directory.`
         });
       }
       validatedSchemeId = numId;
     }
 
-    // 3. Validate supported language values
+    // Validate language
     let validatedLanguage = 'en';
     if (language) {
       const lowerLang = String(language).toLowerCase().trim();
       if (SUPPORTED_LANGUAGES.includes(lowerLang)) {
         validatedLanguage = lowerLang;
-      } else {
-        // Fallback gracefully to English if unrecognized language code sent
-        validatedLanguage = 'en';
       }
     }
 
-    // 4. Authenticated citizen profile resolution (or guest)
+    // Authenticated citizen profile resolution (or guest)
     let userId = null;
     if (req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
       try {
@@ -83,19 +56,19 @@ router.post('/chat', async (req, res) => {
         const decoded = jwt.verify(token, config.jwtSecret);
         userId = decoded.id;
       } catch (e) {
-        // Guest mode continues gracefully without throwing
+        // Guest mode continues
       }
     }
 
-    // 5. Invoke answer engine
+    // Invoke answer engine
     const result = await AIService.answerQuestion(
-      trimmedQuestion,
+      queryText,
       validatedSchemeId,
       userId,
       validatedLanguage
     );
 
-    // 6. Ensure predictable, complete response envelope
+    // Ensure predictable, complete response envelope
     return res.json({
       success: true,
       data: {
@@ -113,18 +86,23 @@ router.post('/chat', async (req, res) => {
     console.error('[AI] Chat route error:', err);
     return res.status(500).json({
       success: false,
+      error: 'AIServiceError',
       message: 'An error occurred while generating your answer. Please try again or consult the official scheme portal.'
     });
   }
 });
 
 // POST /api/ai/explain/:id (Explain specific scheme in simple language)
-router.post('/explain/:id', async (req, res) => {
+router.post('/explain/:id', validate(aiExplainSchema), async (req, res) => {
   try {
     const schemeId = req.params.id;
     const numId = Number(schemeId);
     if (isNaN(numId) || numId <= 0) {
-      return res.status(400).json({ success: false, message: 'Invalid scheme ID parameter' });
+      return res.status(400).json({
+        success: false,
+        error: 'ValidationError',
+        message: 'Invalid scheme ID parameter'
+      });
     }
 
     const { language = 'en' } = req.body;
@@ -148,7 +126,11 @@ router.post('/explain/:id', async (req, res) => {
     });
   } catch (err) {
     console.error('[AI] Explain error:', err);
-    return res.status(500).json({ success: false, message: 'Error generating scheme explanation' });
+    return res.status(500).json({
+      success: false,
+      error: 'AIServiceError',
+      message: 'Error generating scheme explanation'
+    });
   }
 });
 

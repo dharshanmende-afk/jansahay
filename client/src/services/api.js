@@ -25,16 +25,37 @@ api.interceptors.request.use((config) => {
   return Promise.reject(error);
 });
 
-// Response interceptor to unwrap data and handle 401
+// Response interceptor to unwrap data and handle 401 with automatic token refresh
 api.interceptors.response.use(
   (response) => {
     return response.data;
   },
-  (error) => {
-    if (error.response && error.response.status === 401) {
-      // Clear token if expired
-      localStorage.removeItem('jansahay_token');
-      localStorage.removeItem('jansahay_user');
+  async (error) => {
+    const originalRequest = error.config;
+    if (error.response && error.response.status === 401 && !originalRequest._retry) {
+      const refreshToken = localStorage.getItem('jansahay_refresh_token');
+      if (refreshToken && !originalRequest.url.includes('/auth/login') && !originalRequest.url.includes('/auth/refresh')) {
+        originalRequest._retry = true;
+        try {
+          const res = await axios.post(`${resolveBaseUrl()}/auth/refresh`, { refreshToken });
+          if (res.data?.success && res.data?.data?.token) {
+            localStorage.setItem('jansahay_token', res.data.data.token);
+            if (res.data.data.refreshToken) {
+              localStorage.setItem('jansahay_refresh_token', res.data.data.refreshToken);
+            }
+            originalRequest.headers.Authorization = `Bearer ${res.data.data.token}`;
+            return api(originalRequest);
+          }
+        } catch (refreshErr) {
+          localStorage.removeItem('jansahay_token');
+          localStorage.removeItem('jansahay_refresh_token');
+          localStorage.removeItem('jansahay_user');
+        }
+      } else {
+        localStorage.removeItem('jansahay_token');
+        localStorage.removeItem('jansahay_refresh_token');
+        localStorage.removeItem('jansahay_user');
+      }
     }
     return Promise.reject(error.response ? error.response.data : error);
   }
@@ -42,9 +63,37 @@ api.interceptors.response.use(
 
 // Modular API services
 export const authService = {
-  login: (credentials) => api.post('/auth/login', credentials),
-  register: (userData) => api.post('/auth/register', userData),
-  quickLogin: (role) => api.post('/auth/quick-login', { role }),
+  login: async (credentials) => {
+    const res = await api.post('/auth/login', credentials);
+    if (res.data?.token) {
+      localStorage.setItem('jansahay_token', res.data.token);
+      if (res.data.refreshToken) {
+        localStorage.setItem('jansahay_refresh_token', res.data.refreshToken);
+      }
+    }
+    return res;
+  },
+  register: async (userData) => {
+    const res = await api.post('/auth/register', userData);
+    if (res.data?.token) {
+      localStorage.setItem('jansahay_token', res.data.token);
+      if (res.data.refreshToken) {
+        localStorage.setItem('jansahay_refresh_token', res.data.refreshToken);
+      }
+    }
+    return res;
+  },
+  refresh: (refreshToken) => api.post('/auth/refresh', { refreshToken }),
+  quickLogin: async (role) => {
+    const res = await api.post('/auth/quick-login', { role });
+    if (res.data?.token) {
+      localStorage.setItem('jansahay_token', res.data.token);
+      if (res.data.refreshToken) {
+        localStorage.setItem('jansahay_refresh_token', res.data.refreshToken);
+      }
+    }
+    return res;
+  },
   getMe: () => api.get('/auth/me')
 };
 
