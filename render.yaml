@@ -1,34 +1,46 @@
+# ==============================================================================
+# JanSahay AI — Render Blueprint Configuration (Infrastructure-as-Code)
+# ==============================================================================
+
+databases:
+  - name: jansahay-db
+    databaseName: jansahay_db
+    user: jansahay
+    plan: free
+    region: oregon
+    postgresMajorVersion: "16"
+
 services:
+  # 1. JanSahay Node.js Backend API
   - type: web
     name: jansahay-backend
-    env: docker
-    dockerfilePath: ./server/Dockerfile
-    dockerContext: ./server
+    env: node
+    rootDir: server
+    buildCommand: npm ci
+    startCommand: npm start
     plan: free
     region: oregon
     healthCheckPath: /api/health
     envVars:
+      - key: NODE_ENV
+        value: production
       - key: PORT
-        value: 8080
-      - key: DB_HOST
-        sync: false
-      - key: DB_PORT
-        value: 3306
-      - key: DB_NAME
-        value: defaultdb
-      - key: DB_USERNAME
-        value: avnadmin
-      - key: DB_PASSWORD
-        sync: false
-      - key: DB_SSL
-        value: "true"
-      - key: DB_SSL_MODE
-        value: "REQUIRED"
-      - key: SQL_INIT_MODE
-        value: always
+        value: 10000
+      - key: DATABASE_URL
+        fromDatabase:
+          name: jansahay-db
+          property: connectionString
       - key: JWT_SECRET
         generateValue: true
-      - key: CORS_ALLOWED_ORIGINS
-        sync: false
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 1h
+      - key: JWT_REFRESH_EXPIRES_IN
+        value: 7d
+      - key: CORS_ORIGIN
+        value: https://creative-mochi-5f7e5c.netlify.app,http://localhost:5173,http://localhost:3000
       - key: AI_PROVIDER
-        value: mock
+        value: gemini
+      - key: GEMINI_API_KEY
+        sync: false

@@ -1,0 +1,124 @@
+name: JanSahay CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  # ==============================================================================
+  # Job 1: Backend Unit, Integration, RAG Evaluation, and Coverage
+  # ==============================================================================
+  backend-tests:
+    name: Backend Tests & Coverage
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [ 20.x, 22.x ]
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+          cache-dependency-path: server/package-lock.json
+
+      - name: Install Server Dependencies
+        working-directory: ./server
+        run: npm ci
+
+      - name: Run Unit Tests
+        working-directory: ./server
+        run: npm run test:unit
+
+      - name: Run API Integration Tests
+        working-directory: ./server
+        run: npm run test:integration
+
+      - name: Run RAG Assistant Evaluation Benchmark (31 Cases)
+        working-directory: ./server
+        run: npm run eval:rag
+
+      - name: Verify Code Coverage (Target >70%)
+        working-directory: ./server
+        run: npm run test:coverage
+
+  # ==============================================================================
+  # Job 2: Frontend Production Build Verification
+  # ==============================================================================
+  frontend-build:
+    name: Frontend Build Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          cache: 'npm'
+          cache-dependency-path: client/package-lock.json
+
+      - name: Install Client Dependencies
+        working-directory: ./client
+        run: npm ci
+
+      - name: Build Vite Production Bundle
+        working-directory: ./client
+        run: npm run build
+        env:
+          VITE_API_BASE_URL: https://jansahay-backend.onrender.com
+
+  # ==============================================================================
+  # Job 3: Multi-Stage Docker Build Verification
+  # ==============================================================================
+  docker-build:
+    name: Docker Multi-Stage Image Builds
+    runs-on: ubuntu-latest
+    needs: [ backend-tests, frontend-build ]
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: actions/setup-buildx-action@v3
+
+      - name: Build Server Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./server
+          file: ./server/Dockerfile
+          push: false
+          tags: jansahay-server:latest
+
+      - name: Build Client Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./client
+          file: ./client/Dockerfile
+          push: false
+          tags: jansahay-client:latest
+
+  # ==============================================================================
+  # Job 4: Production Deployment Pipeline (Main Branch)
+  # ==============================================================================
+  deploy:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    needs: [ docker-build ]
+
+    steps:
+      - name: Deployment Notification
+        run: |
+          echo "🚀 All CI tests, RAG evaluations, and Docker builds passed successfully!"
+          echo "Frontend auto-deploys via Netlify Git integration to https://creative-mochi-5f7e5c.netlify.app/"
+          echo "Backend auto-deploys via Render/Railway Blueprint."

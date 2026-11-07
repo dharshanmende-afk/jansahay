@@ -1,34 +1,36 @@
 # ==============================================================================
-# JanSahay Backend Production Dockerfile (Spring Boot 3 + Java 17)
-# Root-level Dockerfile for automatic detection on Render, Railway, Fly.io
+# JanSahay AI Root Dockerfile — Production Multi-Stage Deployment (Node.js)
+# Used by platforms (Render, Railway, Fly.io) that build from repo root
 # ==============================================================================
 
-# Stage 1: Build stage with Maven and OpenJDK 17
-FROM maven:3.9.6-eclipse-temurin-17 AS builder
-WORKDIR /build
-
-# Cache Maven dependencies
-COPY server/pom.xml .
-RUN mvn dependency:resolve -B
-
-# Copy server source and package the executable fat jar
-COPY server/src ./src
-RUN mvn clean package -DskipTests -B
-
-# Stage 2: Minimal, secure JRE 17 runtime
-FROM eclipse-temurin:17-jre-jammy
+# Stage 1: Build & Dependencies
+FROM node:20-alpine AS dependencies
 WORKDIR /app
 
-# Run as non-root user for container security
-RUN groupadd -r jansahay && useradd -r -g jansahay -m jansahay
+RUN apk add --no-cache libc6-compat
 
-# Copy compiled jar from builder stage
-COPY --from=builder /build/target/jansahay-backend-1.0.0.jar app.jar
-RUN chown -R jansahay:jansahay /app
+COPY server/package.json server/package-lock.json ./
+RUN npm ci --only=production
 
-USER jansahay
+# Stage 2: Production Minimal Runtime
+FROM node:20-alpine AS runner
+WORKDIR /app
 
-ENV PORT=8080
-EXPOSE 8080
+ENV NODE_ENV=production
+ENV PORT=5000
 
-ENTRYPOINT ["sh", "-c", "java -XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -Dserver.port=${PORT:-8080} -Djava.security.egd=file:/dev/./urandom -jar app.jar"]
+# Security: Run as non-root user
+USER node
+
+# Copy dependencies and application code
+COPY --chown=node:node --from=dependencies /app/node_modules ./node_modules
+COPY --chown=node:node server/package.json ./
+COPY --chown=node:node server/src ./src
+COPY --chown=node:node server/data ./data
+
+EXPOSE 5000
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD wget --no-verbose --tries=1 --spider http://localhost:5000/api/health || exit 1
+
+CMD ["node", "src/server.js"]

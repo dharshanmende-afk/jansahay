@@ -1,5 +1,8 @@
-target/
+node_modules
+tests
 .git
-.idea
-*.iml
-.mvn
+.github
+.env*
+coverage
+*.log
+npm-debug.log*
