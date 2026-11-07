@@ -23,6 +23,11 @@
     "rag",
     "gemini"
   ],
-  "author": "JanSahay Contributors",
+  "author": "Dharshan Mende (https://github.com/dharshanmende-afk)",
+  "homepage": "https://github.com/dharshanmende-afk/JanSahay#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dharshanmende-afk/JanSahay.git"
+  },
   "license": "MIT"
 }

@@ -4,6 +4,7 @@
 > An open-source, citizen-centric GovTech platform that bridges the gap between Indian citizens and public welfare programs through deterministic eligibility evaluation, automated document deduplication, statutory 9-point document acquisition roadmaps, and grounded multilingual AI assistance in **English, Marathi (मराठी), and Hindi (हिंदी)**.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Maintainer](https://img.shields.io/badge/Maintainer-dharshanmende--afk-orange.svg)](https://github.com/dharshanmende-afk)
 [![Frontend](https://img.shields.io/badge/Frontend-React_18_%7C_Vite-61dafb.svg)](client)
 [![Backend](https://img.shields.io/badge/Backend-Node.js_%7C_Express-339933.svg)](server)
 [![Database](https://img.shields.io/badge/Database-PostgreSQL-4169e1.svg)](server/src/db)
@@ -137,7 +138,7 @@ flowchart TD
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/aryan-pawar2006/JanSahay.git
+   git clone https://github.com/dharshanmende-afk/JanSahay.git
    cd JanSahay
    ```
 

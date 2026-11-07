@@ -54,7 +54,7 @@ We follow standard **Conventional Commits**:
 ### First-Time Setup
 ```bash
 # Clone the repository
-git clone https://github.com/aryan-pawar2006/JanSahay.git
+git clone https://github.com/dharshanmende-afk/JanSahay.git
 cd JanSahay
 
 # Setup environment files
