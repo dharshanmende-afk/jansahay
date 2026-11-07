@@ -2,6 +2,8 @@ import express from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
 import morgan from 'morgan';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import { config } from './config.js';
 import { db } from './db/database.js';
 import { checkPostgresConnectivity } from './db/pgClient.js';
@@ -144,15 +146,30 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Start Server
-app.listen(config.port, () => {
-  console.log('=======================================================');
-  console.log(`🇮🇳 JanSahay AI API Server running on port ${config.port}`);
-  console.log(`• Environment:     ${config.nodeEnv}`);
-  console.log(`• Health Check:    http://localhost:${config.port}/api/health`);
-  console.log(`• Schemes Catalog: http://localhost:${config.port}/api/schemes`);
-  console.log(`• Document Guides: http://localhost:${config.port}/api/documents/guides`);
-  console.log('=======================================================');
-});
+// Start Server only when executed directly (not when imported in test suites)
+const isMainModule = () => {
+  if (process.env.NODE_ENV === 'test') return false;
+  if (!process.argv[1]) return false;
+  try {
+    const currentFilePath = fileURLToPath(import.meta.url);
+    return path.resolve(process.argv[1]) === path.resolve(currentFilePath);
+  } catch {
+    return false;
+  }
+};
 
+let server = null;
+if (isMainModule()) {
+  server = app.listen(config.port, () => {
+    console.log('=======================================================');
+    console.log(`🇮🇳 JanSahay AI API Server running on port ${config.port}`);
+    console.log(`• Environment:     ${config.nodeEnv}`);
+    console.log(`• Health Check:    http://localhost:${config.port}/api/health`);
+    console.log(`• Schemes Catalog: http://localhost:${config.port}/api/schemes`);
+    console.log(`• Document Guides: http://localhost:${config.port}/api/documents/guides`);
+    console.log('=======================================================');
+  });
+}
+
+export { server };
 export default app;

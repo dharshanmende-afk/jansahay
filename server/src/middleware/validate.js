@@ -14,8 +14,9 @@ export const validate = (schema, target = 'body') => {
       next();
     } catch (err) {
       if (err instanceof ZodError) {
-        const formattedErrors = err.errors.map(e => ({
-          field: e.path.join('.'),
+        const issues = err.issues || err.errors || [];
+        const formattedErrors = issues.map(e => ({
+          field: Array.isArray(e.path) ? e.path.join('.') : String(e.path || ''),
           message: e.message
         }));
 
