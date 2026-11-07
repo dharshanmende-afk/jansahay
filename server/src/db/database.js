@@ -52,12 +52,30 @@ class Database {
   }
 
   seedInitial() {
+    const isProduction = process.env.NODE_ENV === 'production';
+
+    // In production mode, disable demo accounts entirely
+    let users = [];
+    if (!isProduction) {
+      users = initialSeedData.users || [];
+      console.log('------------------------------------------------------------------');
+      console.log('🔑 [DEV SEED] Development Demo Credentials (NODE_ENV != production)');
+      console.log('   • Administrator: admin@jansahay.gov.in (Admin@123)');
+      console.log('   • Student:       student@jansahay.ai   (Student@123)');
+      console.log('   • Farmer:        farmer@jansahay.ai    (Farmer@123)');
+      console.log('   • Business:      business@jansahay.ai  (Business@123)');
+      console.log('   ⚠️  Note: Demo accounts are automatically disabled in production.');
+      console.log('------------------------------------------------------------------');
+    } else {
+      console.log('[PROD SEED] Production mode active: Default demo accounts omitted.');
+    }
+
     this.data = {
-      users: initialSeedData.users || [],
-      profiles: initialSeedData.profiles || [],
+      users,
+      profiles: !isProduction ? (initialSeedData.profiles || []) : [],
       schemes: initialSeedData.schemes || [],
       documentGuides: initialSeedData.documentGuides || [],
-      userDocuments: initialSeedData.userDocuments || [],
+      userDocuments: !isProduction ? (initialSeedData.userDocuments || []) : [],
       updates: initialSeedData.updates || [],
       recommendations: []
     };

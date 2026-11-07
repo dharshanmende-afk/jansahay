@@ -73,13 +73,22 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ success: false, message: 'Invalid email or password' });
     }
 
-    // Allow standard bcrypt check or demo default password match
-    const isMatch = bcrypt.compareSync(password, user.passwordHash) ||
-      (password === 'Admin@123' && user.role === 'ADMIN') ||
-      (password === 'Student@123' && user.email === 'student@jansahay.ai') ||
-      (password === 'Farmer@123' && user.email === 'farmer@jansahay.ai') ||
-      (password === 'Business@123' && user.email === 'business@jansahay.ai') ||
-      (password === 'user123');
+    const isProduction = process.env.NODE_ENV === 'production';
+
+    // In production, only verify actual bcrypt hash. In dev, allow standard seed fallback.
+    let isMatch = false;
+    if (user.passwordHash) {
+      isMatch = bcrypt.compareSync(password, user.passwordHash);
+    }
+
+    if (!isMatch && !isProduction) {
+      // Development-only fallbacks
+      isMatch = (password === 'Admin@123' && user.role === 'ADMIN') ||
+        (password === 'Student@123' && user.email === 'student@jansahay.ai') ||
+        (password === 'Farmer@123' && user.email === 'farmer@jansahay.ai') ||
+        (password === 'Business@123' && user.email === 'business@jansahay.ai') ||
+        (password === 'user123');
+    }
 
     if (!isMatch) {
       return res.status(401).json({ success: false, message: 'Invalid email or password' });
@@ -106,8 +115,15 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// POST /api/auth/quick-login (Instant 1-click login for college presentation)
+// POST /api/auth/quick-login (Instant 1-click login for development / demonstration)
 router.post('/quick-login', (req, res) => {
+  if (process.env.NODE_ENV === 'production') {
+    return res.status(403).json({
+      success: false,
+      message: 'Quick login shortcuts are strictly disabled in production mode.'
+    });
+  }
+
   const { role = 'student' } = req.body;
   let email = 'student@jansahay.ai';
 

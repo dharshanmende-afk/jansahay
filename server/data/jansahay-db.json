@@ -287,9 +287,9 @@
         }
       ],
       "dataStatus": "LIVE",
-      "lastFetchedAt": "2026-11-07T16:11:37.529Z",
+      "lastFetchedAt": "2026-11-07T16:17:30.345Z",
       "portalStatus": "ONLINE",
-      "updatedAt": "2026-11-07T16:11:37.529Z"
+      "updatedAt": "2026-11-07T16:17:30.345Z"
     },
     {
       "id": 2,
@@ -473,7 +473,7 @@
       ],
       "dataStatus": "CACHED",
       "portalStatus": "UNREACHABLE",
-      "updatedAt": "2026-11-07T16:11:37.343Z"
+      "updatedAt": "2026-11-07T16:17:30.151Z"
     },
     {
       "id": 4,
@@ -1490,9 +1490,9 @@
         }
       ],
       "dataStatus": "LIVE",
-      "lastFetchedAt": "2026-11-07T16:11:44.218Z",
+      "lastFetchedAt": "2026-11-07T16:17:37.209Z",
       "portalStatus": "ONLINE",
-      "updatedAt": "2026-11-07T16:11:44.218Z"
+      "updatedAt": "2026-11-07T16:17:37.209Z"
     },
     {
       "id": 19,
