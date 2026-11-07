@@ -145,6 +145,8 @@ export const updateService = {
 
 export const adminService = {
   getDashboardStats: () => api.get('/admin/dashboard'),
+  getAnalytics: () => api.get('/admin/analytics'),
+  syncAndAnalyze: () => api.post('/admin/sync-and-analyze'),
   getUsers: () => api.get('/admin/users'),
   getSchemes: () => api.get('/admin/schemes'),
   createScheme: (data) => api.post('/admin/schemes', data),

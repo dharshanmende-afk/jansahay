@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { documentService, documentGuideService } from '../services/api';
 import { DocumentGuideModal } from '../components/DocumentGuideModal';
+import { exportDocumentChecklistPdf } from '../utils/pdfExport';
 import {
   CheckCircle,
   AlertTriangle,
@@ -15,6 +16,7 @@ import {
   BookOpen,
   Filter,
   Printer,
+  Download,
   MapPin
 } from 'lucide-react';
 
@@ -124,6 +126,13 @@ export const DocumentPreparationPage = () => {
           </div>
 
           <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+            <button
+              onClick={() => exportDocumentChecklistPdf(user?.name, dashboard)}
+              className="btn btn-secondary"
+              style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: 700 }}
+              title="Download structured official PDF checklist with RTS timelines and deduplicated documents">
+              <Download size={16} /> Export PDF Checklist
+            </button>
             <button
               onClick={() => window.print()}
               className="btn btn-outline"

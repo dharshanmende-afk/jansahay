@@ -368,13 +368,13 @@ export const AIChatDrawer = ({ currentScheme = null }) => {
 
               <button
                 onClick={handleClearChat}
-                title="Clear Chat Conversation"
+                title="Clear Chat Conversation" aria-label="Clear chat conversation"
                 style={{ background: 'rgba(255,255,255,0.15)', border: 'none', borderRadius: '6px', padding: '5px', color: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
                 <Trash2 size={13} />
               </button>
               <button
                 onClick={() => setIsOpen(false)}
-                title="Close Chat Drawer"
+                title="Close Chat Drawer" aria-label="Close chat assistant"
                 style={{ background: 'rgba(255,255,255,0.15)', border: 'none', borderRadius: '9999px', width: '26px', height: '26px', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
                 <X size={15} />
               </button>

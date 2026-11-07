@@ -1689,6 +1689,243 @@ export const initialSeedData = {
       applicationGuides: [
         { stepNumber: 1, title: "Enroll via Bank / Net Banking", instruction: "Login to mobile banking or visit home branch to submit one-page consent form for annual auto-debit of ₹436.", sourceUrl: "https://jansuraksha.gov.in" }
       ]
+    },
+    {
+      id: 43,
+      name: "Pradhan Mantri Ujjwala Yojana 2.0 (PMUY 2.0)",
+      description: "Flagship clean cooking fuel initiative providing deposit-free LPG connection, first LPG refill, and hotplate/stove free of cost to adult women belonging to low-income households.",
+      category: "WOMEN_EMPOWERMENT",
+      governmentLevel: "CENTRAL",
+      state: "All India",
+      targetBeneficiaries: "Adult women belonging to BPL/Antyodaya households or poor families without existing LPG connection.",
+      ageCondition: "Woman applicant must be at least 18 years of age.",
+      educationCondition: "No formal education condition.",
+      incomeCondition: "Annual family income within BPL / NFSA criteria (Below ₹2 Lakh).",
+      benefit: "Deposit-free LPG connection (security deposit waiver of ₹1,600), free first refill cylinder, and complimentary two-burner stove with targeted subsidy of ₹300 per refill.",
+      sourceUrl: "https://www.pmuy.gov.in",
+      lastVerified: "2026-03-01",
+      active: true, isDemoData: false, verificationStatus: "VERIFIED",
+      rules: [
+        { field: "category", operator: "IN", value: "GENERAL_CITIZEN,FARMER,BUSINESS_OWNER", description: "BPL or low-income household", required: true },
+        { field: "incomerange", operator: "IN", value: "BELOW_1_LAKH,BELOW_2_LAKH", description: "Low-income family without LPG connection", required: false }
+      ],
+      requiredDocuments: [
+        { id: 4401, documentType: "AADHAAR_CARD", documentName: "Aadhaar Card of Applicant Woman", purpose: "Biometric e-KYC and age proof", requiredFlag: true, issuingAuthority: "UIDAI" },
+        { id: 4402, documentType: "RATION_CARD", documentName: "Ration Card / Family Composition Certificate", purpose: "Proof of BPL status and family members list", requiredFlag: true, issuingAuthority: "Food & Civil Supplies Dept" },
+        { id: 4403, documentType: "BANK_PASSBOOK", documentName: "Bank Account Passbook (Aadhaar Seeded)", purpose: "Direct transfer of LPG subsidy", requiredFlag: true, issuingAuthority: "Bank" }
+      ],
+      applicationGuides: [
+        { stepNumber: 1, title: "Online Application or Distributor Visit", instruction: "Apply online at pmuy.gov.in or submit Form 1 at nearest Indane, Bharatgas, or HP Gas distributor.", sourceUrl: "https://www.pmuy.gov.in" },
+        { stepNumber: 2, title: "De-duplication Check", instruction: "OMC verifies nationwide database to ensure family does not already hold another LPG connection.", sourceUrl: "https://www.pmuy.gov.in" },
+        { stepNumber: 3, title: "Free Gas Cylinder & Stove Delivery", instruction: "Authorized distributor delivers stove, cylinder, and regulator with safety demonstration.", sourceUrl: "https://www.pmuy.gov.in" }
+      ]
+    },
+    {
+      id: 44,
+      name: "Pradhan Mantri Awas Yojana - Urban 2.0 (PMAY-U 2.0)",
+      description: "Comprehensive urban housing mission ensuring all-weather pucca houses with tap water, toilet, and electricity for urban families belonging to EWS, LIG, and Middle Income Groups.",
+      category: "HOUSING",
+      governmentLevel: "CENTRAL",
+      state: "All India",
+      targetBeneficiaries: "Urban families who do not own a pucca house anywhere in India, with priority for women, senior citizens, and differently abled.",
+      ageCondition: "Adult citizen aged 18+.",
+      educationCondition: "None.",
+      incomeCondition: "EWS up to ₹3 Lakh, LIG ₹3-6 Lakh, MIG ₹6-9 Lakh annual household income.",
+      benefit: "Interest subsidy of up to ₹1.80 Lakh on home loans for 5-year tenure (Credit Linked Subsidy), or ₹2.50 Lakh direct financial assistance for Beneficiary-Led Construction.",
+      sourceUrl: "https://pmay-urban.gov.in",
+      lastVerified: "2026-03-01",
+      active: true, isDemoData: false, verificationStatus: "VERIFIED",
+      rules: [
+        { field: "category", operator: "IN", value: "GENERAL_CITIZEN,STUDENT,BUSINESS_OWNER,FARMER", description: "Urban resident without pucca house", required: true },
+        { field: "incomerange", operator: "IN", value: "BELOW_1_LAKH,BELOW_2_LAKH,BELOW_5_LAKH,BELOW_8_LAKH", description: "Income within EWS/LIG/MIG limits", required: false }
+      ],
+      requiredDocuments: [
+        { id: 4501, documentType: "AADHAAR_CARD", documentName: "Aadhaar Card of Family Members", purpose: "e-KYC and identification", requiredFlag: true, issuingAuthority: "UIDAI" },
+        { id: 4502, documentType: "INCOME_CERTIFICATE", documentName: "Income Certificate / Salary Slip / ITR", purpose: "Proof of income category (EWS/LIG)", requiredFlag: true, issuingAuthority: "Tehsildar / Employer" },
+        { id: 4503, documentType: "DOMICILE_CERTIFICATE", documentName: "Urban Residence Proof / Domicile Certificate", purpose: "Proof of residence in statutory town", requiredFlag: true, issuingAuthority: "Municipal Corporation / Tehsildar" }
+      ],
+      applicationGuides: [
+        { stepNumber: 1, title: "Register on PMAY-U 2.0 Unified Portal", instruction: "Visit pmay-urban.gov.in and click Citizen Assessment using Aadhaar number.", sourceUrl: "https://pmay-urban.gov.in" },
+        { stepNumber: 2, title: "Municipal Ward Verification", instruction: "Urban Local Body (ULB) conducts physical survey and verifies property records.", sourceUrl: "https://pmay-urban.gov.in" },
+        { stepNumber: 3, title: "Subsidy Credit via Direct Benefit Transfer", instruction: "Subsidy is directly credited to your housing loan account reducing EMI burden.", sourceUrl: "https://pmay-urban.gov.in" }
+      ]
+    },
+    {
+      id: 45,
+      name: "PM Street Vendor's AtmaNirbhar Nidhi (PM SVANidhi)",
+      description: "Special micro-credit facility empowering urban and peri-urban street vendors to resume livelihoods through collateral-free affordable working capital loans with digital incentives.",
+      category: "BUSINESS",
+      governmentLevel: "CENTRAL",
+      state: "All India",
+      targetBeneficiaries: "Urban and semi-urban street vendors, hawkers, thela-walas, and artisans engaged in vending.",
+      ageCondition: "Adult vendors aged 18+.",
+      educationCondition: "None.",
+      incomeCondition: "Open to self-employed street vendors holding Certificate of Vending / LOR.",
+      benefit: "First tranche collateral-free working capital loan of ₹10,000; upon timely repayment eligible for ₹20,000 second tranche and up to ₹50,000 third tranche with 7% interest subsidy and ₹1,200/year cashback on digital transactions.",
+      sourceUrl: "https://pmsvanidhi.mohua.gov.in",
+      lastVerified: "2026-03-01",
+      active: true, isDemoData: false, verificationStatus: "VERIFIED",
+      rules: [
+        { field: "category", operator: "IN", value: "BUSINESS_OWNER,GENERAL_CITIZEN", description: "Street vendor or micro enterprise", required: true }
+      ],
+      requiredDocuments: [
+        { id: 4601, documentType: "AADHAAR_CARD", documentName: "Aadhaar Card", purpose: "Identity and mobile linkage", requiredFlag: true, issuingAuthority: "UIDAI" },
+        { id: 4602, documentType: "BANK_PASSBOOK", documentName: "Bank Account Passbook / QR Code", purpose: "Loan disbursement and digital payment linkage", requiredFlag: true, issuingAuthority: "Bank" },
+        { id: 4603, documentType: "VOTER_ID", documentName: "Voter ID / Certificate of Vending (COV)", purpose: "Proof of street vending activity", requiredFlag: true, issuingAuthority: "Urban Local Body (ULB)" }
+      ],
+      applicationGuides: [
+        { stepNumber: 1, title: "Apply Online via SVANidhi Portal or CSC", instruction: "Submit application with ULB vending certificate or Letter of Recommendation (LoR).", sourceUrl: "https://pmsvanidhi.mohua.gov.in" },
+        { stepNumber: 2, title: "Select Preferred Lending Bank / NBFC", instruction: "Choose public sector bank, private bank, or microfinance institution for fast credit processing.", sourceUrl: "https://pmsvanidhi.mohua.gov.in" },
+        { stepNumber: 3, title: "Direct Account Disbursement & QR Activation", instruction: "Loan is disbursed into bank account and digital QR code is set up for cashback rewards.", sourceUrl: "https://pmsvanidhi.mohua.gov.in" }
+      ]
+    },
+    {
+      id: 46,
+      name: "Stand-Up India Scheme for SC/ST and Women Entrepreneurs",
+      description: "Promotes entrepreneurship at the grassroots level by facilitating bank loans between ₹10 lakh and ₹1 crore to at least one SC or ST borrower and at least one woman borrower per bank branch.",
+      category: "BUSINESS",
+      governmentLevel: "CENTRAL",
+      state: "All India",
+      targetBeneficiaries: "SC, ST, and Women entrepreneurs setting up greenfield ventures in manufacturing, services, agri-allied, or trading sectors.",
+      ageCondition: "18 years and above.",
+      educationCondition: "Entrepreneurial capability and viable business project.",
+      incomeCondition: "Borrower should not be in default to any bank or financial institution.",
+      benefit: "Composite loan between ₹10 Lakh and ₹1 Crore covering term loan and working capital (up to 85% of project cost) with concessional interest rates and credit guarantee cover.",
+      sourceUrl: "https://www.standupmitra.in",
+      lastVerified: "2026-03-01",
+      active: true, isDemoData: false, verificationStatus: "VERIFIED",
+      rules: [
+        { field: "category", operator: "EQUALS", value: "BUSINESS_OWNER", description: "Greenfield entrepreneur", required: true }
+      ],
+      requiredDocuments: [
+        { id: 4701, documentType: "AADHAAR_CARD", documentName: "Aadhaar Card and PAN Card", purpose: "KYC and identity verification", requiredFlag: true, issuingAuthority: "UIDAI / IT Dept" },
+        { id: 4702, documentType: "CASTE_CERTIFICATE", documentName: "Caste Certificate (for SC/ST applicants)", purpose: "Category eligibility verification", requiredFlag: false, issuingAuthority: "Sub-Divisional Officer" },
+        { id: 4703, documentType: "LAND_7_12_EXTRACT", documentName: "Project Report & Business Unit Lease/Ownership Proof", purpose: "Viability appraisal by bank", requiredFlag: true, issuingAuthority: "Chartered Accountant / Revenue Dept" }
+      ],
+      applicationGuides: [
+        { stepNumber: 1, title: "Register on Stand-Up Mitra Portal", instruction: "Create borrower profile on standupmitra.in and upload Detailed Project Report (DPR).", sourceUrl: "https://www.standupmitra.in" },
+        { stepNumber: 2, title: "Handholding & Credit Mentorship", instruction: "Connect with Lead District Manager (LDM) or SIDBI desk for credit facilitation support.", sourceUrl: "https://www.standupmitra.in" },
+        { stepNumber: 3, title: "Bank Sanction & Disbursement", instruction: "Bank sanctions composite loan under Stand-Up India credit guarantee coverage.", sourceUrl: "https://www.standupmitra.in" }
+      ]
+    },
+    {
+      id: 47,
+      name: "Mahatma Jyotirao Phule Jan Arogya Yojana (MJPJAY - Maharashtra)",
+      description: "State-wide universal health assurance scheme providing comprehensive cashless hospitalization and surgical treatment to all resident families of Maharashtra across 1,356 medical procedures.",
+      category: "HEALTH",
+      governmentLevel: "STATE",
+      state: "Maharashtra",
+      targetBeneficiaries: "All resident families of Maharashtra holding Ration Card (Yellow, Saffron, or White) or official Maharashtra domicile proof.",
+      ageCondition: "All age groups covered from newborn to senior citizens.",
+      educationCondition: "None.",
+      incomeCondition: "Universal coverage across Maharashtra (expanded coverage up to ₹5 Lakh without income capping).",
+      benefit: "Cashless medical treatment, surgical operations, post-operative care, and medications up to ₹5,00,000 per family per year across network public and private specialty hospitals.",
+      sourceUrl: "https://www.jeevandayee.gov.in",
+      lastVerified: "2026-03-01",
+      active: true, isDemoData: false, verificationStatus: "VERIFIED",
+      rules: [
+        { field: "state", operator: "EQUALS", value: "Maharashtra", description: "Resident of Maharashtra", required: true },
+        { field: "category", operator: "IN", value: "GENERAL_CITIZEN,FARMER,STUDENT,BUSINESS_OWNER", description: "Any Maharashtra resident family", required: true }
+      ],
+      requiredDocuments: [
+        { id: 4801, documentType: "AADHAAR_CARD", documentName: "Aadhaar Card of Patient", purpose: "Biometric e-KYC at hospital Aarogyamitra desk", requiredFlag: true, issuingAuthority: "UIDAI" },
+        { id: 4802, documentType: "RATION_CARD", documentName: "Maharashtra Ration Card (Yellow / Saffron / White)", purpose: "Proof of family unit", requiredFlag: true, issuingAuthority: "Food & Civil Supplies Dept Maharashtra" },
+        { id: 4803, documentType: "DOMICILE_CERTIFICATE", documentName: "Maharashtra Domicile Certificate", purpose: "State residency verification", requiredFlag: false, issuingAuthority: "Tehsildar / SDO" }
+      ],
+      applicationGuides: [
+        { stepNumber: 1, title: "Approach Hospital Aarogyamitra", instruction: "Visit helpdesk of any empaneled hospital with Aadhaar and Ration Card for instant biometric verification.", sourceUrl: "https://www.jeevandayee.gov.in" },
+        { stepNumber: 2, title: "Specialist Diagnosis & Pre-Authorization", instruction: "Hospital pre-authorizes treatment online with State Health Assurance Society within 12 hours.", sourceUrl: "https://www.jeevandayee.gov.in" },
+        { stepNumber: 3, title: "100% Cashless Treatment & Discharge", instruction: "Complete cashless surgery, medicines, and diagnostic tests with free post-operative follow-up.", sourceUrl: "https://www.jeevandayee.gov.in" }
+      ]
+    },
+    {
+      id: 48,
+      name: "Sukanya Samriddhi Yojana (SSY)",
+      description: "High-yield government-backed small savings scheme designed specifically for parents of girl children, offering highest tax-exempt interest rates and guaranteed financial security for higher education and marriage.",
+      category: "WOMEN_EMPOWERMENT",
+      governmentLevel: "CENTRAL",
+      state: "All India",
+      targetBeneficiaries: "Parents or legal guardians of a girl child from her birth until she reaches the age of 10 years.",
+      ageCondition: "Girl child below 10 years of age at account opening.",
+      educationCondition: "None.",
+      incomeCondition: "Open to all families (maximum 2 accounts per family, one for each girl child).",
+      benefit: "Attractive sovereign interest rate (currently 8.2% p.a. compounded annually), triple tax exemption under Section 80C (EEE status), and maturity corpus after 21 years with 50% partial withdrawal allowed for college education at age 18.",
+      sourceUrl: "https://www.indiapost.gov.in",
+      lastVerified: "2026-03-01",
+      active: true, isDemoData: false, verificationStatus: "VERIFIED",
+      rules: [
+        { field: "category", operator: "IN", value: "GENERAL_CITIZEN,FARMER,BUSINESS_OWNER,STUDENT", description: "Parent or guardian of girl child below 10", required: true }
+      ],
+      requiredDocuments: [
+        { id: 4901, documentType: "BIRTH_CERTIFICATE", documentName: "Birth Certificate of the Girl Child", purpose: "Proof of age and parentage", requiredFlag: true, issuingAuthority: "Municipal Corporation / Gram Panchayat" },
+        { id: 4902, documentType: "AADHAAR_CARD", documentName: "Aadhaar Card and PAN Card of Parent / Guardian", purpose: "KYC verification of depositor", requiredFlag: true, issuingAuthority: "UIDAI / IT Dept" },
+        { id: 4903, documentType: "BANK_PASSBOOK", documentName: "Initial Deposit Proof (Minimum ₹250)", purpose: "Account opening deposit receipt", requiredFlag: true, issuingAuthority: "Post Office / Bank" }
+      ],
+      applicationGuides: [
+        { stepNumber: 1, title: "Collect Form SSA-1 at Post Office or Bank", instruction: "Visit nearest India Post Office branch or designated nationalized/private bank branch.", sourceUrl: "https://www.indiapost.gov.in" },
+        { stepNumber: 2, title: "Submit Birth Proof and KYC Documents", instruction: "Attach child's birth certificate and guardian Aadhaar/PAN with minimum deposit of ₹250.", sourceUrl: "https://www.indiapost.gov.in" },
+        { stepNumber: 3, title: "Passbook Issuance", instruction: "Collect passbook with account number and set up standing instruction or IPPB online deposit.", sourceUrl: "https://www.indiapost.gov.in" }
+      ]
+    },
+    {
+      id: 49,
+      name: "Mukhyamantri Saur Krushi Vahini Yojana 2.0 (MSKVY 2.0 - Mission 2025)",
+      description: "Revolutionary Maharashtra clean power program providing reliable 8-hour daytime electricity to farmers for irrigation by solarizing agricultural feeders, while offering steady lease rent for uncultivated land.",
+      category: "AGRICULTURE",
+      governmentLevel: "STATE",
+      state: "Maharashtra",
+      targetBeneficiaries: "Farmers in Maharashtra desiring daytime power for irrigation and landholders leasing fallow land for community solar projects.",
+      ageCondition: "Landholder farmer aged 18+.",
+      educationCondition: "None.",
+      incomeCondition: "Open to all agricultural landholders in Maharashtra.",
+      benefit: "Guaranteed daytime uninterrupted electricity for irrigation pumps, plus annual lease income of ₹1,25,000 per acre (with 3% yearly escalation) for farmers leasing unproductive land to MSEDCL solar power developers.",
+      sourceUrl: "https://www.mahadiscom.in",
+      lastVerified: "2026-03-01",
+      active: true, isDemoData: false, verificationStatus: "VERIFIED",
+      rules: [
+        { field: "state", operator: "EQUALS", value: "Maharashtra", description: "Resident of Maharashtra", required: true },
+        { field: "category", operator: "EQUALS", value: "FARMER", description: "Agricultural landholder", required: true }
+      ],
+      requiredDocuments: [
+        { id: 5001, documentType: "LAND_7_12_EXTRACT", documentName: "7/12 Extract (Saat Baara) and 8A Record of Rights", purpose: "Proof of agricultural land ownership and area", requiredFlag: true, issuingAuthority: "Revenue Dept / Mahabhumi" },
+        { id: 5002, documentType: "AADHAAR_CARD", documentName: "Aadhaar Card", purpose: "Identity and DBT verification", requiredFlag: true, issuingAuthority: "UIDAI" },
+        { id: 5003, documentType: "BANK_PASSBOOK", documentName: "Bank Account Passbook (Aadhaar linked)", purpose: "Lease rental DBT remittance", requiredFlag: true, issuingAuthority: "Bank" }
+      ],
+      applicationGuides: [
+        { stepNumber: 1, title: "Register on Mahadiscom Land Leasing Portal", instruction: "Visit mahadiscom.in MSKVY portal to offer land parcel within 5-10 km radius of substation.", sourceUrl: "https://www.mahadiscom.in" },
+        { stepNumber: 2, title: "Joint Physical Verification by MSEDCL & Talathi", instruction: "Technical team surveys land contour and confirms grid connectivity.", sourceUrl: "https://www.mahadiscom.in" },
+        { stepNumber: 3, title: "Agreement Signing & Annual Lease Remittance", instruction: "Sign 25-year lease agreement with guaranteed upfront advance and yearly payments.", sourceUrl: "https://www.mahadiscom.in" }
+      ]
+    },
+    {
+      id: 50,
+      name: "National Apprenticeship Promotion Scheme (NAPS-2)",
+      description: "Pan-India central scheme to boost technical and vocational skills by incentivizing employers to engage apprentices with direct government stipend support deposited directly into trainees' bank accounts.",
+      category: "EDUCATION",
+      governmentLevel: "CENTRAL",
+      state: "All India",
+      targetBeneficiaries: "ITI passouts, diploma holders, graduates, and 10th/12th students seeking practical industry apprenticeship.",
+      ageCondition: "Minimum 14 years of age (18 years for designated hazardous industries).",
+      educationCondition: "Passed 5th, 8th, 10th, 12th, ITI, Diploma, or Degree course.",
+      incomeCondition: "Open to all candidates irrespective of family income.",
+      benefit: "Direct government stipend support of 25% of prescribed stipend up to ₹1,500 per month deposited via DBT into candidate's Aadhaar-linked bank account, plus recognized National Apprenticeship Certificate (NAC).",
+      sourceUrl: "https://www.apprenticeshipindia.gov.in",
+      lastVerified: "2026-03-01",
+      active: true, isDemoData: false, verificationStatus: "VERIFIED",
+      rules: [
+        { field: "category", operator: "IN", value: "STUDENT,GENERAL_CITIZEN", description: "Apprenticeship aspirant", required: true },
+        { field: "educationlevel", operator: "IN", value: "SECONDARY,HIGHER_SECONDARY,DIPLOMA,UNDERGRADUATE,POSTGRADUATE", description: "Enrolled student or graduate", required: false }
+      ],
+      requiredDocuments: [
+        { id: 5101, documentType: "AADHAAR_CARD", documentName: "Aadhaar Card", purpose: "Biometric e-KYC and DBT mandate", requiredFlag: true, issuingAuthority: "UIDAI" },
+        { id: 5102, documentType: "BIRTH_CERTIFICATE", documentName: "Educational Qualification Certificate & Marksheet", purpose: "Proof of eligible educational qualification", requiredFlag: true, issuingAuthority: "School / Board / University" },
+        { id: 5103, documentType: "BANK_PASSBOOK", documentName: "Bank Passbook with Aadhaar Seeding", purpose: "Government stipend DBT credit", requiredFlag: true, issuingAuthority: "Bank" }
+      ],
+      applicationGuides: [
+        { stepNumber: 1, title: "Create Candidate Profile on Apprenticeship Portal", instruction: "Visit apprenticeshipindia.gov.in and complete 100% profile with Aadhaar e-KYC.", sourceUrl: "https://www.apprenticeshipindia.gov.in" },
+        { stepNumber: 2, title: "Search & Apply for Apprenticeship Opportunities", instruction: "Filter vacancies by trade, location, and industry sector to submit online application.", sourceUrl: "https://www.apprenticeshipindia.gov.in" },
+        { stepNumber: 3, title: "Sign Apprenticeship Contract & Receive Monthly DBT", instruction: "Execute digital contract with establishment and receive monthly stipend directly into bank account.", sourceUrl: "https://www.apprenticeshipindia.gov.in" }
+      ]
     }
   ],
 

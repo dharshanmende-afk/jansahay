@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { recommendationService } from '../services/api';
+import { exportRecommendationsPdf } from '../utils/pdfExport';
 import {
   Sparkles,
   CheckCircle,
@@ -12,7 +13,8 @@ import {
   FileText,
   Building,
   ExternalLink,
-  Bot
+  Bot,
+  Download
 } from 'lucide-react';
 
 export const RecommendationsPage = () => {
@@ -91,7 +93,15 @@ export const RecommendationsPage = () => {
             </p>
           </div>
 
-          <div style={{ display: 'flex', gap: '0.75rem' }}>
+          <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+            {recommendations.length > 0 && (
+              <button
+                onClick={() => exportRecommendationsPdf(user?.name, recommendations)}
+                className="btn btn-primary"
+                style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: '#1e3a8a' }}>
+                <Download size={16} /> Export PDF Dossier
+              </button>
+            )}
             <button
               onClick={handleForceRefresh}
               disabled={refreshing}

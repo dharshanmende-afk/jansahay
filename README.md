@@ -36,7 +36,10 @@ Every year, thousands of welfare schemes and financial subsidies launched by Cen
 | **🌐 Native Trilingual Experience** | Instant full-app language toggling across **English**, **Marathi (मराठी)**, and **Hindi (हिंदी)** for all navigation, scheme summaries, and document requirements. |
 | **🤖 Source-Grounded Multilingual AI** | Conversational drawer that answers citizen queries strictly against verified scheme data and RTS rules with explicit citations, avoiding AI hallucinations. |
 | **📡 Real-Time Government Data Sync** | Continuous ingestion service checking updates from official portals and publishing live notifications and ticker alerts. |
-| **🛡️ Administrative Console** | Granular dashboard for public servants to inspect platform telemetry, verify new document guides, and manage scheme catalogs. |
+| **🛡️ Administrative Console & Policy Analytics** | Granular dashboard for public servants to inspect platform telemetry, view in-demand schemes, citizen missing document bottlenecks, and language usage. |
+| **⚡ Live AI Sync & Analyzation** | One-click official government portal scraper and automatic RAG vector knowledge base re-indexing pipeline. |
+| **📄 PDF Dossier & Checklist Export** | Client-side vector PDF generation using jsPDF for official citizen scheme eligibility dossiers and deduplicated checklists. |
+| **📱 Progressive Web App (PWA)** | Installable web app with Service Worker offline caching for rural and low-connectivity scheme catalog access. |
 
 ---
 
