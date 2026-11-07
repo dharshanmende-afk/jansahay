@@ -221,9 +221,9 @@
         }
       ],
       "dataStatus": "LIVE",
-      "lastFetchedAt": "2026-11-07T16:47:20.868Z",
+      "lastFetchedAt": "2026-11-07T17:21:12.139Z",
       "portalStatus": "ONLINE",
-      "updatedAt": "2026-11-07T16:47:20.869Z"
+      "updatedAt": "2026-11-07T17:21:12.139Z"
     },
     {
       "id": 2,
@@ -407,7 +407,7 @@
       ],
       "dataStatus": "CACHED",
       "portalStatus": "UNREACHABLE",
-      "updatedAt": "2026-11-07T16:47:20.253Z"
+      "updatedAt": "2026-11-07T17:21:12.015Z"
     },
     {
       "id": 4,
@@ -1424,9 +1424,9 @@
         }
       ],
       "dataStatus": "LIVE",
-      "lastFetchedAt": "2026-11-07T16:47:27.921Z",
+      "lastFetchedAt": "2026-11-07T17:21:18.824Z",
       "portalStatus": "ONLINE",
-      "updatedAt": "2026-11-07T16:47:27.921Z"
+      "updatedAt": "2026-11-07T17:21:18.824Z"
     },
     {
       "id": 19,
@@ -2079,6 +2079,838 @@
           "sourceUrl": "https://pmvishwakarma.gov.in"
         }
       ]
+    },
+    {
+      "id": 31,
+      "name": "PM Surya Ghar: Muft Bijli Yojana",
+      "description": "Central rooftop solar electricity scheme providing up to 300 units of free electricity every month with central capital subsidy up to ₹78,000 for residential households across India.",
+      "category": "HOUSING",
+      "governmentLevel": "CENTRAL",
+      "state": "All India",
+      "targetBeneficiaries": "Indian residential households with suitable rooftop space and valid electricity connection.",
+      "ageCondition": "18 years and above (household electricity connection holder).",
+      "educationCondition": "No minimum education required.",
+      "incomeCondition": "Open to all income slabs; priority for lower & middle class families.",
+      "benefit": "Up to 300 free electricity units/month, central capital subsidy: ₹30,000 for 1kW, ₹60,000 for 2kW, ₹78,000 for 3kW or higher systems.",
+      "sourceUrl": "https://pmsuryaghar.gov.in",
+      "lastVerified": "2026-03-01",
+      "active": true,
+      "isDemoData": false,
+      "verificationStatus": "VERIFIED",
+      "rules": [
+        {
+          "field": "category",
+          "operator": "IN",
+          "value": "GENERAL_CITIZEN,FARMER,BUSINESS_OWNER",
+          "description": "Residential electricity consumer",
+          "required": true
+        }
+      ],
+      "requiredDocuments": [
+        {
+          "id": 3201,
+          "documentType": "ELECTRICITY_BILL",
+          "documentName": "Latest Electricity Bill",
+          "purpose": "Consumer account number verification",
+          "requiredFlag": true,
+          "issuingAuthority": "DISCOM / MSEDCL"
+        },
+        {
+          "id": 3202,
+          "documentType": "AADHAAR_CARD",
+          "documentName": "Aadhaar Card of Electricity Consumer",
+          "purpose": "Identity proof",
+          "requiredFlag": true,
+          "issuingAuthority": "UIDAI"
+        },
+        {
+          "id": 3203,
+          "documentType": "BANK_PASSBOOK",
+          "documentName": "Cancelled Cheque / Bank Passbook",
+          "purpose": "Direct Benefit Transfer of subsidy",
+          "requiredFlag": true,
+          "issuingAuthority": "Bank"
+        }
+      ],
+      "applicationGuides": [
+        {
+          "stepNumber": 1,
+          "title": "Register on National Solar Portal",
+          "instruction": "Visit pmsuryaghar.gov.in, select your state electricity distribution company (DISCOM) and enter consumer number.",
+          "sourceUrl": "https://pmsuryaghar.gov.in"
+        },
+        {
+          "stepNumber": 2,
+          "title": "Choose Registered Solar Vendor",
+          "instruction": "Select empanelled vendor, get technical feasibility approval from DISCOM, and install solar panels.",
+          "sourceUrl": "https://pmsuryaghar.gov.in"
+        },
+        {
+          "stepNumber": 3,
+          "title": "Net Metering & Subsidy Credit",
+          "instruction": "DISCOM inspects installation and installs net-meter. Subsidy is credited to bank account within 30 days.",
+          "sourceUrl": "https://pmsuryaghar.gov.in"
+        }
+      ]
+    },
+    {
+      "id": 32,
+      "name": "Mukhyamantri Vayoshri Yojana (Maharashtra)",
+      "description": "State welfare assistance scheme providing ₹3,000 directly to senior citizens aged 65 years and above in Maharashtra suffering from age-related physical disabilities to purchase assistive aids.",
+      "category": "HEALTHCARE",
+      "governmentLevel": "STATE",
+      "state": "Maharashtra",
+      "targetBeneficiaries": "Senior citizens aged 65 and above residing in Maharashtra with annual family income up to ₹2 Lakh.",
+      "ageCondition": "65 years of age or older.",
+      "educationCondition": "No education criteria.",
+      "incomeCondition": "Annual family income must not exceed ₹2,00,000.",
+      "benefit": "₹3,000 one-time DBT cash assistance into bank account for purchasing spectacles, walking sticks, wheelchairs, folding commodes, cervical collars, hearing aids.",
+      "sourceUrl": "https://sjsa.maharashtra.gov.in",
+      "lastVerified": "2026-03-01",
+      "active": true,
+      "isDemoData": false,
+      "verificationStatus": "VERIFIED",
+      "rules": [
+        {
+          "field": "state",
+          "operator": "EQUALS",
+          "value": "Maharashtra",
+          "description": "Resident of Maharashtra",
+          "required": true
+        },
+        {
+          "field": "category",
+          "operator": "IN",
+          "value": "SENIOR_CITIZEN,GENERAL_CITIZEN",
+          "description": "Senior citizen aged 65+",
+          "required": true
+        },
+        {
+          "field": "incomerange",
+          "operator": "IN",
+          "value": "BELOW_1_LAKH,BELOW_2_LAKH",
+          "description": "Family annual income up to ₹2 Lakh",
+          "required": true
+        }
+      ],
+      "requiredDocuments": [
+        {
+          "id": 3301,
+          "documentType": "AADHAAR_CARD",
+          "documentName": "Aadhaar Card",
+          "purpose": "Proof of Age (65+) and identity",
+          "requiredFlag": true,
+          "issuingAuthority": "UIDAI"
+        },
+        {
+          "id": 3302,
+          "documentType": "INCOME_CERTIFICATE",
+          "documentName": "Income Certificate (Below ₹2 Lakh)",
+          "purpose": "Annual income proof",
+          "requiredFlag": true,
+          "issuingAuthority": "Tehsildar"
+        },
+        {
+          "id": 3303,
+          "documentType": "DOMICILE_CERTIFICATE",
+          "documentName": "Domicile / Resident Certificate",
+          "purpose": "Maharashtra residency proof",
+          "requiredFlag": true,
+          "issuingAuthority": "Revenue Dept"
+        },
+        {
+          "id": 3304,
+          "documentType": "MEDICAL_CERTIFICATE",
+          "documentName": "Disability / Age Infirmity Certificate",
+          "purpose": "Civil Surgeon or District Medical Officer report",
+          "requiredFlag": true,
+          "issuingAuthority": "District Hospital"
+        }
+      ],
+      "applicationGuides": [
+        {
+          "stepNumber": 1,
+          "title": "Online Registration on Aaple Sarkar",
+          "instruction": "Apply on Social Justice Department section of aaplesarkar.mahaonline.gov.in or at Setu Suvidha Kendra.",
+          "sourceUrl": "https://sjsa.maharashtra.gov.in"
+        },
+        {
+          "stepNumber": 2,
+          "title": "District Social Welfare Screening",
+          "instruction": "Scrutiny committee verifies age proof, medical certificate, and bank account for DBT payment.",
+          "sourceUrl": "https://sjsa.maharashtra.gov.in"
+        }
+      ]
+    },
+    {
+      "id": 33,
+      "name": "Mukhyamantri Yuva Karya Prashikshan Yojana (Maharashtra)",
+      "description": "State youth employment initiative offering 6 months of paid on-the-job industrial apprenticeship training with a government monthly stipend between ₹6,000 and ₹10,000 for job-seeking youth.",
+      "category": "EDUCATION",
+      "governmentLevel": "STATE",
+      "state": "Maharashtra",
+      "targetBeneficiaries": "Unemployed youth aged 18 to 35 in Maharashtra holding 12th pass, ITI, Diploma, Undergraduate, or Postgraduate qualifications.",
+      "ageCondition": "18 to 35 years.",
+      "educationCondition": "Minimum 12th Pass, ITI, Polytechnic Diploma, or Degree.",
+      "incomeCondition": "No family income ceiling.",
+      "benefit": "Monthly DBT stipend for 6 months: ₹6,000 for 12th Pass, ₹8,000 for ITI/Diploma, ₹10,000 for Graduates/Postgraduates + industrial experience certificate.",
+      "sourceUrl": "https://rojgar.mahaswayam.gov.in",
+      "lastVerified": "2026-03-01",
+      "active": true,
+      "isDemoData": false,
+      "verificationStatus": "VERIFIED",
+      "rules": [
+        {
+          "field": "state",
+          "operator": "EQUALS",
+          "value": "Maharashtra",
+          "description": "Resident of Maharashtra",
+          "required": true
+        },
+        {
+          "field": "category",
+          "operator": "IN",
+          "value": "STUDENT,GENERAL_CITIZEN",
+          "description": "Youth candidate seeking apprenticeship",
+          "required": true
+        }
+      ],
+      "requiredDocuments": [
+        {
+          "id": 3401,
+          "documentType": "AADHAAR_CARD",
+          "documentName": "Aadhaar Card",
+          "purpose": "Identity and Age verification",
+          "requiredFlag": true,
+          "issuingAuthority": "UIDAI"
+        },
+        {
+          "id": 3402,
+          "documentType": "EDUCATIONAL_MARKSHEET",
+          "documentName": "12th / ITI / Diploma / Degree Marksheet & Passing Certificate",
+          "purpose": "Stipend tier qualification",
+          "requiredFlag": true,
+          "issuingAuthority": "Board / University"
+        },
+        {
+          "id": 3403,
+          "documentType": "DOMICILE_CERTIFICATE",
+          "documentName": "Domicile Certificate of Maharashtra",
+          "purpose": "State eligibility",
+          "requiredFlag": true,
+          "issuingAuthority": "Tehsildar"
+        },
+        {
+          "id": 3404,
+          "documentType": "BANK_PASSBOOK",
+          "documentName": "Aadhaar-seeded Bank Passbook",
+          "purpose": "Direct Benefit Transfer stipend credit",
+          "requiredFlag": true,
+          "issuingAuthority": "Bank"
+        }
+      ],
+      "applicationGuides": [
+        {
+          "stepNumber": 1,
+          "title": "Register on Mahaswayam Portal",
+          "instruction": "Create citizen account on rojgar.mahaswayam.gov.in and complete your educational profile.",
+          "sourceUrl": "https://rojgar.mahaswayam.gov.in"
+        },
+        {
+          "stepNumber": 2,
+          "title": "Apply for Internship Opportunities",
+          "instruction": "Search available industry postings matching your stream in private or public sector firms.",
+          "sourceUrl": "https://rojgar.mahaswayam.gov.in"
+        },
+        {
+          "stepNumber": 3,
+          "title": "Establishment Selection & Stipend",
+          "instruction": "Upon employer interview and joining, monthly stipend is paid directly to bank account by government.",
+          "sourceUrl": "https://rojgar.mahaswayam.gov.in"
+        }
+      ]
+    },
+    {
+      "id": 34,
+      "name": "Savitribai Phule Scholarship for SC/VJNT Girls (Maharashtra)",
+      "description": "State educational incentive scholarship to eliminate school dropouts among girl students belonging to Scheduled Castes (SC), VJNT, and SBC categories studying in classes 5th to 10th standard.",
+      "category": "EDUCATION",
+      "governmentLevel": "STATE",
+      "state": "Maharashtra",
+      "targetBeneficiaries": "Girl students belonging to SC, VJNT, and SBC categories studying in recognized government or aided schools in Maharashtra.",
+      "ageCondition": "School-going age (10 to 16 years).",
+      "educationCondition": "Enrolled in 5th to 10th standard.",
+      "incomeCondition": "No income limit criteria (Zero income restriction).",
+      "benefit": "₹60 per month for classes 5th to 7th (10 months = ₹600/year); ₹100 per month for classes 8th to 10th (10 months = ₹1,000/year).",
+      "sourceUrl": "https://mahadbt.maharashtra.gov.in",
+      "lastVerified": "2026-03-01",
+      "active": true,
+      "isDemoData": false,
+      "verificationStatus": "VERIFIED",
+      "rules": [
+        {
+          "field": "state",
+          "operator": "EQUALS",
+          "value": "Maharashtra",
+          "description": "Resident of Maharashtra",
+          "required": true
+        },
+        {
+          "field": "category",
+          "operator": "EQUALS",
+          "value": "STUDENT",
+          "description": "School-going girl student",
+          "required": true
+        }
+      ],
+      "requiredDocuments": [
+        {
+          "id": 3501,
+          "documentType": "CASTE_CERTIFICATE",
+          "documentName": "Caste Certificate (SC/VJNT/SBC)",
+          "purpose": "Category verification",
+          "requiredFlag": true,
+          "issuingAuthority": "Sub-Divisional Officer"
+        },
+        {
+          "id": 3502,
+          "documentType": "AADHAAR_CARD",
+          "documentName": "Student Aadhaar Card",
+          "purpose": "Identity proof",
+          "requiredFlag": true,
+          "issuingAuthority": "UIDAI"
+        },
+        {
+          "id": 3503,
+          "documentType": "BANK_PASSBOOK",
+          "documentName": "Student Joint Bank Account Passbook",
+          "purpose": "Direct Benefit Transfer",
+          "requiredFlag": true,
+          "issuingAuthority": "Bank"
+        }
+      ],
+      "applicationGuides": [
+        {
+          "stepNumber": 1,
+          "title": "School Headmaster Submission",
+          "instruction": "Applications are processed directly through the Headmaster of the recognized school on MahaDBT portal without requiring individual tehsildar income certificates.",
+          "sourceUrl": "https://mahadbt.maharashtra.gov.in"
+        }
+      ]
+    },
+    {
+      "id": 35,
+      "name": "Balasaheb Thackeray Road Accident Insurance Scheme",
+      "description": "State medical emergency relief scheme ensuring completely cashless emergency treatment up to ₹30,000 for any person injured in a road accident on Maharashtra roads during the golden hour.",
+      "category": "HEALTHCARE",
+      "governmentLevel": "STATE",
+      "state": "Maharashtra",
+      "targetBeneficiaries": "Any victim of a road accident taking place within Maharashtra state limits (regardless of state origin).",
+      "ageCondition": "No age bar.",
+      "educationCondition": "No criteria.",
+      "incomeCondition": "Universal coverage — completely independent of income.",
+      "benefit": "Cashless emergency medical treatment up to ₹30,000 across 74 medical procedures (ICU, fractures, head trauma, blood transfusion) for first 72 hours in empaneled hospitals.",
+      "sourceUrl": "https://arogya.maharashtra.gov.in",
+      "lastVerified": "2026-03-01",
+      "active": true,
+      "isDemoData": false,
+      "verificationStatus": "VERIFIED",
+      "rules": [
+        {
+          "field": "category",
+          "operator": "IN",
+          "value": "GENERAL_CITIZEN,STUDENT,FARMER,BUSINESS_OWNER",
+          "description": "Accident victim on Maharashtra roads",
+          "required": true
+        }
+      ],
+      "requiredDocuments": [
+        {
+          "id": 3601,
+          "documentType": "POLICE_REPORT",
+          "documentName": "Police Panchnama / Medico-Legal Case (MLC) Entry",
+          "purpose": "Accident occurrence proof",
+          "requiredFlag": true,
+          "issuingAuthority": "Traffic / Local Police"
+        },
+        {
+          "id": 3602,
+          "documentType": "AADHAAR_CARD",
+          "documentName": "Any Photo Identity Proof (Aadhaar/DL/Voter)",
+          "purpose": "Patient identity",
+          "requiredFlag": false,
+          "issuingAuthority": "Govt Authority"
+        }
+      ],
+      "applicationGuides": [
+        {
+          "stepNumber": 1,
+          "title": "Immediate Hospital Admission",
+          "instruction": "Rush victim to nearest empaneled private or government hospital; hospital Arogyamitra registers emergency case under Balasaheb Thackeray scheme instantly.",
+          "sourceUrl": "https://arogya.maharashtra.gov.in"
+        }
+      ]
+    },
+    {
+      "id": 36,
+      "name": "National Apprenticeship Promotion Scheme (NAPS)",
+      "description": "Central skill training program offering industrial on-the-job apprenticeships with central government funding 25% of prescribed stipend up to ₹1,500 per month per apprentice.",
+      "category": "EDUCATION",
+      "governmentLevel": "CENTRAL",
+      "state": "All India",
+      "targetBeneficiaries": "Indian youth seeking industry training and employers seeking skilled apprentice workforce.",
+      "ageCondition": "Minimum 14 years (18 years for hazardous industries).",
+      "educationCondition": "5th pass to Graduate depending on designated or optional trade.",
+      "incomeCondition": "Open to all income slabs.",
+      "benefit": "25% of monthly stipend reimbursed by Central Govt (up to ₹1,500/month) + nationally recognized NCVT / NSDC National Apprenticeship Certificate.",
+      "sourceUrl": "https://www.apprenticeshipindia.gov.in",
+      "lastVerified": "2026-03-01",
+      "active": true,
+      "isDemoData": false,
+      "verificationStatus": "VERIFIED",
+      "rules": [
+        {
+          "field": "category",
+          "operator": "IN",
+          "value": "STUDENT,GENERAL_CITIZEN",
+          "description": "Candidate seeking industrial apprenticeship",
+          "required": true
+        }
+      ],
+      "requiredDocuments": [
+        {
+          "id": 3701,
+          "documentType": "AADHAAR_CARD",
+          "documentName": "Aadhaar Card",
+          "purpose": "Identity and e-KYC",
+          "requiredFlag": true,
+          "issuingAuthority": "UIDAI"
+        },
+        {
+          "id": 3702,
+          "documentType": "EDUCATIONAL_CERTIFICATE",
+          "documentName": "Educational Qualification Certificate",
+          "purpose": "Trade eligibility",
+          "requiredFlag": true,
+          "issuingAuthority": "School / College / ITI"
+        },
+        {
+          "id": 3703,
+          "documentType": "BANK_PASSBOOK",
+          "documentName": "Bank Passbook",
+          "purpose": "Stipend credit",
+          "requiredFlag": true,
+          "issuingAuthority": "Bank"
+        }
+      ],
+      "applicationGuides": [
+        {
+          "stepNumber": 1,
+          "title": "Candidate Registration",
+          "instruction": "Create profile on apprenticeshipindia.gov.in, search apprentice vacancies by state and industry, and submit online application.",
+          "sourceUrl": "https://www.apprenticeshipindia.gov.in"
+        }
+      ]
+    },
+    {
+      "id": 37,
+      "name": "Pradhan Mantri Krishi Sinchayee Yojana (PMKSY) - Micro Irrigation",
+      "description": "Central & State capital subsidy scheme for precision micro-irrigation promoting 'Per Drop More Crop' through installation of drip and sprinkler irrigation systems on farmlands.",
+      "category": "AGRICULTURE",
+      "governmentLevel": "CENTRAL",
+      "state": "All India",
+      "targetBeneficiaries": "Landholding farmers cultivating agricultural, horticultural, or cash crops.",
+      "ageCondition": "18 years and above.",
+      "educationCondition": "No criteria.",
+      "incomeCondition": "Open to all farmers; highest subsidy for small & marginal farmers.",
+      "benefit": "55% subsidy for Small and Marginal farmers (up to 5 Hectares); 45% subsidy for other landholding farmers on approved drip/sprinkler equipment cost.",
+      "sourceUrl": "https://pmksy.gov.in",
+      "lastVerified": "2026-03-01",
+      "active": true,
+      "isDemoData": false,
+      "verificationStatus": "VERIFIED",
+      "rules": [
+        {
+          "field": "category",
+          "operator": "EQUALS",
+          "value": "FARMER",
+          "description": "Registered agricultural landholder",
+          "required": true
+        }
+      ],
+      "requiredDocuments": [
+        {
+          "id": 3801,
+          "documentType": "SEVEN_TWELVE_EXTRACT",
+          "documentName": "7/12 & 8A Land Record Extract",
+          "purpose": "Cultivable land ownership proof",
+          "requiredFlag": true,
+          "issuingAuthority": "Talathi / Mahabhumi"
+        },
+        {
+          "id": 3802,
+          "documentType": "AADHAAR_CARD",
+          "documentName": "Aadhaar Card",
+          "purpose": "Identity verification",
+          "requiredFlag": true,
+          "issuingAuthority": "UIDAI"
+        },
+        {
+          "id": 3803,
+          "documentType": "ELECTRICITY_BILL",
+          "documentName": "Agricultural Pump Electricity Bill / Water Source Proof",
+          "purpose": "Verification of irrigation source (well/borewell)",
+          "requiredFlag": true,
+          "issuingAuthority": "DISCOM"
+        }
+      ],
+      "applicationGuides": [
+        {
+          "stepNumber": 1,
+          "title": "Apply on MahaDBT Farmer Portal",
+          "instruction": "Login to mahadbt.maharashtra.gov.in -> Agriculture Schemes -> Micro Irrigation, and choose approved manufacturer.",
+          "sourceUrl": "https://mahadbt.maharashtra.gov.in"
+        },
+        {
+          "stepNumber": 2,
+          "title": "Pre-Sanction & Installation",
+          "instruction": "Receive online pre-sanction, install system through authorised dealer, and upload geo-tagged photo.",
+          "sourceUrl": "https://mahadbt.maharashtra.gov.in"
+        }
+      ]
+    },
+    {
+      "id": 38,
+      "name": "Pradhan Mantri Awas Yojana - Gramin (PMAY-G)",
+      "description": "Flagship central housing scheme providing direct financial grants to rural homeless and families living in kutcha or dilapidated houses for constructing a durable pucca house.",
+      "category": "HOUSING",
+      "governmentLevel": "CENTRAL",
+      "state": "All India",
+      "targetBeneficiaries": "Rural houseless families and households identified under Socio-Economic Caste Census (SECC) / Awaas+ list.",
+      "ageCondition": "Head of rural household.",
+      "educationCondition": "No criteria.",
+      "incomeCondition": "Identified in priority deprivation categories (BPL / SECC).",
+      "benefit": "₹1,20,000 in plain areas and ₹1,30,000 in hilly/difficult areas in 3 DBT construction installments + 90-95 days of unskilled MGNREGA wages (approx ₹25,000) + ₹12,000 toilet grant.",
+      "sourceUrl": "https://pmayg.nic.in",
+      "lastVerified": "2026-03-01",
+      "active": true,
+      "isDemoData": false,
+      "verificationStatus": "VERIFIED",
+      "rules": [
+        {
+          "field": "category",
+          "operator": "IN",
+          "value": "FARMER,GENERAL_CITIZEN",
+          "description": "Rural household living in kutcha structure",
+          "required": true
+        },
+        {
+          "field": "incomerange",
+          "operator": "IN",
+          "value": "BELOW_1_LAKH,BELOW_2_LAKH",
+          "description": "Low income rural household",
+          "required": true
+        }
+      ],
+      "requiredDocuments": [
+        {
+          "id": 3901,
+          "documentType": "AADHAAR_CARD",
+          "documentName": "Aadhaar Card of Applicant & Family Members",
+          "purpose": "Identity and biometric authentication",
+          "requiredFlag": true,
+          "issuingAuthority": "UIDAI"
+        },
+        {
+          "id": 3902,
+          "documentType": "MGNREGA_JOB_CARD",
+          "documentName": "MGNREGA Job Card Number",
+          "purpose": "Unskilled labor wage component",
+          "requiredFlag": true,
+          "issuingAuthority": "Gram Panchayat"
+        },
+        {
+          "id": 3903,
+          "documentType": "BANK_PASSBOOK",
+          "documentName": "Aadhaar-seeded Bank Passbook",
+          "purpose": "Installment payment transfer",
+          "requiredFlag": true,
+          "issuingAuthority": "Bank"
+        }
+      ],
+      "applicationGuides": [
+        {
+          "stepNumber": 1,
+          "title": "Gram Sabha Verification",
+          "instruction": "Beneficiaries are verified by Gram Sabha based on Awaas+ survey; Gram Sevak completes geotagging of old kutcha house.",
+          "sourceUrl": "https://pmayg.nic.in"
+        }
+      ]
+    },
+    {
+      "id": 39,
+      "name": "Kisan Credit Card (KCC) Scheme",
+      "description": "Subsidized formal credit scheme providing timely and affordable short-term agricultural loans to farmers with 2% interest subvention and 3% prompt repayment incentive (effective interest 4%).",
+      "category": "AGRICULTURE",
+      "governmentLevel": "CENTRAL",
+      "state": "All India",
+      "targetBeneficiaries": "Owner cultivators, tenant farmers, oral lessees, sharecroppers, and SHG/JLG farmer groups.",
+      "ageCondition": "18 to 75 years.",
+      "educationCondition": "No criteria.",
+      "incomeCondition": "Based on landholding scale of finance.",
+      "benefit": "Credit limit up to ₹3,00,000 at effective 4% annual interest rate; collateral-free loan limit up to ₹1,60,000 without requiring land mortgage.",
+      "sourceUrl": "https://myscheme.gov.in",
+      "lastVerified": "2026-03-01",
+      "active": true,
+      "isDemoData": false,
+      "verificationStatus": "VERIFIED",
+      "rules": [
+        {
+          "field": "category",
+          "operator": "EQUALS",
+          "value": "FARMER",
+          "description": "Active agricultural cultivator",
+          "required": true
+        }
+      ],
+      "requiredDocuments": [
+        {
+          "id": 4001,
+          "documentType": "SEVEN_TWELVE_EXTRACT",
+          "documentName": "7/12 & 8A Land Record Extract",
+          "purpose": "Cropping pattern and land holding verification",
+          "requiredFlag": true,
+          "issuingAuthority": "Talathi / Mahabhumi"
+        },
+        {
+          "id": 4002,
+          "documentType": "AADHAAR_CARD",
+          "documentName": "Aadhaar Card and PAN Card",
+          "purpose": "KYC verification",
+          "requiredFlag": true,
+          "issuingAuthority": "UIDAI / Income Tax"
+        },
+        {
+          "id": 4003,
+          "documentType": "NO_DUES_CERTIFICATE",
+          "documentName": "Declaration of No Dues / Bank Statement",
+          "purpose": "Credit standing check",
+          "requiredFlag": true,
+          "issuingAuthority": "Cooperative / Commercial Bank"
+        }
+      ],
+      "applicationGuides": [
+        {
+          "stepNumber": 1,
+          "title": "Submit KCC Application to Bank",
+          "instruction": "Download simple one-page KCC form from pmkisan.gov.in or visit your nearest rural bank branch / PACS with land records.",
+          "sourceUrl": "https://pmkisan.gov.in"
+        }
+      ]
+    },
+    {
+      "id": 40,
+      "name": "Magel Teyla Shettale Scheme (Farm Ponds on Demand)",
+      "description": "Maharashtra state irrigation drought-proofing scheme providing individual agricultural farm ponds with government capital subsidy up to ₹50,000 to harvest rainwater.",
+      "category": "AGRICULTURE",
+      "governmentLevel": "STATE",
+      "state": "Maharashtra",
+      "targetBeneficiaries": "Farmers in Maharashtra holding minimum 0.60 Hectare (1.5 Acres) agricultural land with suitable farm pond topography.",
+      "ageCondition": "18 years and above.",
+      "educationCondition": "No criteria.",
+      "incomeCondition": "Open to all farmers in drought-prone and suicide-affected districts.",
+      "benefit": "Capital subsidy of up to ₹50,000 for standard 30x30x3 meter farm pond construction directly credited to farmer bank account upon geotagged completion.",
+      "sourceUrl": "https://krishi.maharashtra.gov.in",
+      "lastVerified": "2026-03-01",
+      "active": true,
+      "isDemoData": false,
+      "verificationStatus": "VERIFIED",
+      "rules": [
+        {
+          "field": "state",
+          "operator": "EQUALS",
+          "value": "Maharashtra",
+          "description": "Resident farmer in Maharashtra",
+          "required": true
+        },
+        {
+          "field": "category",
+          "operator": "EQUALS",
+          "value": "FARMER",
+          "description": "Farmer holding minimum 1.5 acres land",
+          "required": true
+        }
+      ],
+      "requiredDocuments": [
+        {
+          "id": 4101,
+          "documentType": "SEVEN_TWELVE_EXTRACT",
+          "documentName": "7/12 and 8A Extract",
+          "purpose": "Minimum landholding proof (0.60 Hectare)",
+          "requiredFlag": true,
+          "issuingAuthority": "Talathi"
+        },
+        {
+          "id": 4102,
+          "documentType": "AADHAAR_CARD",
+          "documentName": "Aadhaar Card",
+          "purpose": "Identity proof",
+          "requiredFlag": true,
+          "issuingAuthority": "UIDAI"
+        },
+        {
+          "id": 4103,
+          "documentType": "CONSENT_LETTER",
+          "documentName": "Co-owners Consent Affidavit (if joint 7/12)",
+          "purpose": "No objection for pond excavation",
+          "requiredFlag": true,
+          "issuingAuthority": "Talathi / Notary"
+        }
+      ],
+      "applicationGuides": [
+        {
+          "stepNumber": 1,
+          "title": "Apply on MahaDBT Portal",
+          "instruction": "Login to mahadbt.maharashtra.gov.in -> Farmer Schemes -> Farm Ponds (Magel Teyla Shettale) and submit online form.",
+          "sourceUrl": "https://krishi.maharashtra.gov.in"
+        }
+      ]
+    },
+    {
+      "id": 41,
+      "name": "Dr. Babasaheb Ambedkar Swadhar Yojana (Maharashtra)",
+      "description": "State financial assistance scheme providing direct annual allowances between ₹51,000 and ₹60,000 to Scheduled Caste (SC) and Nav-Bouddha students pursuing higher education who could not secure admission in government hostels.",
+      "category": "EDUCATION",
+      "governmentLevel": "STATE",
+      "state": "Maharashtra",
+      "targetBeneficiaries": "SC and Nav-Bouddha students pursuing post-matric diploma, degree, or professional courses in Maharashtra living in rented accommodation.",
+      "ageCondition": "Enrolled in recognized higher education program.",
+      "educationCondition": "Minimum 50% marks in 10th/12th (40% for differently-abled).",
+      "incomeCondition": "Annual family income must not exceed ₹2,50,000 per annum.",
+      "benefit": "Annual cash allowance: ₹60,000 in Mumbai/Pune/Nagpur; ₹51,000 in other municipal corporation cities covering food, boarding, books, and living expenses.",
+      "sourceUrl": "https://sjsa.maharashtra.gov.in",
+      "lastVerified": "2026-03-01",
+      "active": true,
+      "isDemoData": false,
+      "verificationStatus": "VERIFIED",
+      "rules": [
+        {
+          "field": "state",
+          "operator": "EQUALS",
+          "value": "Maharashtra",
+          "description": "Resident of Maharashtra",
+          "required": true
+        },
+        {
+          "field": "category",
+          "operator": "EQUALS",
+          "value": "STUDENT",
+          "description": "SC/Nav-Bouddha enrolled student",
+          "required": true
+        },
+        {
+          "field": "incomerange",
+          "operator": "IN",
+          "value": "BELOW_1_LAKH,BELOW_2_LAKH,BELOW_3_LAKH",
+          "description": "Family annual income up to ₹2.5 Lakh",
+          "required": true
+        }
+      ],
+      "requiredDocuments": [
+        {
+          "id": 4201,
+          "documentType": "CASTE_CERTIFICATE",
+          "documentName": "Caste Certificate (SC / Nav-Bouddha)",
+          "purpose": "Category eligibility",
+          "requiredFlag": true,
+          "issuingAuthority": "SDO"
+        },
+        {
+          "id": 4202,
+          "documentType": "INCOME_CERTIFICATE",
+          "documentName": "Income Certificate (Below ₹2.5 Lakh)",
+          "purpose": "Income verification",
+          "requiredFlag": true,
+          "issuingAuthority": "Tehsildar"
+        },
+        {
+          "id": 4203,
+          "documentType": "RENT_AGREEMENT",
+          "documentName": "Hostel Receipt / Registered Rent Agreement",
+          "purpose": "Proof of staying in paid private accommodation",
+          "requiredFlag": true,
+          "issuingAuthority": "Landlord / Notary"
+        },
+        {
+          "id": 4204,
+          "documentType": "HOSTEL_REJECTION_PROOF",
+          "documentName": "Government Hostel Non-Admission Certificate",
+          "purpose": "Proof of unavailability of government hostel seat",
+          "requiredFlag": true,
+          "issuingAuthority": "Hostel Warden"
+        }
+      ],
+      "applicationGuides": [
+        {
+          "stepNumber": 1,
+          "title": "Apply at District Social Welfare Office",
+          "instruction": "Submit online or physical Swadhar application at Assistant Commissioner Social Welfare Office with college bonafide.",
+          "sourceUrl": "https://sjsa.maharashtra.gov.in"
+        }
+      ]
+    },
+    {
+      "id": 42,
+      "name": "Pradhan Mantri Jeevan Jyoti Bima Yojana (PMJJBY)",
+      "description": "Affordable central life insurance scheme providing ₹2,00,000 financial risk protection to family members upon death of the insured breadwinner due to any reason for an annual premium of ₹436.",
+      "category": "GENERAL_CITIZEN",
+      "governmentLevel": "CENTRAL",
+      "state": "All India",
+      "targetBeneficiaries": "Any Indian citizen aged 18 to 50 holding a savings bank or post office account with auto-debit facility.",
+      "ageCondition": "18 to 50 years (risk coverage continues up to age 55).",
+      "educationCondition": "No criteria.",
+      "incomeCondition": "Open to all citizens.",
+      "benefit": "₹2,00,000 life insurance death benefit paid directly to the registered nominee for any cause of death at an affordable annual premium of ₹436.",
+      "sourceUrl": "https://jansuraksha.gov.in",
+      "lastVerified": "2026-03-01",
+      "active": true,
+      "isDemoData": false,
+      "verificationStatus": "VERIFIED",
+      "rules": [
+        {
+          "field": "category",
+          "operator": "IN",
+          "value": "GENERAL_CITIZEN,FARMER,STUDENT,BUSINESS_OWNER",
+          "description": "Savings bank account holder aged 18-50",
+          "required": true
+        }
+      ],
+      "requiredDocuments": [
+        {
+          "id": 4301,
+          "documentType": "AADHAAR_CARD",
+          "documentName": "Aadhaar Card",
+          "purpose": "Primary KYC document",
+          "requiredFlag": true,
+          "issuingAuthority": "UIDAI"
+        },
+        {
+          "id": 4302,
+          "documentType": "BANK_PASSBOOK",
+          "documentName": "Bank Passbook with Auto-Debit Mandate",
+          "purpose": "Annual premium deduction and nominee record",
+          "requiredFlag": true,
+          "issuingAuthority": "Bank"
+        }
+      ],
+      "applicationGuides": [
+        {
+          "stepNumber": 1,
+          "title": "Enroll via Bank / Net Banking",
+          "instruction": "Login to mobile banking or visit home branch to submit one-page consent form for annual auto-debit of ₹436.",
+          "sourceUrl": "https://jansuraksha.gov.in"
+        }
+      ]
     }
   ],
   "scheme_rules": [],
@@ -2609,6 +3441,182 @@
       "verificationStatus": "VERIFIED",
       "publicationStatus": "PUBLISHED",
       "additionalNotes": "Required as family member proof for Ayushman Bharat (PM-JAY) and PMAY housing schemes."
+    },
+    {
+      "id": 11,
+      "documentType": "BIRTH_CERTIFICATE",
+      "title": "Birth Certificate (जन्म नोंद दाखला)",
+      "simpleDescription": "Official vital statistics certificate proving the date and place of birth of a citizen, issued by the Municipal Corporation or Gram Panchayat under the Registration of Births and Deaths Act.",
+      "applicableState": "Maharashtra",
+      "issuingAuthority": "Registrar of Births & Deaths (Municipal Corporation / Nagar Parishad / Gram Panchayat)",
+      "eligibilityOrPrerequisites": "Birth registered within jurisdiction within mandatory statutory window (21 days) or delayed registration with Executive Magistrate order.",
+      "requiredSupportingDocuments": [
+        "Hospital Discharge Summary / Birth Report Form 1",
+        "Aadhaar Cards of Father and Mother",
+        "Marriage Certificate / Ration Card copy of Parents",
+        "Self-declaration affidavit if applying after 1 year of birth"
+      ],
+      "applicationSteps": [
+        {
+          "stepNumber": 1,
+          "title": "Visit Aaple Sarkar or CRS Portal",
+          "detail": "Access crsorgi.gov.in or aaplesarkar.mahaonline.gov.in.",
+          "method": "ONLINE"
+        },
+        {
+          "stepNumber": 2,
+          "title": "Enter Date of Birth & Parents Details",
+          "detail": "Select Municipal Ward or Village Panchayat and search for registered entry.",
+          "method": "ONLINE"
+        },
+        {
+          "stepNumber": 3,
+          "title": "Pay Statutory Fee & Download Certificate",
+          "detail": "Pay ₹20 search and issuance fee. Download digitally signed birth certificate with QR code.",
+          "method": "ONLINE"
+        }
+      ],
+      "applicationMethod": "BOTH",
+      "officialApplicationUrl": "https://aaplesarkar.mahaonline.gov.in",
+      "officialInformationUrl": "https://crsorgi.gov.in",
+      "possibleFees": "₹20 to ₹50",
+      "expectedProcessingTime": "5 to 7 working days",
+      "lastVerifiedAt": "2026-03-01",
+      "verificationStatus": "VERIFIED",
+      "publicationStatus": "PUBLISHED",
+      "additionalNotes": "First legal identity document required for school admission, passport issuance, and Aadhaar card enrollment."
+    },
+    {
+      "id": 12,
+      "documentType": "SENIOR_CITIZEN_CARD",
+      "title": "Senior Citizen Identity Card (ज्येष्ठ नागरिक ओळखपत्र)",
+      "simpleDescription": "Official identity card issued by the Social Welfare Department and District Collectorate certifying that the citizen is 60 years or older, unlocking travel concessions and medical benefits.",
+      "applicableState": "Maharashtra",
+      "issuingAuthority": "Assistant Commissioner of Social Welfare / District Collectorate",
+      "eligibilityOrPrerequisites": "Citizen aged 60 years or above residing in Maharashtra.",
+      "requiredSupportingDocuments": [
+        "Age Proof (Aadhaar Card / School Leaving Certificate / Voter ID / Passport)",
+        "Residence Proof (Ration Card / Electricity Bill / Domicile Certificate)",
+        "Blood group report from registered medical practitioner",
+        "3 Passport size photographs"
+      ],
+      "applicationSteps": [
+        {
+          "stepNumber": 1,
+          "title": "Online Form Submission",
+          "detail": "Fill application on Aaple Sarkar or submit at District Social Welfare Office.",
+          "method": "BOTH"
+        },
+        {
+          "stepNumber": 2,
+          "title": "Document Verification",
+          "detail": "Verification of age proof and residential address.",
+          "method": "OFFLINE"
+        },
+        {
+          "stepNumber": 3,
+          "title": "Card Collection",
+          "detail": "Receive laminated Senior Citizen ID Card with emergency contact and blood group details.",
+          "method": "OFFLINE"
+        }
+      ],
+      "applicationMethod": "BOTH",
+      "officialApplicationUrl": "https://aaplesarkar.mahaonline.gov.in",
+      "officialInformationUrl": "https://sjsa.maharashtra.gov.in",
+      "possibleFees": "Free / ₹20 for laminated card",
+      "expectedProcessingTime": "15 working days",
+      "lastVerifiedAt": "2026-03-01",
+      "verificationStatus": "VERIFIED",
+      "publicationStatus": "PUBLISHED",
+      "additionalNotes": "Eligible for 50% concession on MSRTC (ST) buses and free travel for 75+ (Amrit Jyeshtha Nagrik Scheme)."
+    },
+    {
+      "id": 13,
+      "documentType": "POLICE_CLEARANCE_CERTIFICATE",
+      "title": "Police Clearance & Character Certificate (चारित्र्य पडताळणी प्रमाणपत्र)",
+      "simpleDescription": "Official police character verification certificate issued by the Superintendent of Police or Commissioner of Police confirming no criminal record, required for government jobs and state licenses.",
+      "applicableState": "Maharashtra",
+      "issuingAuthority": "Superintendent of Police (SP) / Commissioner of Police (CP), Maharashtra Police",
+      "eligibilityOrPrerequisites": "Resident with verified address history for past 1 year.",
+      "requiredSupportingDocuments": [
+        "Aadhaar Card and Voter ID",
+        "Proof of current address (Electricity bill / Agreement)",
+        "Recommendation letter from Employer / College / Authority",
+        "Affidavit regarding no pending criminal court cases"
+      ],
+      "applicationSteps": [
+        {
+          "stepNumber": 1,
+          "title": "Police Clearance Services on PCS Portal",
+          "detail": "Register on pcs.mahaonline.gov.in and select Police Verification for Job/License.",
+          "method": "ONLINE"
+        },
+        {
+          "stepNumber": 2,
+          "title": "Local Police Station Visit",
+          "detail": "Visit designated local police station for physical verification with originals.",
+          "method": "OFFLINE"
+        },
+        {
+          "stepNumber": 3,
+          "title": "Download Verified Certificate",
+          "detail": "Download digitally signed Character Certificate with official barcode.",
+          "method": "ONLINE"
+        }
+      ],
+      "applicationMethod": "BOTH",
+      "officialApplicationUrl": "https://pcs.mahaonline.gov.in",
+      "officialInformationUrl": "https://mahapolice.gov.in",
+      "possibleFees": "₹123.60 on portal",
+      "expectedProcessingTime": "21 working days",
+      "lastVerifiedAt": "2026-03-01",
+      "verificationStatus": "VERIFIED",
+      "publicationStatus": "PUBLISHED",
+      "additionalNotes": "Mandatory for state government appointments, school bus drivers, and security agency personnel."
+    },
+    {
+      "id": 14,
+      "documentType": "NON_AGRICULTURAL_CERTIFICATE",
+      "title": "Non-Agricultural (NA) Land Permission & Order (अकृषिक दाखला)",
+      "simpleDescription": "Statutory revenue order converting agricultural land into non-agricultural use for residential, commercial, or industrial purposes under Maharashtra Land Revenue Code 1966.",
+      "applicableState": "Maharashtra",
+      "issuingAuthority": "District Collector / Sub-Divisional Officer (SDO) / Tehsildar",
+      "eligibilityOrPrerequisites": "Registered owner of agricultural land clear of encumbrances with verified Title Report.",
+      "requiredSupportingDocuments": [
+        "Digitally signed 7/12 and 8A extracts for past 30 years",
+        "Village Map (Nakasha) and Measurement Plan (Mojani)",
+        "Zone Certificate from Town Planning Department",
+        "Title & Search Report from certified advocate"
+      ],
+      "applicationSteps": [
+        {
+          "stepNumber": 1,
+          "title": "Submit on Mahabhumi e-Hakk / Aaple Sarkar",
+          "detail": "Upload survey number and layout documents on mahabhumi.gov.in.",
+          "method": "ONLINE"
+        },
+        {
+          "stepNumber": 2,
+          "title": "Town Planning & Revenue Scrutiny",
+          "detail": "Joint site inspection by Talathi, Circle Officer, and Town Planner.",
+          "method": "BOTH"
+        },
+        {
+          "stepNumber": 3,
+          "title": "Pay NA Conversion Tax & Obtain Sanad",
+          "detail": "Pay conversion challan and download formal NA Order (Sanad).",
+          "method": "ONLINE"
+        }
+      ],
+      "applicationMethod": "BOTH",
+      "officialApplicationUrl": "https://mahabhumi.gov.in",
+      "officialInformationUrl": "https://rts.maharashtra.gov.in",
+      "possibleFees": "Conversion tax as per land valuation (Jantri)",
+      "expectedProcessingTime": "60 to 90 working days",
+      "lastVerifiedAt": "2026-03-01",
+      "verificationStatus": "VERIFIED",
+      "publicationStatus": "PUBLISHED",
+      "additionalNotes": "Mandatory before constructing any residential home, warehouse, factory, or housing layout on farmland."
     }
   ],
   "userDocuments": [
