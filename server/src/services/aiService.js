@@ -24,6 +24,7 @@
 import { db } from '../db/database.js';
 import { config } from '../config.js';
 import { EligibilityEngine } from './eligibilityEngine.js';
+import { RAGService } from './ragService.js';
 import axios from 'axios';
 
 export class AIService {
@@ -735,110 +736,33 @@ export class AIService {
 
   /**
    * Main Answering Pipeline
-   * Supports optional external LLM (Gemini/Groq) with safe timeout and fallback
+   * 1. Deterministic Fast-Path for greetings & metadata
+   * 2. Semantic RAG Engine (top-k chunk retrieval + Gemini 1.5 Flash / grounded synthesis + citations)
+   * 3. Deterministic Grounded Engine fallback
    */
   static async answerQuestion(question, schemeId, userId, language = 'en') {
     const profile = userId ? db.findOne('profiles', p => String(p.userId) === String(userId)) : null;
-    const context = this.buildContext(schemeId, profile);
     const detectedLang = this.detectLanguage(question, language);
+    const q = (question || '').toLowerCase().trim();
 
-    // Optional Gemini 1.5 Flash (bounded timeout, safe fallback)
-    if (config.aiProvider === 'gemini' && config.geminiApiKey) {
-      try {
-        const systemPrompt = `You are JanSahay AI, an official citizen assistance assistant for Indian government schemes.
-RULES:
-1. ONLY answer using verified facts from the context provided below.
-2. DO NOT invent application fees, deadlines, URLs, or eligibility criteria.
-3. If information is not in the context, explicitly state: "Detailed instructions have not yet been verified. Please consult the issuing authority through the official information link."
-4. If the user asks in Hindi or Marathi, respond fluently and politely in that language.
-\n${context}`;
-
-        const response = await axios.post(
-          `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${config.geminiApiKey}`,
-          {
-            contents: [
-              {
-                role: 'user',
-                parts: [{ text: `${systemPrompt}\n\nCitizen Question: ${question}` }]
-              }
-            ]
-          },
-          { timeout: 7000 }
-        );
-
-        const text = response.data?.candidates?.[0]?.content?.parts?.[0]?.text;
-        if (text && text.trim().length > 0) {
-          const scheme = schemeId ? db.findById('schemes', schemeId) : null;
-          return {
-            answer: text,
-            provider: 'Google Gemini 1.5 Flash (Grounded in JanSahay DB)',
-            sources: scheme ? [{
-              title: scheme.name,
-              url: scheme.sourceUrl,
-              sourceName: `${scheme.governmentLevel} Govt (${scheme.state || 'All India'})`,
-              dataStatus: scheme.dataStatus || 'knowledge_base',
-              lastVerified: scheme.lastVerified || 'March 2026'
-            }] : [],
-            dataStatus: scheme?.dataStatus || 'knowledge_base',
-            generatedAt: new Date().toISOString(),
-            isVerified: true,
-            officialUrl: scheme?.sourceUrl || null
-          };
-        }
-      } catch (err) {
-        console.warn('[AI] Gemini call failed, falling back safely to grounded engine:', err.message);
-      }
+    // 1. Fast path for universal greetings and platform meta questions
+    if (/^(hi|hello|hey|namaste|namaskar|pranam|ram ram|hallo)\b/i.test(q) ||
+        q.includes('what is jansahay') || q.includes('how does jansahay work') || q.includes('who are you') ||
+        q.includes('काय आहे जनसहाय') || q.includes('जनसहाय क्या है')) {
+      return this.generateDeterministicAnswer(question, schemeId, detectedLang, profile);
     }
 
-    // Optional Groq Llama-3 (bounded timeout, safe fallback)
-    if (config.groqApiKey) {
-      try {
-        const systemPrompt = `You are JanSahay AI, a verified assistant for Indian government welfare schemes. Answer ONLY from facts in context. Respond in ${detectedLang === 'mr' ? 'Marathi' : detectedLang === 'hi' ? 'Hindi' : 'English'}.\n${context}`;
-        const response = await axios.post(
-          'https://api.groq.com/openai/v1/chat/completions',
-          {
-            model: 'llama3-8b-8192',
-            messages: [
-              { role: 'system', content: systemPrompt },
-              { role: 'user', content: question }
-            ],
-            max_tokens: 1024,
-            temperature: 0.2
-          },
-          {
-            headers: {
-              'Authorization': `Bearer ${config.groqApiKey}`,
-              'Content-Type': 'application/json'
-            },
-            timeout: 7000
-          }
-        );
-
-        const text = response.data?.choices?.[0]?.message?.content;
-        if (text && text.trim().length > 0) {
-          const scheme = schemeId ? db.findById('schemes', schemeId) : null;
-          return {
-            answer: text,
-            provider: 'Llama 3 via Groq (Grounded in JanSahay DB)',
-            sources: scheme ? [{
-              title: scheme.name,
-              url: scheme.sourceUrl,
-              sourceName: `${scheme.governmentLevel} Govt (${scheme.state || 'All India'})`,
-              dataStatus: scheme.dataStatus || 'knowledge_base',
-              lastVerified: scheme.lastVerified || 'March 2026'
-            }] : [],
-            dataStatus: scheme?.dataStatus || 'knowledge_base',
-            generatedAt: new Date().toISOString(),
-            isVerified: true,
-            officialUrl: scheme?.sourceUrl || null
-          };
-        }
-      } catch (err) {
-        console.warn('[AI] Groq call failed, falling back safely to grounded engine:', err.message);
+    // 2. Primary RAG Pipeline: Semantic Top-K retrieval across all 30+ schemes and 10 RTS guides
+    try {
+      const ragResult = await RAGService.answerWithRag(question, detectedLang, schemeId);
+      if (ragResult && ragResult.answer) {
+        return ragResult;
       }
+    } catch (ragErr) {
+      console.warn('[AI] RAG Pipeline exception, falling back to deterministic engine:', ragErr.message);
     }
 
-    // Always available, 100% deterministic grounded answer engine
+    // 3. Fallback: Deterministic grounded engine
     return this.generateDeterministicAnswer(question, schemeId, detectedLang, profile);
   }
 }
