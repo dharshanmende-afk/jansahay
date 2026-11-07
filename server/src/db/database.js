@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { initialSeedData } from './seedData.js';
+import pgClient, { checkPostgresConnectivity, runMigrations } from './pgClient.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -19,15 +20,32 @@ class Database {
       users: [],
       profiles: [],
       schemes: [],
+      scheme_rules: [],
       documentGuides: [],
       userDocuments: [],
       updates: [],
-      recommendations: []
+      recommendations: [],
+      chat_logs: []
     };
+    this.postgresConnected = false;
     this.init();
   }
 
-  init() {
+  async init() {
+    // 1. Check PostgreSQL connectivity
+    try {
+      this.postgresConnected = await checkPostgresConnectivity();
+      if (this.postgresConnected) {
+        console.log('🐘 [DB] Connected to PostgreSQL. Migrations and relational tables active.');
+        await runMigrations().catch(err => console.warn('[DB] Migration note:', err.message));
+      } else {
+        console.log('📂 [DB] PostgreSQL not configured or offline. Running on high-performance local database.');
+      }
+    } catch (e) {
+      this.postgresConnected = false;
+    }
+
+    // 2. Load / initialize data store
     try {
       if (fs.existsSync(DB_FILE)) {
         const raw = fs.readFileSync(DB_FILE, 'utf-8');
@@ -74,10 +92,12 @@ class Database {
       users,
       profiles: !isProduction ? (initialSeedData.profiles || []) : [],
       schemes: initialSeedData.schemes || [],
+      scheme_rules: [],
       documentGuides: initialSeedData.documentGuides || [],
       userDocuments: !isProduction ? (initialSeedData.userDocuments || []) : [],
       updates: initialSeedData.updates || [],
-      recommendations: []
+      recommendations: [],
+      chat_logs: []
     };
     this.save();
     console.log(`[DB] Seeded: ${this.data.users.length} users, ${this.data.schemes.length} schemes, ${this.data.documentGuides.length} guides.`);

@@ -9,6 +9,8 @@
     "client": "cd client && npm run dev",
     "client:build": "cd client && npm run build",
     "build": "cd client && npm run build",
+    "seed": "cd server && npm run seed",
+    "migrate": "cd server && npm run migrate",
     "test": "cd server && npm test",
     "start": "cd server && npm start"
   },
@@ -17,6 +19,7 @@
     "react",
     "nodejs",
     "express",
+    "postgresql",
     "welfare-schemes",
     "india",
     "rts-act",
@@ -27,7 +30,7 @@
   "homepage": "https://github.com/dharshanmende-afk/JanSahay#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/dharshanmende-afk/JanSahay.git"
+    "url": "git+https://github.com/dharshanmende-afk/jansahay.git"
   },
   "license": "MIT"
 }

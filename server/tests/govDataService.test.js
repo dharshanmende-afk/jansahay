@@ -21,9 +21,8 @@ test('GovDataService - Preserves citizen and profile data during sync', async ()
   const usersBefore = db.find('users');
   const profilesBefore = db.find('profiles');
   
-  // Verify user Aryan Pawar exists
-  const aryanUser = usersBefore.find(u => u.name && u.name.toLowerCase().includes('aryan'));
-  assert.ok(aryanUser, 'Existing user Aryan Pawar must exist in DB');
+  assert.ok(usersBefore.length > 0, 'Seed users must exist in DB before sync');
+  const sampleUser = usersBefore[0];
 
   // Perform sync
   await GovDataService.fetchAndSync();
@@ -33,7 +32,7 @@ test('GovDataService - Preserves citizen and profile data during sync', async ()
 
   assert.equal(usersAfter.length, usersBefore.length, 'User records count must not change');
   assert.equal(profilesAfter.length, profilesBefore.length, 'Profile records count must not change');
-  assert.ok(usersAfter.some(u => u.id === aryanUser.id), 'Aryan Pawar user record must be preserved');
+  assert.ok(usersAfter.some(u => u.id === sampleUser.id), 'Sample user record must be preserved across sync');
 });
 
 test('GovDataService - Concurrency lock prevents parallel overwrites', async () => {

@@ -31,24 +31,6 @@
       "passwordHash": "$2a$10$vI8aWBnW3fID.ZQ4/zo1G.q1l5pZ2Tz4qC1l5pZ2Tz4qC1l5pZ2Tz",
       "role": "CITIZEN",
       "createdAt": "2026-03-01T14:20:00.000Z"
-    },
-    {
-      "name": "aryan Pawar",
-      "email": "aryanpawar03022006@gmail.com",
-      "passwordHash": "$2a$10$giXkq0/8T/HynLQlCntOgudxbU6R2h2.gbDq48WAVxLp2/PhfaQXa",
-      "role": "CITIZEN",
-      "id": 5,
-      "createdAt": "2026-10-19T13:04:09.705Z",
-      "updatedAt": "2026-10-19T13:04:09.705Z"
-    },
-    {
-      "name": "Pawar",
-      "email": "aryanpawar#123@gmail.com",
-      "passwordHash": "$2a$10$7k41Y.VYYNf5Dn7JKhTDo.HRDXXa.uTEdxi6zfgRop4uhAahwBB1m",
-      "role": "CITIZEN",
-      "id": 6,
-      "createdAt": "2026-10-20T19:50:31.563Z",
-      "updatedAt": "2026-10-20T19:50:31.563Z"
     }
   ],
   "profiles": [
@@ -78,7 +60,7 @@
     {
       "id": 2,
       "userId": 3,
-      "category": "JOB_SEEKER",
+      "category": "FARMER",
       "state": "Maharashtra",
       "district": "Satara",
       "occupation": "Farmer",
@@ -96,7 +78,7 @@
       "msmeStatus": null,
       "businessDescription": null,
       "profileComplete": true,
-      "updatedAt": "2026-10-20T19:52:50.034Z"
+      "updatedAt": "2026-03-12T10:00:00.000Z"
     },
     {
       "id": 3,
@@ -120,54 +102,6 @@
       "businessDescription": "Organic direct-to-consumer farm produce aggregation and packaging",
       "profileComplete": true,
       "updatedAt": "2026-03-15T15:30:00.000Z"
-    },
-    {
-      "userId": 5,
-      "category": "STUDENT",
-      "state": "Maharashtra",
-      "district": "Satara",
-      "occupation": "Student",
-      "incomeRange": "BELOW_1_LAKH",
-      "educationLevel": "UNDERGRADUATE",
-      "course": "B.Tech Computer Engineering",
-      "currentYear": 3,
-      "instituteName": "Government College of Engineering, Pune (COEP)",
-      "farmingType": "CROP_FARMING",
-      "cropActivity": "Sugarcane, Wheat and Vegetables",
-      "landArea": 3.5,
-      "landOwnership": "OWNED",
-      "businessType": "Food Processing / Tech Startup",
-      "businessStage": "STARTUP",
-      "msmeStatus": "REGISTERED",
-      "businessDescription": "Micro agro-processing enterprise",
-      "profileComplete": true,
-      "updatedAt": "2026-10-19T13:04:40.140Z",
-      "id": 4,
-      "createdAt": "2026-10-19T13:04:40.140Z"
-    },
-    {
-      "userId": 6,
-      "category": "STUDENT",
-      "state": "Maharashtra",
-      "district": "Pune",
-      "occupation": "Student",
-      "incomeRange": "BELOW_2_LAKH",
-      "educationLevel": "UNDERGRADUATE",
-      "course": "B.Tech Computer Engineering",
-      "currentYear": 3,
-      "instituteName": "Government College of Engineering, Pune (COEP)",
-      "farmingType": "CROP_FARMING",
-      "cropActivity": "Sugarcane, Wheat and Vegetables",
-      "landArea": 3.5,
-      "landOwnership": "OWNED",
-      "businessType": "Food Processing / Tech Startup",
-      "businessStage": "STARTUP",
-      "msmeStatus": "REGISTERED",
-      "businessDescription": "Micro agro-processing enterprise",
-      "profileComplete": true,
-      "updatedAt": "2026-10-20T19:50:39.782Z",
-      "id": 5,
-      "createdAt": "2026-10-20T19:50:39.782Z"
     }
   ],
   "schemes": [
@@ -287,9 +221,9 @@
         }
       ],
       "dataStatus": "LIVE",
-      "lastFetchedAt": "2026-11-07T16:17:30.345Z",
+      "lastFetchedAt": "2026-11-07T16:39:07.391Z",
       "portalStatus": "ONLINE",
-      "updatedAt": "2026-11-07T16:17:30.345Z"
+      "updatedAt": "2026-11-07T16:39:07.391Z"
     },
     {
       "id": 2,
@@ -473,7 +407,7 @@
       ],
       "dataStatus": "CACHED",
       "portalStatus": "UNREACHABLE",
-      "updatedAt": "2026-11-07T16:17:30.151Z"
+      "updatedAt": "2026-11-07T16:39:07.232Z"
     },
     {
       "id": 4,
@@ -1490,9 +1424,9 @@
         }
       ],
       "dataStatus": "LIVE",
-      "lastFetchedAt": "2026-11-07T16:17:37.209Z",
+      "lastFetchedAt": "2026-11-07T16:39:14.019Z",
       "portalStatus": "ONLINE",
-      "updatedAt": "2026-11-07T16:17:37.209Z"
+      "updatedAt": "2026-11-07T16:39:14.019Z"
     },
     {
       "id": 19,
@@ -1918,27 +1852,55 @@
     {
       "id": 27,
       "name": "Pradhan Mantri Matru Vandana Yojana (PMMVY)",
-      "description": "Pradhan Mantri Matru Vandana Yojana (PMMVY) - Official Government Scheme",
+      "description": "Conditional maternity benefit programme providing ₹5,000 wage compensation to pregnant and lactating women for first living child.",
       "category": "WELFARE",
       "governmentLevel": "CENTRAL",
       "state": "All India",
-      "targetBeneficiaries": "As per official eligibility criteria",
+      "targetBeneficiaries": "Pregnant and lactating women aged 19+ for first living child (2nd child if girl under PMMVY 2.0).",
       "ageCondition": "19 years and above at pregnancy.",
       "educationCondition": "None.",
       "incomeCondition": "None.",
-      "benefit": "As per official scheme guidelines — visit the official portal for latest benefit amounts.",
-      "sourceUrl": "https://www.myscheme.gov.in/schemes/pmmvy",
-      "lastVerified": "2026-10-19",
+      "benefit": "₹5,000 in three installments for first child. ₹6,000 for second girl child under PMMVY 2.0.",
+      "sourceUrl": "https://wcd.nic.in/schemes/pradhan-mantri-matru-vandana-yojana",
+      "lastVerified": "2026-03-01",
       "active": true,
       "isDemoData": false,
-      "verificationStatus": "LIVE_SCRAPED",
+      "verificationStatus": "VERIFIED",
       "rules": [],
-      "requiredDocuments": [],
-      "applicationGuides": [],
-      "source": "www.myscheme.gov.in",
-      "scrapedAt": "2026-10-19T06:56:50.306Z",
-      "lastFetched": "2026-10-19T06:57:03.223Z",
-      "updatedAt": "2026-10-19T06:57:03.223Z"
+      "requiredDocuments": [
+        {
+          "id": 2801,
+          "documentType": "AADHAAR_CARD",
+          "documentName": "Aadhaar Card of mother",
+          "purpose": "Identity",
+          "requiredFlag": true,
+          "issuingAuthority": "UIDAI"
+        },
+        {
+          "id": 2802,
+          "documentType": "MCP_CARD",
+          "documentName": "Mother & Child Protection (MCP) Card",
+          "purpose": "Pregnancy tracking",
+          "requiredFlag": true,
+          "issuingAuthority": "ICDS Anganwadi"
+        },
+        {
+          "id": 2803,
+          "documentType": "BANK_PASSBOOK",
+          "documentName": "Bank Account linked to Aadhaar",
+          "purpose": "DBT payment",
+          "requiredFlag": true,
+          "issuingAuthority": "Bank"
+        }
+      ],
+      "applicationGuides": [
+        {
+          "stepNumber": 1,
+          "title": "Register at Anganwadi / PHC / ASHA",
+          "instruction": "Register pregnancy at nearest Anganwadi Centre or Primary Health Centre to initiate PMMVY.",
+          "sourceUrl": "https://wcd.nic.in"
+        }
+      ]
     },
     {
       "id": 28,
@@ -2117,54 +2079,9 @@
           "sourceUrl": "https://pmvishwakarma.gov.in"
         }
       ]
-    },
-    {
-      "name": "MahaDBT Scholarship Portal (Maharashtra)",
-      "description": "MahaDBT Scholarship Portal (Maharashtra) - Official Government Scheme",
-      "benefit": "This facility for opening of accounts in IPPB with Aadhaar seeding is available for receiving DBT benefits for other students and public as well. The account opening is done in real time and in a paperless manner.",
-      "category": "EDUCATION",
-      "governmentLevel": "STATE",
-      "state": "Maharashtra",
-      "targetBeneficiaries": "As per official eligibility criteria",
-      "sourceUrl": "https://mahadbt.maharashtra.gov.in/",
-      "lastVerified": "2026-10-19",
-      "active": true,
-      "isDemoData": false,
-      "verificationStatus": "LIVE_SCRAPED",
-      "source": "mahadbt.maharashtra.gov.in",
-      "rules": [],
-      "requiredDocuments": [],
-      "applicationGuides": [],
-      "scrapedAt": "2026-10-19T06:56:50.427Z",
-      "id": 31,
-      "lastFetched": "2026-10-19T06:57:03.233Z",
-      "createdAt": "2026-10-19T06:57:03.233Z",
-      "updatedAt": "2026-10-19T06:57:03.233Z"
-    },
-    {
-      "name": "National Scholarship Portal (NSP)",
-      "description": "NSP: National Scholarship Portal",
-      "benefit": "As per official scheme guidelines — visit the official portal for latest benefit amounts.",
-      "category": "EDUCATION",
-      "governmentLevel": "CENTRAL",
-      "state": "All India",
-      "targetBeneficiaries": "As per official eligibility criteria",
-      "sourceUrl": "https://nsp.gov.in/",
-      "lastVerified": "2026-10-19",
-      "active": true,
-      "isDemoData": false,
-      "verificationStatus": "LIVE_SCRAPED",
-      "source": "nsp.gov.in",
-      "rules": [],
-      "requiredDocuments": [],
-      "applicationGuides": [],
-      "scrapedAt": "2026-10-19T06:57:03.221Z",
-      "id": 32,
-      "lastFetched": "2026-10-19T06:57:03.236Z",
-      "createdAt": "2026-10-19T06:57:03.236Z",
-      "updatedAt": "2026-10-19T06:57:03.236Z"
     }
   ],
+  "scheme_rules": [],
   "documentGuides": [
     {
       "id": 1,
@@ -2818,5 +2735,6 @@
       "isLive": true
     }
   ],
-  "recommendations": []
+  "recommendations": [],
+  "chat_logs": []
 }
