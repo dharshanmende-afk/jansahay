@@ -7,7 +7,10 @@ import { fileURLToPath } from 'url';
 import { config } from './config.js';
 import { db } from './db/database.js';
 import { checkPostgresConnectivity } from './db/pgClient.js';
+import { checkPrismaConnectivity } from './db/prismaClient.js';
 import { globalLimiter } from './middleware/rateLimiter.js';
+import { httpLogger } from './middleware/requestLogger.js';
+import logger from './utils/logger.js';
 
 // Route Handlers
 import authRoutes from './routes/authRoutes.js';
@@ -20,6 +23,7 @@ import aiRoutes from './routes/aiRoutes.js';
 import updateRoutes from './routes/updateRoutes.js';
 import realtimeRoutes from './routes/realtimeRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
+import feedbackRoutes from './routes/feedbackRoutes.js';
 
 const app = express();
 
@@ -64,8 +68,8 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-// 3. Request Logging (Morgan)
-app.use(morgan(config.nodeEnv === 'production' ? 'combined' : 'dev'));
+// 3. Structured Request Logging (Pino HTTP)
+app.use(httpLogger);
 
 // 4. Request Body Parsers
 app.use(express.json({ limit: '10mb' }));
@@ -78,6 +82,8 @@ app.use('/api', globalLimiter);
 app.get('/api/health', async (req, res) => {
   try {
     const isPostgresUp = await checkPostgresConnectivity();
+    const isPrismaUp = await checkPrismaConnectivity();
+    const isDbConnected = isPostgresUp || isPrismaUp;
     const uptimeSeconds = Math.floor(process.uptime());
 
     return res.json({
@@ -87,20 +93,23 @@ app.get('/api/health', async (req, res) => {
       environment: config.nodeEnv,
       uptimeSeconds,
       database: {
-        status: isPostgresUp ? 'CONNECTED' : 'LOCAL_STORAGE_ACTIVE',
-        engine: isPostgresUp ? 'PostgreSQL 16 (Relational)' : 'Local High-Performance Seed Storage',
-        connected: true
+        status: isDbConnected ? 'CONNECTED' : 'LOCAL_STORAGE_ACTIVE',
+        engine: isDbConnected ? 'PostgreSQL 16 (Relational via Prisma)' : 'Local High-Performance Seed Storage',
+        connected: true,
+        prisma: isPrismaUp ? 'CONNECTED' : 'STANDBY'
       },
       services: {
         auth: 'ACTIVE',
         eligibilityEngine: 'ACTIVE',
         rtsDocumentGuides: 'ACTIVE',
         aiAssistant: 'ACTIVE',
-        governmentSync: 'ACTIVE'
+        governmentSync: 'ACTIVE',
+        feedbackAudit: 'ACTIVE'
       },
       timestamp: new Date().toISOString()
     });
   } catch (err) {
+    logger.error({ err: err.message }, 'Health check failure');
     return res.status(503).json({
       status: 'DEGRADED',
       error: 'HealthCheckFailed',
@@ -121,6 +130,7 @@ app.use('/api/ai', aiRoutes);
 app.use('/api/updates', updateRoutes);
 app.use('/api/realtime', realtimeRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/feedback', feedbackRoutes);
 
 // 8. 404 Route Catch-all
 app.use((req, res) => {
@@ -136,7 +146,12 @@ app.use((err, req, res, next) => {
   const statusCode = err.statusCode || err.status || 500;
   const isProduction = config.nodeEnv === 'production';
 
-  console.error(`[Unhandled Error] ${req.method} ${req.url}:`, err.message || err);
+  logger.error({
+    method: req.method,
+    url: req.url,
+    statusCode,
+    error: err.message || err
+  }, 'Unhandled request error');
 
   res.status(statusCode).json({
     success: false,

@@ -116,4 +116,35 @@ const saveProfileHandler = (req, res) => {
 router.post('/', authMiddleware, validate(profileSchema), saveProfileHandler);
 router.put('/', authMiddleware, validate(profileSchema), saveProfileHandler);
 
+// DELETE /api/profile/delete-my-data (Citizen Data Erasure)
+router.delete('/delete-my-data', authMiddleware, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const profile = db.findOne('profiles', p => String(p.userId) === String(userId));
+    if (profile) db.delete('profiles', profile.id);
+
+    const userDocs = db.find('userDocuments', d => String(d.userId) === String(userId));
+    userDocs.forEach(d => db.delete('userDocuments', d.id));
+
+    const recs = db.find('recommendations', r => String(r.userId) === String(userId));
+    recs.forEach(r => db.delete('recommendations', r.id));
+
+    if (db.prisma && await db.isPrismaConnected()) {
+      await db.prisma.profile.deleteMany({ where: { userId } }).catch(() => {});
+      await db.prisma.userDocument.deleteMany({ where: { userId } }).catch(() => {});
+    }
+
+    return res.json({
+      success: true,
+      message: 'Citizen profile and document records have been permanently erased.'
+    });
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      error: 'ServerError',
+      message: 'Failed to erase citizen profile data.'
+    });
+  }
+});
+
 export default router;

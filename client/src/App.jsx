@@ -13,6 +13,7 @@ import { LiveUpdatesPage } from './pages/LiveUpdatesPage';
 import { AdminDashboardPage } from './pages/AdminDashboardPage';
 import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
+import { PrivacyPolicyPage } from './pages/PrivacyPolicyPage';
 import { AIChatDrawer } from './components/AIChatDrawer';
 
 export const App = () => {
@@ -32,6 +33,7 @@ export const App = () => {
           <Route path="/admin" element={<AdminDashboardPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/privacy" element={<PrivacyPolicyPage />} />
         </Routes>
       </main>
       <Footer />

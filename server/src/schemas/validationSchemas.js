@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 // ==============================================================================
-// Authentication Schemas
+// Authentication & Account Privacy Schemas
 // ==============================================================================
 
 export const registerSchema = z.object({
@@ -22,6 +22,16 @@ export const quickLoginSchema = z.object({
 
 export const refreshTokenSchema = z.object({
   refreshToken: z.string().min(10, 'Valid refresh token is required')
+});
+
+export const deleteAccountSchema = z.object({
+  password: z.string().min(1, 'Password confirmation is required to delete your account')
+});
+
+export const deleteDataSchema = z.object({
+  confirmation: z.literal('DELETE_MY_DATA', {
+    errorMap: () => ({ message: 'Please type DELETE_MY_DATA to confirm removal of your profile and documents' })
+  }).optional()
 });
 
 // ==============================================================================
@@ -49,6 +59,11 @@ export const profileSchema = z.object({
   businessDescription: z.string().optional().nullable(),
   disabilityStatus: z.string().optional().nullable(),
   inHandDocuments: z.array(z.string()).optional()
+});
+
+export const anonymousProfileSchema = profileSchema.partial().extend({
+  state: z.string().default('Maharashtra'),
+  category: z.string().default('GENERAL')
 });
 
 // ==============================================================================
@@ -97,6 +112,41 @@ export const aiExplainSchema = z.object({
 });
 
 // ==============================================================================
+// Scheme & Document Query / Param Schemas
+// ==============================================================================
+
+export const idParamSchema = z.object({
+  id: z.string().regex(/^\d+$/, 'ID must be a positive integer').transform(Number)
+});
+
+export const schemeQuerySchema = z.object({
+  category: z.string().optional(),
+  state: z.string().optional(),
+  search: z.string().optional(),
+  q: z.string().optional(),
+  page: z.union([z.number().int().positive(), z.string().regex(/^\d+$/).transform(Number)]).optional().default(1),
+  limit: z.union([z.number().int().positive(), z.string().regex(/^\d+$/).transform(Number)]).optional().default(50)
+});
+
+export const guideQuerySchema = z.object({
+  category: z.string().optional(),
+  state: z.string().optional(),
+  search: z.string().optional()
+});
+
+// ==============================================================================
+// Feedback & Correction Reporting Schemas
+// ==============================================================================
+
+export const feedbackSchema = z.object({
+  schemeId: z.union([z.number(), z.string().transform(Number)]).optional().nullable(),
+  guideId: z.union([z.number(), z.string().transform(Number)]).optional().nullable(),
+  feedbackType: z.enum(['CORRECTION', 'SUGGESTION', 'RATING', 'ERROR_REPORT']).optional().default('CORRECTION'),
+  comment: z.string().trim().min(3, 'Comment must be at least 3 characters long').max(2000, 'Comment exceeds 2000 characters limit'),
+  rating: z.union([z.number().int().min(1).max(5), z.string().transform(Number)]).optional().nullable()
+});
+
+// ==============================================================================
 // Scheme Management Schemas (Admin)
 // ==============================================================================
 
@@ -114,7 +164,8 @@ export const schemeCreateSchema = z.object({
   maxBenefitAmount: z.number().optional(),
   officialPortalUrl: z.string().url('Must be a valid official URL').optional().or(z.literal('')),
   applicationSteps: z.array(z.string()).optional(),
-  requiredDocuments: z.array(z.string()).optional()
+  requiredDocuments: z.array(z.string()).optional(),
+  eligibilityRules: z.array(z.any()).optional()
 });
 
 export const schemeUpdateSchema = schemeCreateSchema.partial();

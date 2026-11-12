@@ -1,8 +1,9 @@
 import express from 'express';
 import { db } from '../db/database.js';
 import { authMiddleware } from '../middleware/authMiddleware.js';
+import { validate } from '../middleware/validate.js';
+import { idParamSchema } from '../schemas/validationSchemas.js';
 import { DocumentAnalysisService } from '../services/documentAnalysisService.js';
-import { EligibilityEngine } from '../services/eligibilityEngine.js';
 
 const router = express.Router();
 
@@ -35,18 +36,20 @@ router.get('/', (req, res) => {
       );
     }
 
+    const parsedPage = Math.max(0, parseInt(page) || 0);
+    const parsedSize = Math.min(200, Math.max(1, parseInt(size) || 50));
     const totalElements = schemes.length;
-    const start = parseInt(page) * parseInt(size);
-    const content = schemes.slice(start, start + parseInt(size));
+    const start = parsedPage * parsedSize;
+    const content = schemes.slice(start, start + parsedSize);
 
     return res.json({
       success: true,
       data: {
         content,
         totalElements,
-        totalPages: Math.ceil(totalElements / parseInt(size)),
-        page: parseInt(page),
-        size: parseInt(size)
+        totalPages: Math.ceil(totalElements / parsedSize),
+        page: parsedPage,
+        size: parsedSize
       }
     });
   } catch (err) {
@@ -56,7 +59,7 @@ router.get('/', (req, res) => {
 });
 
 // GET /api/schemes/:id
-router.get('/:id', (req, res) => {
+router.get('/:id', validate(idParamSchema, 'params'), (req, res) => {
   const scheme = db.findById('schemes', req.params.id);
   if (!scheme) {
     return res.status(404).json({ success: false, message: 'Scheme record not found' });
@@ -68,7 +71,7 @@ router.get('/:id', (req, res) => {
 });
 
 // GET /api/schemes/:id/documents
-router.get('/:id/documents', (req, res) => {
+router.get('/:id/documents', validate(idParamSchema, 'params'), (req, res) => {
   const scheme = db.findById('schemes', req.params.id);
   if (!scheme) {
     return res.status(404).json({ success: false, message: 'Scheme record not found' });
@@ -80,7 +83,7 @@ router.get('/:id/documents', (req, res) => {
 });
 
 // GET /api/schemes/:id/document-readiness (Authenticated)
-router.get('/:id/document-readiness', authMiddleware, (req, res) => {
+router.get('/:id/document-readiness', authMiddleware, validate(idParamSchema, 'params'), (req, res) => {
   const scheme = db.findById('schemes', req.params.id);
   if (!scheme) {
     return res.status(404).json({ success: false, message: 'Scheme record not found' });
@@ -98,7 +101,7 @@ router.get('/:id/document-readiness', authMiddleware, (req, res) => {
 });
 
 // GET /api/schemes/:id/application-guide
-router.get('/:id/application-guide', (req, res) => {
+router.get('/:id/application-guide', validate(idParamSchema, 'params'), (req, res) => {
   const scheme = db.findById('schemes', req.params.id);
   if (!scheme) {
     return res.status(404).json({ success: false, message: 'Scheme record not found' });

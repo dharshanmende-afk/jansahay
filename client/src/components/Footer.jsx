@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ShieldCheck, ExternalLink, Info, AlertTriangle } from 'lucide-react';
+import { ShieldCheck, ExternalLink, AlertTriangle } from 'lucide-react';
 
 export const Footer = () => {
   return (
@@ -31,8 +31,8 @@ export const Footer = () => {
               Empowering Indian citizens through rule-based scheme discovery, transparent document preparation checklists, and grounded multilingual assistance.
             </p>
             <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
-              College Mini-Project Submission 2026<br />
-              Department of Computer Engineering & IT
+              Open-Source Civic Platform 2026<br />
+              Government Welfare & Document Readiness
             </div>
           </div>
 
@@ -40,11 +40,12 @@ export const Footer = () => {
           <div>
             <h5 style={{ color: 'white', fontWeight: 700, fontSize: '0.9rem', marginBottom: '0.75rem' }}>Core Modules</h5>
             <ul style={{ listStyle: 'none', padding: 0, fontSize: '0.825rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-              <li><Link to="/schemes" style={{ color: '#cbd5e1', textDecoration: 'none' }}>35+ Verified Schemes</Link></li>
+              <li><Link to="/schemes" style={{ color: '#cbd5e1', textDecoration: 'none' }}>50+ Verified Schemes</Link></li>
               <li><Link to="/recommendations" style={{ color: '#cbd5e1', textDecoration: 'none' }}>Explainable Eligibility Engine</Link></li>
               <li><Link to="/document-preparation" style={{ color: '#cbd5e1', textDecoration: 'none' }}>My Document Preparation</Link></li>
               <li><Link to="/document-guides" style={{ color: '#cbd5e1', textDecoration: 'none' }}>Smart Document Acquisition Guides</Link></li>
               <li><Link to="/updates" style={{ color: '#cbd5e1', textDecoration: 'none' }}>Real-time Government Updates</Link></li>
+              <li><Link to="/privacy" style={{ color: '#38bdf8', fontWeight: 600, textDecoration: 'none' }}>Privacy Policy & Citizen Data Rights</Link></li>
             </ul>
           </div>
 
@@ -76,16 +77,21 @@ export const Footer = () => {
                 <ShieldCheck size={16} color="#10b981" />
                 <span>Verified state & central sources</span>
               </div>
+              <div style={{ marginTop: '0.5rem' }}>
+                <Link to="/privacy" style={{ color: '#10b981', fontSize: '0.78rem', textDecoration: 'underline' }}>
+                  Manage Data & Account Deletion →
+                </Link>
+              </div>
             </div>
           </div>
         </div>
 
         <div style={{ borderTop: '1px solid #1e293b', paddingTop: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.75rem', color: '#64748b', flexWrap: 'wrap', gap: '1rem' }}>
           <div>
-            © 2026 JanSahay AI Project • Designed for Indian Citizens • College Mini-Project
+            © 2026 JanSahay AI • Built for Indian Citizens • DPDP Act 2023 Aligned
           </div>
           <div>
-            Built with React, Node.js, Express & Embedded Persistence
+            React 18, Node.js, Express, PostgreSQL & Prisma ORM
           </div>
         </div>
       </div>

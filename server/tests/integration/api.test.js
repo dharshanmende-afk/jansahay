@@ -274,4 +274,98 @@ describe('JanSahay AI - API Integration Test Suite', () => {
       assert.ok(res.body.data.totalUsers >= 1);
     });
   });
+
+  // 7. Phase 3 Security, Feedback & Citizen Privacy Rights
+  describe('Phase 3 Security, Feedback & DPDP Privacy Controls', () => {
+    it('POST /api/feedback rejects invalid payload via Zod with 400', async () => {
+      const res = await request(app)
+        .post('/api/feedback')
+        .send({ comment: 'x' }); // Too short (< 3 chars)
+
+      assert.equal(res.status, 400);
+      assert.equal(res.body.success, false);
+    });
+
+    it('POST /api/feedback records citizen correction report', async () => {
+      const res = await request(app)
+        .post('/api/feedback')
+        .set('Authorization', `Bearer ${citizenToken}`)
+        .send({
+          schemeId: 1,
+          feedbackType: 'CORRECTION',
+          comment: 'Test verification feedback report for scheme rules'
+        });
+
+      assert.equal(res.status, 201);
+      assert.equal(res.body.success, true);
+      assert.equal(res.body.data.status, 'PENDING');
+    });
+
+    it('POST /api/auth/refresh revokes reused refresh token family on replay', async () => {
+      // 1. Login to get fresh token pair
+      const loginRes = await request(app)
+        .post('/api/auth/login')
+        .send({ email: testEmail, password: testPassword });
+      assert.equal(loginRes.status, 200);
+      const token1 = loginRes.body.data.refreshToken;
+
+      // 2. Rotate once -> valid
+      const rot1 = await request(app)
+        .post('/api/auth/refresh')
+        .send({ refreshToken: token1 });
+      assert.equal(rot1.status, 200);
+      const token2 = rot1.body.data.refreshToken;
+
+      // 3. Replay token1 -> rejected with 401 TokenRevoked
+      const replay = await request(app)
+        .post('/api/auth/refresh')
+        .send({ refreshToken: token1 });
+      assert.equal(replay.status, 401);
+      assert.equal(replay.body.error, 'TokenRevoked');
+
+      // 4. Subsequent use of token2 in compromised family -> rejected with 401
+      const rot2 = await request(app)
+        .post('/api/auth/refresh')
+        .send({ refreshToken: token2 });
+      assert.equal(rot2.status, 401);
+    });
+
+    it('DELETE /api/auth/delete-my-data erases profile & documents while retaining user account', async () => {
+      const delRes = await request(app)
+        .delete('/api/auth/delete-my-data')
+        .set('Authorization', `Bearer ${citizenToken}`);
+
+      assert.equal(delRes.status, 200);
+      assert.equal(delRes.body.success, true);
+
+      // Profile should now be null
+      const profRes = await request(app)
+        .get('/api/profile')
+        .set('Authorization', `Bearer ${citizenToken}`);
+      assert.equal(profRes.status, 200);
+      assert.equal(profRes.body.data, null);
+
+      // User account is still accessible
+      const meRes = await request(app)
+        .get('/api/auth/me')
+        .set('Authorization', `Bearer ${citizenToken}`);
+      assert.equal(meRes.status, 200);
+    });
+
+    it('DELETE /api/auth/delete-my-account permanently purges user account', async () => {
+      const delAccRes = await request(app)
+        .delete('/api/auth/delete-my-account')
+        .set('Authorization', `Bearer ${citizenToken}`)
+        .send({ password: testPassword });
+
+      assert.equal(delAccRes.status, 200);
+      assert.equal(delAccRes.body.success, true);
+
+      // Subsequent /api/auth/me must reject with 401
+      const meRes = await request(app)
+        .get('/api/auth/me')
+        .set('Authorization', `Bearer ${citizenToken}`);
+      assert.equal(meRes.status, 401);
+    });
+  });
 });
