@@ -9,6 +9,7 @@ import { checkPrismaConnectivity } from './db/prismaClient.js';
 import { globalLimiter } from './middleware/rateLimiter.js';
 import { httpLogger } from './middleware/requestLogger.js';
 import logger from './utils/logger.js';
+import { reportErrorToSentry } from './utils/observability.js';
 
 // Route Handlers
 import authRoutes from './routes/authRoutes.js';
@@ -104,6 +105,11 @@ app.get('/api/health', async (req, res) => {
         governmentSync: 'ACTIVE',
         feedbackAudit: 'ACTIVE'
       },
+      observability: {
+        structuredLogging: 'pino',
+        logLevel: config.logLevel,
+        sentryEnabled: Boolean(config.sentryDsn)
+      },
       timestamp: new Date().toISOString()
     });
   } catch (err) {
@@ -150,6 +156,10 @@ app.use((err, req, res, next) => {
     statusCode,
     error: err.message || err
   }, 'Unhandled request error');
+
+  if (statusCode >= 500) {
+    reportErrorToSentry(err, { method: req.method, url: req.url, statusCode }).catch(() => {});
+  }
 
   res.status(statusCode).json({
     success: false,

@@ -39,6 +39,17 @@ export const App = () => {
     window.addEventListener('online', onOnline);
     window.addEventListener('offline', onOffline);
 
+    // Optional privacy-friendly Plausible Analytics (only loads when VITE_PLAUSIBLE_DOMAIN is set)
+    const plausibleDomain = import.meta.env?.VITE_PLAUSIBLE_DOMAIN;
+    if (plausibleDomain && !document.getElementById('plausible-analytics-script')) {
+      const script = document.createElement('script');
+      script.id = 'plausible-analytics-script';
+      script.defer = true;
+      script.setAttribute('data-domain', plausibleDomain);
+      script.src = 'https://plausible.io/js/script.js';
+      document.head.appendChild(script);
+    }
+
     return () => {
       window.removeEventListener('jansahay-server-waking', onWaking);
       window.removeEventListener('online', onOnline);

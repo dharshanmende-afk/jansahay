@@ -16,6 +16,7 @@ export const config = {
   aiProvider: process.env.AI_PROVIDER || 'deterministic',
   geminiApiKey: process.env.GEMINI_API_KEY || '',
   databaseUrl: process.env.DATABASE_URL || '',
+  sentryDsn: process.env.SENTRY_DSN || '',
   logLevel: process.env.LOG_LEVEL || 'info',
 };
 
