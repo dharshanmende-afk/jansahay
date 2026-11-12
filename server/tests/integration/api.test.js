@@ -374,4 +374,83 @@ describe('JanSahay AI - API Integration Test Suite (Vitest)', () => {
       assert.equal(meRes.status, 401);
     });
   });
+
+  // 8. Phase 6 Real-User Usability (Anonymous Check + Error Reports)
+  describe('Phase 6 Anonymous Mode & Scheme/Guide Error Reporting', () => {
+    it('POST /api/recommendations/anonymous-check evaluates schemes without authentication', async () => {
+      const res = await request(app)
+        .post('/api/recommendations/anonymous-check')
+        .send({
+          age: 21,
+          state: 'Maharashtra',
+          category: 'STUDENT',
+          socialCategory: 'OBC',
+          annualIncome: 150000,
+          educationLevel: 'UNDERGRADUATE',
+          inHandDocuments: ['Aadhaar Card']
+        });
+
+      assert.equal(res.status, 200);
+      assert.equal(res.body.success, true);
+      assert.equal(res.body.anonymous, true);
+      assert.ok(Array.isArray(res.body.data));
+      assert.ok(res.body.data.length >= 1);
+      assert.ok(res.body.data.some(r => ['STRONG_MATCH', 'POTENTIAL_MATCH', 'MORE_INFORMATION_REQUIRED'].includes(r.matchType)));
+    });
+
+    it('POST /api/recommendations/anonymous-check evaluates farmer profile cleanly', async () => {
+      const res = await request(app)
+        .post('/api/recommendations/anonymous-check')
+        .send({
+          age: 42,
+          state: 'Maharashtra',
+          category: 'FARMER',
+          annualIncome: 90000,
+          landHoldingAcres: 2,
+          inHandDocuments: []
+        });
+
+      assert.equal(res.status, 200);
+      assert.equal(res.body.success, true);
+      assert.ok(Array.isArray(res.body.data));
+      assert.ok(res.body.data.length >= 1);
+    });
+
+    it('POST /api/recommendations/anonymous-check rejects invalid profile with 400', async () => {
+      const res = await request(app)
+        .post('/api/recommendations/anonymous-check')
+        .send({
+          age: -5,
+          annualIncome: -1000
+        });
+
+      assert.equal(res.status, 400);
+      assert.equal(res.body.success, false);
+    });
+
+    it('POST /api/feedback stores anonymous ERROR_REPORT for schemeId and guideId', async () => {
+      const schemeReport = await request(app)
+        .post('/api/feedback')
+        .send({
+          schemeId: 1,
+          feedbackType: 'ERROR_REPORT',
+          comment: 'Income limit note needs verification on official portal.'
+        });
+
+      assert.equal(schemeReport.status, 201);
+      assert.equal(schemeReport.body.success, true);
+      assert.equal(schemeReport.body.data.status, 'PENDING');
+
+      const guideReport = await request(app)
+        .post('/api/feedback')
+        .send({
+          guideId: 1,
+          feedbackType: 'ERROR_REPORT',
+          comment: 'Aadhaar Seva Kendra fee updated on UIDAI portal.'
+        });
+
+      assert.equal(guideReport.status, 201);
+      assert.equal(guideReport.body.success, true);
+    });
+  });
 });
