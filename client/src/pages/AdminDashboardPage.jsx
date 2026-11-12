@@ -319,7 +319,7 @@ export const AdminDashboardPage = () => {
         {activeTab === 'ANALYTICS' && analytics && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
             {/* Row 1: Most Viewed Schemes & Common Missing Documents */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(450px, 1fr))', gap: '1.5rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 340px), 1fr))', gap: '1.5rem' }}>
               {/* Most-Viewed Schemes */}
               <div className="card" style={{ padding: '1.5rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
@@ -407,7 +407,7 @@ export const AdminDashboardPage = () => {
             </div>
 
             {/* Row 2: Multilingual Language Distribution & Citizen Categories */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(450px, 1fr))', gap: '1.5rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 340px), 1fr))', gap: '1.5rem' }}>
               {/* Language Usage Breakdown */}
               <div className="card" style={{ padding: '1.5rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>

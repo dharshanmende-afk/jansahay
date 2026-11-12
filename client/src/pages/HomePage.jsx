@@ -65,7 +65,7 @@ export const HomePage = () => {
       <div style={{ backgroundColor: '#fff7ed', borderBottom: '1px solid #ffedd5', padding: '0.5rem 0' }}>
         <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flex: 1, minWidth: '280px' }}>
-            <span style={{ background: '#ea580c', color: 'white', fontSize: '0.65rem', fontWeight: 800, padding: '0.15rem 0.5rem', borderRadius: '4px', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+            <span style={{ background: '#9a3412', color: 'white', fontSize: '0.65rem', fontWeight: 800, padding: '0.15rem 0.5rem', borderRadius: '4px', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
               <TrendingUp size={12} /> LIVE UPDATES
             </span>
             <div style={{ fontSize: '0.8rem', color: '#9a3412', fontWeight: 600, overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
@@ -214,7 +214,7 @@ export const HomePage = () => {
       {/* Feature Highlights Grid */}
       <section style={{ padding: '4rem 0', backgroundColor: '#f8fafc', borderTop: '1px solid #e2e8f0' }}>
         <div className="container">
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '2rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '2rem' }}>
             {/* Box 1: Smart Document Guidance */}
             <div className="card" style={{ padding: '2rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>

@@ -30,7 +30,7 @@ export const Footer = () => {
             <p style={{ fontSize: '0.825rem', color: '#94a3b8', lineHeight: 1.6, marginBottom: '1rem' }}>
               Empowering Indian citizens through rule-based scheme discovery, transparent document preparation checklists, and grounded multilingual assistance.
             </p>
-            <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
+            <div style={{ fontSize: '0.75rem', color: '#cbd5e1' }}>
               Open-Source Civic Platform 2026<br />
               Government Welfare & Document Readiness
             </div>
@@ -86,7 +86,7 @@ export const Footer = () => {
           </div>
         </div>
 
-        <div style={{ borderTop: '1px solid #1e293b', paddingTop: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.75rem', color: '#64748b', flexWrap: 'wrap', gap: '1rem' }}>
+        <div style={{ borderTop: '1px solid #1e293b', paddingTop: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.75rem', color: '#cbd5e1', flexWrap: 'wrap', gap: '1rem' }}>
           <div>
             © 2026 JanSahay AI • Built for Indian Citizens • DPDP Act 2023 Aligned
           </div>

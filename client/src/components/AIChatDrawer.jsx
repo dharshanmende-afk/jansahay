@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import { aiService } from '../services/api';
 import { searchKnowledgeBase, POPULAR_PROMPT_PILLS } from '../services/aiKnowledgeBase';
+import { VoiceMicButton, SpeakButton } from './VoiceControls';
 
 // Safe URL validator: strictly permits only http:// and https://
 function isSafeUrl(url) {
@@ -588,7 +589,8 @@ export const AIChatDrawer = ({ currentScheme = null }) => {
                       <span>{m.provider}</span>
                     </div>
                     {idx > 0 && !m.isError && (
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', flexWrap: 'wrap' }}>
+                        <SpeakButton text={m.text} language={language} label="Listen" />
                         <button
                           type="button"
                           aria-label="Thumbs up"
@@ -702,17 +704,24 @@ export const AIChatDrawer = ({ currentScheme = null }) => {
           {/* Input Box */}
           <form
             onSubmit={(e) => { e.preventDefault(); handleSend(); }}
-            style={{ padding: '0.65rem', borderTop: '1px solid #e2e8f0', background: '#ffffff', display: 'flex', gap: '0.5rem', flexShrink: 0 }}>
+            style={{ padding: '0.65rem', borderTop: '1px solid #e2e8f0', background: '#ffffff', display: 'flex', gap: '0.4rem', flexShrink: 0, alignItems: 'center' }}>
+            <VoiceMicButton
+              language={language}
+              disabled={loading}
+              onTranscript={(spokenText) => setInput(prev => prev ? `${prev} ${spokenText}` : spokenText)}
+            />
             <input
               type="text"
+              aria-label="Ask a scheme or document question"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Ask in EN / HI / MR or type your profile..."
+              placeholder="Ask or speak in EN / HI / MR..."
               disabled={loading}
               maxLength={1000}
               style={{
                 flex: 1,
-                padding: '0.55rem 0.85rem',
+                minWidth: 0,
+                padding: '0.55rem 0.75rem',
                 borderRadius: '0.5rem',
                 border: '1px solid #cbd5e1',
                 fontSize: '0.82rem',
@@ -721,10 +730,11 @@ export const AIChatDrawer = ({ currentScheme = null }) => {
             />
             <button
               type="submit"
+              aria-label="Send question"
               disabled={!input.trim() || loading}
               className="btn btn-primary btn-sm"
-              style={{ padding: '0 0.85rem', borderRadius: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Send size={15} />
+              style={{ padding: '0 0.85rem', minHeight: '38px', borderRadius: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Send size={15} aria-hidden="true" />
             </button>
           </form>
         </div>
