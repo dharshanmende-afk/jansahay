@@ -14,11 +14,16 @@ const api = axios.create({
   }
 });
 
-// Request interceptor to attach JWT token
+// Request interceptor to attach JWT token & track slow cold-start server requests
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('jansahay_token');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
+  }
+  if (typeof window !== 'undefined') {
+    config._slowTimer = setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('jansahay-server-waking', { detail: { waking: true } }));
+    }, 2500);
   }
   return config;
 }, (error) => {
@@ -28,9 +33,17 @@ api.interceptors.request.use((config) => {
 // Response interceptor to unwrap data and handle 401 with automatic token refresh
 api.interceptors.response.use(
   (response) => {
+    if (response.config?._slowTimer) clearTimeout(response.config._slowTimer);
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('jansahay-server-waking', { detail: { waking: false } }));
+    }
     return response.data;
   },
   async (error) => {
+    if (error.config?._slowTimer) clearTimeout(error.config._slowTimer);
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('jansahay-server-waking', { detail: { waking: false } }));
+    }
     const originalRequest = error.config;
     if (error.response && error.response.status === 401 && !originalRequest._retry) {
       const refreshToken = localStorage.getItem('jansahay_refresh_token');
@@ -113,7 +126,8 @@ export const schemeService = {
 
 export const recommendationService = {
   getRecommendations: () => api.get('/recommendations'),
-  generateRecommendations: () => api.post('/recommendations/generate')
+  generateRecommendations: () => api.post('/recommendations/generate'),
+  anonymousCheck: (profile) => api.post('/recommendations/anonymous-check', profile)
 };
 
 export const documentService = {

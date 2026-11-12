@@ -58,7 +58,7 @@ export const ProfileWizardPage = () => {
   });
 
   useEffect(() => {
-    // If user has existing profile, pre-populate
+    // If user has existing profile, pre-populate; otherwise restore anonymous draft
     if (isAuthenticated) {
       profileService.getProfile().then(res => {
         if (res.success && res.data) {
@@ -71,6 +71,22 @@ export const ProfileWizardPage = () => {
           }));
         }
       }).catch(err => console.log('No prior profile'));
+    } else {
+      try {
+        const anonSaved = localStorage.getItem('jansahay_anon_profile');
+        if (anonSaved) {
+          const parsed = JSON.parse(anonSaved);
+          setFormData(prev => ({
+            ...prev,
+            ...parsed,
+            inHandDocuments: (parsed.inHandDocuments && parsed.inHandDocuments.length > 0)
+              ? parsed.inHandDocuments
+              : prev.inHandDocuments
+          }));
+        }
+      } catch {
+        // Ignore storage errors
+      }
     }
   }, [isAuthenticated]);
 
@@ -121,9 +137,10 @@ export const ProfileWizardPage = () => {
     setLoading(true);
     try {
       if (!isAuthenticated) {
-        // Automatically onboard citizen with appropriate profile
-        const role = formData.category === 'FARMER' ? 'farmer' : formData.category === 'BUSINESS_OWNER' ? 'business' : 'student';
-        await quickLogin(role);
+        // Anonymous mode: evaluate schemes directly without forcing account creation
+        localStorage.setItem('jansahay_anon_profile', JSON.stringify(formData));
+        navigate('/recommendations');
+        return;
       }
       await profileService.saveProfile(formData);
       navigate('/recommendations');

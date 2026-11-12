@@ -28,10 +28,20 @@ export const DocumentPreparationPage = () => {
   const [loading, setLoading] = useState(true);
   const [filterTab, setFilterTab] = useState('ALL'); // ALL, MISSING, AVAILABLE, NEEDS_VERIFICATION
   const [activeGuide, setActiveGuide] = useState(null);
+  const [loadedOfflineCache, setLoadedOfflineCache] = useState(false);
 
   useEffect(() => {
     if (!isAuthenticated) {
-      navigate('/login');
+      try {
+        const cached = localStorage.getItem('jansahay_cached_checklist');
+        if (cached) {
+          setDashboard(JSON.parse(cached));
+          setLoadedOfflineCache(true);
+        }
+      } catch {
+        // ignore
+      }
+      setLoading(false);
       return;
     }
     loadDashboard();
@@ -39,13 +49,24 @@ export const DocumentPreparationPage = () => {
 
   const loadDashboard = async () => {
     setLoading(true);
+    setLoadedOfflineCache(false);
     try {
       const res = await documentService.getPreparationDashboard();
       if (res.success && res.data) {
         setDashboard(res.data);
+        localStorage.setItem('jansahay_cached_checklist', JSON.stringify(res.data));
       }
     } catch (err) {
       console.error('Error loading document preparation dashboard:', err);
+      try {
+        const cached = localStorage.getItem('jansahay_cached_checklist');
+        if (cached) {
+          setDashboard(JSON.parse(cached));
+          setLoadedOfflineCache(true);
+        }
+      } catch {
+        // ignore
+      }
     } finally {
       setLoading(false);
     }
@@ -81,6 +102,27 @@ export const DocumentPreparationPage = () => {
     return (
       <div style={{ textAlign: 'center', padding: '6rem 0', color: '#64748b' }}>
         <p>Analyzing document requirements across all your recommended schemes...</p>
+      </div>
+    );
+  }
+
+  if (!dashboard) {
+    return (
+      <div className="container" style={{ padding: '4rem 1rem', textAlign: 'center', maxWidth: '640px' }}>
+        <div className="card" style={{ padding: '2.25rem 1.5rem' }}>
+          <FileText size={40} color="#1e3a8a" style={{ margin: '0 auto 0.75rem' }} />
+          <h1 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#0f172a', marginBottom: '0.5rem' }}>
+            Your Document Checklist Is Empty
+          </h1>
+          <p style={{ color: '#475569', fontSize: '0.95rem', marginBottom: '1.5rem' }}>
+            Run a free anonymous eligibility check or sign in to save and track your deduplicated document preparation checklist offline.
+          </p>
+          <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <Link to="/profile" className="btn btn-primary">Check Eligibility Free</Link>
+            <Link to="/document-guides" className="btn btn-outline">Browse Document Guides</Link>
+            {!isAuthenticated && <Link to="/login" className="btn btn-outline">Sign In</Link>}
+          </div>
+        </div>
       </div>
     );
   }

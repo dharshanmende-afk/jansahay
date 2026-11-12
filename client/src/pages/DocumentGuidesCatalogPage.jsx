@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { documentGuideService } from '../services/api';
 import { DocumentGuideModal } from '../components/DocumentGuideModal';
 import { FileText, Building, Clock, ArrowRight, ShieldCheck, Search } from 'lucide-react';
+import { ReportWrongInfoButton } from '../components/ReportWrongInfoButton';
 
 export const DocumentGuidesCatalogPage = () => {
   const [guides, setGuides] = useState([]);
@@ -110,13 +111,16 @@ export const DocumentGuidesCatalogPage = () => {
                   </div>
                 </div>
 
-                <div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                   <button
                     onClick={() => setActiveGuide(guide)}
                     className="btn btn-primary"
                     style={{ width: '100%', justifyContent: 'center' }}>
                     <FileText size={16} /> Open Complete Step-by-Step Guide
                   </button>
+                  <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                    <ReportWrongInfoButton guideId={guide.id} entityTitle={guide.title} compact />
+                  </div>
                 </div>
               </div>
             ))}

@@ -25,24 +25,52 @@ export const RecommendationsPage = () => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [selectedSchemeForAI, setSelectedSchemeForAI] = useState(null);
+  const [anonymousMode, setAnonymousMode] = useState(false);
+  const [needsAnonInput, setNeedsAnonInput] = useState(false);
+  const [offlineFallback, setOfflineFallback] = useState(false);
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      navigate('/login');
-      return;
-    }
     loadRecommendations();
   }, [isAuthenticated]);
 
   const loadRecommendations = async () => {
     setLoading(true);
+    setNeedsAnonInput(false);
+    setOfflineFallback(false);
     try {
-      const res = await recommendationService.getRecommendations();
-      if (res.success && res.data) {
-        setRecommendations(res.data);
+      if (isAuthenticated) {
+        setAnonymousMode(false);
+        const res = await recommendationService.getRecommendations();
+        if (res.success && res.data) {
+          setRecommendations(res.data);
+          localStorage.setItem('jansahay_cached_recommendations', JSON.stringify(res.data));
+        }
+      } else {
+        setAnonymousMode(true);
+        const rawAnon = localStorage.getItem('jansahay_anon_profile');
+        if (!rawAnon) {
+          setNeedsAnonInput(true);
+          setRecommendations([]);
+          return;
+        }
+        const anonProfile = JSON.parse(rawAnon);
+        const res = await recommendationService.anonymousCheck(anonProfile);
+        if (res.success && res.data) {
+          setRecommendations(res.data);
+          localStorage.setItem('jansahay_cached_recommendations', JSON.stringify(res.data));
+        }
       }
     } catch (err) {
       console.error('Error fetching recommendations:', err);
+      try {
+        const cached = localStorage.getItem('jansahay_cached_recommendations');
+        if (cached) {
+          setRecommendations(JSON.parse(cached));
+          setOfflineFallback(true);
+        }
+      } catch {
+        // ignore
+      }
     } finally {
       setLoading(false);
     }
@@ -51,9 +79,14 @@ export const RecommendationsPage = () => {
   const handleForceRefresh = async () => {
     setRefreshing(true);
     try {
-      const res = await recommendationService.generateRecommendations();
-      if (res.success && res.data) {
-        setRecommendations(res.data);
+      if (isAuthenticated) {
+        const res = await recommendationService.generateRecommendations();
+        if (res.success && res.data) {
+          setRecommendations(res.data);
+          localStorage.setItem('jansahay_cached_recommendations', JSON.stringify(res.data));
+        }
+      } else {
+        await loadRecommendations();
       }
     } catch (err) {
       alert('Error updating matches');
@@ -116,10 +149,56 @@ export const RecommendationsPage = () => {
           </div>
         </div>
 
+        {anonymousMode && !needsAnonInput && (
+          <div
+            role="region"
+            aria-label="Guest mode notice"
+            style={{
+              backgroundColor: '#eff6ff',
+              border: '1px solid #bfdbfe',
+              borderRadius: '0.65rem',
+              padding: '0.85rem 1.15rem',
+              marginBottom: '1.5rem',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              flexWrap: 'wrap',
+              gap: '0.75rem'
+            }}>
+            <div style={{ fontSize: '0.88rem', color: '#1e3a8a' }}>
+              <strong>Anonymous Mode Active:</strong> Showing verified matches without registration. Want to save results and track your checklist permanently?
+            </div>
+            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+              <Link to="/register" className="btn btn-primary btn-sm">Sign Up to Save</Link>
+              <Link to="/login" className="btn btn-outline btn-sm">Login</Link>
+            </div>
+          </div>
+        )}
+
+        {offlineFallback && (
+          <div role="status" style={{ backgroundColor: '#fef3c7', color: '#92400e', padding: '0.65rem 1rem', borderRadius: '0.5rem', marginBottom: '1.25rem', fontSize: '0.85rem', fontWeight: 600 }}>
+            Showing cached offline recommendations (network unavailable).
+          </div>
+        )}
+
         {loading ? (
-          <div style={{ textAlign: 'center', padding: '5rem 0', color: '#64748b' }}>
+          <div style={{ textAlign: 'center', padding: '5rem 0', color: '#475569' }}>
             <Sparkles size={32} color="#1e3a8a" className="animate-spin" style={{ margin: '0 auto 1rem' }} />
-            <p>Evaluating your profile conditions against 35+ verified schemes...</p>
+            <p>Evaluating your profile conditions against verified schemes...</p>
+          </div>
+        ) : needsAnonInput ? (
+          <div className="card" style={{ padding: '2.5rem', textAlign: 'center' }}>
+            <Sparkles size={38} color="#1e3a8a" style={{ margin: '0 auto 0.85rem' }} />
+            <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#0f172a', marginBottom: '0.5rem' }}>
+              Check Eligibility Without Signing Up
+            </h3>
+            <p style={{ color: '#475569', marginBottom: '1.5rem', maxWidth: '540px', margin: '0 auto 1.5rem' }}>
+              Fill out the 1-minute citizen profile wizard privately—no registration or Aadhaar required—or sign in to view your saved matches.
+            </p>
+            <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+              <Link to="/profile" className="btn btn-primary">Start Anonymous Eligibility Check</Link>
+              <Link to="/login" className="btn btn-outline">Sign In to Existing Account</Link>
+            </div>
           </div>
         ) : recommendations.length === 0 ? (
           <div className="card" style={{ padding: '3rem', textAlign: 'center' }}>

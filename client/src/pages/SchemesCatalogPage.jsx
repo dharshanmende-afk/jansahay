@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { schemeService, updateService } from '../services/api';
 import { Search, Filter, BookOpen, ArrowRight, ExternalLink, RefreshCw, CheckCircle2, ShieldCheck, Sparkles } from 'lucide-react';
+import { ReportWrongInfoButton } from '../components/ReportWrongInfoButton';
 
 export const SchemesCatalogPage = () => {
   const [schemes, setSchemes] = useState([]);
@@ -234,24 +235,23 @@ export const SchemesCatalogPage = () => {
                     <span style={{ color: '#15803d', fontWeight: 600 }}>{s.benefit}</span>
                   </div>
 
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
                     <Link to={`/schemes/${s.id}`} className="btn btn-primary btn-sm" style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
                       Check Eligibility & Documents <ArrowRight size={13} />
                     </Link>
 
-                    {s.sourceUrl && (
-                      <a
-                        href={s.sourceUrl.startsWith('http://') || s.sourceUrl.startsWith('https://') ? s.sourceUrl : `https://${s.sourceUrl}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        onClick={(e) => {
-                          const target = s.sourceUrl.startsWith('http://') || s.sourceUrl.startsWith('https://') ? s.sourceUrl : `https://${s.sourceUrl}`;
-                          window.open(target, '_blank', 'noopener,noreferrer');
-                        }}
-                        style={{ fontSize: '0.75rem', color: '#64748b', display: 'flex', alignItems: 'center', gap: '0.25rem', textDecoration: 'none', cursor: 'pointer' }}>
-                        Official Portal <ExternalLink size={11} />
-                      </a>
-                    )}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <ReportWrongInfoButton schemeId={s.id} entityTitle={s.name} compact />
+                      {s.sourceUrl && (
+                        <a
+                          href={s.sourceUrl.startsWith('http://') || s.sourceUrl.startsWith('https://') ? s.sourceUrl : `https://${s.sourceUrl}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{ fontSize: '0.75rem', color: '#475569', display: 'flex', alignItems: 'center', gap: '0.25rem', textDecoration: 'none', cursor: 'pointer' }}>
+                          Official Portal <ExternalLink size={11} />
+                        </a>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>

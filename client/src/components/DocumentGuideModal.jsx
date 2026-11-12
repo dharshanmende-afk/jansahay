@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { X, CheckCircle, ExternalLink, AlertTriangle, Clock, Building, FileText, DollarSign, Check, ShieldCheck, ListOrdered } from 'lucide-react';
 import { documentService } from '../services/api';
+import { ReportWrongInfoButton } from './ReportWrongInfoButton';
+import { SpeakButton } from './VoiceControls';
 
 export const DocumentGuideModal = ({ guide, onClose, onStatusUpdated }) => {
   const [markingAvailable, setMarkingAvailable] = useState(false);
@@ -296,9 +298,13 @@ export const DocumentGuideModal = ({ guide, onClose, onStatusUpdated }) => {
           justifyContent: 'space-between', alignItems: 'center',
           flexWrap: 'wrap', gap: '0.75rem'
         }}>
-          <button onClick={onClose} className="btn btn-outline" style={{ fontWeight: 600 }}>
-            Close Guide
-          </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+            <button onClick={onClose} className="btn btn-outline" style={{ fontWeight: 600 }}>
+              Close Guide
+            </button>
+            <SpeakButton text={`${guide.title}. Steps: ${normalizedSteps.map(s => s.title || s).join('. ')}`} label="Listen" />
+            <ReportWrongInfoButton guideId={guide.id} entityTitle={guide.title} compact />
+          </div>
 
           <button
             onClick={handleMarkAvailable}

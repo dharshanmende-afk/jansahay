@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { schemeService, documentService, documentGuideService } from '../services/api';
 import { DocumentGuideModal } from '../components/DocumentGuideModal';
+import { ReportWrongInfoButton } from '../components/ReportWrongInfoButton';
+import { SpeakButton } from '../components/VoiceControls';
 import {
   CheckCircle,
   AlertTriangle,
@@ -233,7 +235,9 @@ export const SchemeDetailPage = () => {
             <span style={{ color: '#0f172a', fontWeight: 600 }}>{scheme.name}</span>
           </div>
 
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
+            <SpeakButton text={`${scheme.name}. ${scheme.description || ''} Benefit: ${scheme.benefit || ''}`} label="Listen" />
+            <ReportWrongInfoButton schemeId={scheme.id} entityTitle={scheme.name} />
             <button
               onClick={() => window.print()}
               className="btn btn-outline btn-sm"
@@ -246,7 +250,7 @@ export const SchemeDetailPage = () => {
         {/* Scheme Header Card with DIRECT OFFICIAL PORTAL APPLY BUTTON */}
         <div className="card" style={{ padding: '2rem', marginBottom: '2rem', borderTop: '4px solid #1e3a8a', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.06)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1.5rem' }}>
-            <div style={{ flex: 1, minWidth: '320px' }}>
+            <div style={{ flex: 1, minWidth: 'min(100%, 300px)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', flexWrap: 'wrap' }}>
                 <span className="badge" style={{ background: '#eff6ff', color: '#1e40af', border: '1px solid #bfdbfe', fontWeight: 700 }}>
                   {scheme.governmentLevel} GOVERNMENT
