@@ -1,51 +1,53 @@
-import test from 'node:test';
-import assert from 'node:assert/strict';
+import { describe, it, expect } from 'vitest';
 import { GovDataService } from '../src/services/govDataService.js';
 import db from '../src/db/database.js';
 
-test('GovDataService - Real source sync execution and report shape', async () => {
-  const result = await GovDataService.fetchAndSync();
+describe('GovDataService - Live Sync & Concurrency Suite (Vitest)', () => {
+  it('Real source sync execution and report shape', async () => {
+    const result = await GovDataService.fetchAndSync();
 
-  assert.ok(result.startedAt, 'Expected startedAt timestamp');
-  assert.ok(result.completedAt, 'Expected completedAt timestamp');
-  assert.equal(typeof result.totalInserted, 'number');
-  assert.equal(typeof result.totalUpdated, 'number');
-  assert.equal(typeof result.totalSkipped, 'number');
-  assert.equal(typeof result.totalSchemesInDB, 'number');
-  assert.ok(result.totalSchemesInDB > 0, 'Database should contain schemes');
-  assert.ok(Array.isArray(result.sources), 'Sources list should be an array');
-  assert.ok(Array.isArray(result.errors), 'Errors list should be an array');
-});
+    expect(result.startedAt).toBeTruthy();
+    expect(result.completedAt).toBeTruthy();
+    expect(typeof result.totalInserted).toBe('number');
+    expect(typeof result.totalUpdated).toBe('number');
+    expect(typeof result.totalSkipped).toBe('number');
+    expect(typeof result.totalSchemesInDB).toBe('number');
+    expect(result.totalSchemesInDB).toBeGreaterThan(0);
+    expect(Array.isArray(result.sources)).toBe(true);
+    expect(Array.isArray(result.errors)).toBe(true);
+  });
 
-test('GovDataService - Preserves citizen and profile data during sync', async () => {
-  const usersBefore = db.find('users');
-  const profilesBefore = db.find('profiles');
-  
-  assert.ok(usersBefore.length > 0, 'Seed users must exist in DB before sync');
-  const sampleUser = usersBefore[0];
+  it('Preserves citizen and profile data during sync', async () => {
+    const usersBefore = db.find('users');
+    const profilesBefore = db.find('profiles');
 
-  // Perform sync
-  await GovDataService.fetchAndSync();
+    expect(usersBefore.length).toBeGreaterThan(0);
+    const sampleUser = usersBefore[0];
 
-  const usersAfter = db.find('users');
-  const profilesAfter = db.find('profiles');
+    await GovDataService.fetchAndSync();
 
-  assert.equal(usersAfter.length, usersBefore.length, 'User records count must not change');
-  assert.equal(profilesAfter.length, profilesBefore.length, 'Profile records count must not change');
-  assert.ok(usersAfter.some(u => u.id === sampleUser.id), 'Sample user record must be preserved across sync');
-});
+    const usersAfter = db.find('users');
+    const profilesAfter = db.find('profiles');
 
-test('GovDataService - Concurrency lock prevents parallel overwrites', async () => {
-  const [res1, res2] = await Promise.all([
-    GovDataService.fetchAndSync(),
-    GovDataService.fetchAndSync()
-  ]);
+    expect(usersAfter.length).toBe(usersBefore.length);
+    expect(profilesAfter.length).toBe(profilesBefore.length);
+    expect(usersAfter.some(u => u.id === sampleUser.id)).toBe(true);
+  });
 
-  assert.ok(res1);
-  assert.ok(res2);
-  // One runs successfully and the other is either rejected with a lock message or completes
-  const hasLockRejection = (res1.errors && res1.errors.some(e => e.includes('Sync lock active'))) ||
-                          (res2.errors && res2.errors.some(e => e.includes('Sync lock active')));
-  const bothCompleted = typeof res1.totalSchemesInDB === 'number' && typeof res2.totalSchemesInDB === 'number';
-  assert.ok(hasLockRejection || bothCompleted, 'Concurrency lock must be respected or handled gracefully');
+  it('Concurrency lock prevents parallel overwrites', async () => {
+    const [res1, res2] = await Promise.all([
+      GovDataService.fetchAndSync(),
+      GovDataService.fetchAndSync()
+    ]);
+
+    expect(res1).toBeTruthy();
+    expect(res2).toBeTruthy();
+
+    const hasLockRejection =
+      (res1.errors && res1.errors.some(e => e.includes('Sync lock active'))) ||
+      (res2.errors && res2.errors.some(e => e.includes('Sync lock active')));
+    const bothCompleted =
+      typeof res1.totalSchemesInDB === 'number' && typeof res2.totalSchemesInDB === 'number';
+    expect(hasLockRejection || bothCompleted).toBe(true);
+  });
 });

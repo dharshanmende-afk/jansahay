@@ -1,11 +1,9 @@
 import express from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
-import morgan from 'morgan';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { config } from './config.js';
-import { db } from './db/database.js';
 import { checkPostgresConnectivity } from './db/pgClient.js';
 import { checkPrismaConnectivity } from './db/prismaClient.js';
 import { globalLimiter } from './middleware/rateLimiter.js';

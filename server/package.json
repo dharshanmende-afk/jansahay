@@ -12,10 +12,12 @@
     "db:migrate": "node node_modules/prisma/build/index.js migrate deploy --schema=./prisma/schema.prisma",
     "db:push": "node node_modules/prisma/build/index.js db push --schema=./prisma/schema.prisma",
     "migrate": "node -e \"import('./src/db/pgClient.js').then(m => m.runMigrations())\"",
-    "test": "node --test tests/**/*.test.js",
-    "test:unit": "node --test tests/unit/*.test.js",
-    "test:integration": "node --test tests/integration/*.test.js",
-    "test:coverage": "c8 --reporter=text node --test tests/**/*.test.js",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:unit": "vitest run tests/unit",
+    "test:integration": "vitest run tests/integration",
+    "test:coverage": "vitest run --coverage",
+    "lint": "eslint src tests",
     "eval:rag": "node scripts/evalRag.js"
   },
   "dependencies": {
@@ -38,8 +40,11 @@
     "zod": "^4.6.7"
   },
   "devDependencies": {
+    "@vitest/coverage-v8": "^5.1.0",
     "c8": "^12.0.0",
+    "eslint": "^10.14.0",
     "prisma": "^6.19.3",
-    "supertest": "^7.3.2"
+    "supertest": "^7.3.2",
+    "vitest": "^5.1.0"
   }
 }

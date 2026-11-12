@@ -1,15 +1,21 @@
-import test, { describe, it } from 'node:test';
+import { describe, it, beforeAll } from 'vitest';
 import assert from 'node:assert/strict';
 import request from 'supertest';
 import app from '../../src/server.js';
 import db from '../../src/db/database.js';
 
-describe('JanSahay AI - API Integration Test Suite', () => {
+describe('JanSahay AI - API Integration Test Suite (Vitest)', () => {
   let citizenToken = '';
   let citizenRefreshToken = '';
   let adminToken = '';
   const testEmail = `test.citizen.${Date.now()}@example.com`;
   const testPassword = 'Password@123';
+
+  beforeAll(() => {
+    if (db.find('users').length === 0) {
+      db.seedInitial();
+    }
+  });
 
   // 1. Health Endpoint Check
   it('GET /api/health returns 200 OK with database & service statuses', async () => {

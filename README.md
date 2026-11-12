@@ -7,8 +7,9 @@
 [![Maintainer](https://img.shields.io/badge/Maintainer-dharshanmende--afk-orange.svg)](https://github.com/dharshanmende-afk)
 [![Frontend](https://img.shields.io/badge/Frontend-React_18_%7C_Vite-61dafb.svg)](client)
 [![Backend](https://img.shields.io/badge/Backend-Node.js_%7C_Express-339933.svg)](server)
-[![Database](https://img.shields.io/badge/Database-PostgreSQL_%7C_JSON_Store-4169e1.svg)](server/src/db)
-[![Tests](https://img.shields.io/badge/Tests-46_Passing-brightgreen.svg)](server/tests)
+[![Database](https://img.shields.io/badge/Database-PostgreSQL_%7C_Prisma_ORM-4169e1.svg)](server/prisma/schema.prisma)
+[![Tests](https://img.shields.io/badge/Tests-66_Passing-brightgreen.svg)](server/tests)
+[![Coverage](https://img.shields.io/badge/Services_Coverage-84.1%25-brightgreen.svg)](server/vitest.config.js)
 [![Catalog](https://img.shields.io/badge/Catalog-50_Schemes_%7C_14_RTS_Guides-success.svg)](server/data/jansahay-db.json)
 [![Docker](https://img.shields.io/badge/DevOps-Docker_%7C_Compose-2496ed.svg)](docker-compose.yml)
 
@@ -212,13 +213,16 @@ For Windows developers, automated batch scripts are in `scripts/windows`:
 
 ## 🧪 Testing & Quality Assurance
 
-JanSahay AI includes automated unit and integration tests:
+JanSahay AI includes automated unit, security, and API integration tests powered by **Vitest** and **Supertest**:
 
 ```bash
-# Run complete test suite (46 tests passing)
+# Run ESLint check across server source & tests
+npm run lint
+
+# Run complete test suite (66 tests passing)
 npm test
 
-# Run test coverage analysis (c8)
+# Run test coverage analysis (@vitest/coverage-v8 — 84.12% line coverage on services/)
 npm run test:coverage
 
 # Run multilingual RAG benchmark evaluation (31 test prompts)
@@ -253,11 +257,11 @@ npm run build
 
 ---
 
-## 🗺️ Roadmap (Planned Engineering Evolutions)
+## 🗺️ Roadmap (Engineering Phases)
 
-- [ ] **Prisma ORM Integration (Phase 2)**: Migrate data layer to Prisma with 10 tables, committed Prisma migrations, and typed queries.
-- [ ] **Security Hardening (Phase 3)**: DB-backed refresh token rotation with reuse detection, structured `pino` logging, and citizen account/profile deletion endpoints (`DELETE /api/profile`).
-- [ ] **Vitest Testing Framework (Phase 4)**: Transition test runner to Vitest + Supertest with dynamic coverage badges.
+- [x] **Prisma ORM Integration (Phase 2)**: Migrated schema to Prisma ORM with 10 PostgreSQL tables, committed DDL migrations, and random dev credential seeding.
+- [x] **Security & DPDP Privacy (Phase 3)**: JWT refresh token family rotation with reuse detection, Pino structured redacted logging, Zod route validation, DPDP Privacy Policy UI, and `delete-my-data` / `delete-my-account` endpoints.
+- [x] **Vitest Testing & Coverage (Phase 4)**: Vitest + Supertest unit/boundary/integration test suite achieving **84.12% line coverage** on `services/` and ESLint checks.
 - [ ] **Dynamic Conversational AI Agent (Phase 5)**: Multi-turn conversational agent using Gemini function calling with 7 explicit tools, streaming SSE, prompt-injection guards, and 40+ case evaluation benchmarks.
 - [ ] **Anonymous Mode & Voice Accessibility (Phase 6)**: Eligibility checks without registration; Web Speech API STT/TTS in Hindi & Marathi; Lighthouse PWA verification.
 - [ ] **Data Governance & State Expansion (Phase 7)**: Automated CI link freshness checker and data-only state expansion framework.

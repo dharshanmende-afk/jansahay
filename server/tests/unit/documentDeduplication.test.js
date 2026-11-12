@@ -1,9 +1,17 @@
-import test, { describe, it } from 'node:test';
-import assert from 'node:assert/strict';
+import { describe, it, expect, afterEach } from 'vitest';
 import { DocumentAnalysisService } from '../../src/services/documentAnalysisService.js';
 import db from '../../src/db/database.js';
 
-describe('DocumentAnalysisService - Cross-Scheme Deduplication Suite', () => {
+describe('DocumentAnalysisService - Cross-Scheme Deduplication Suite (Vitest)', () => {
+  const testUserIds = [99999, 88888, 77777, 66666];
+
+  afterEach(() => {
+    for (const uid of testUserIds) {
+      const userDocs = db.find('userDocuments', d => d.userId === uid);
+      userDocs.forEach(d => db.delete('userDocuments', d.id));
+    }
+  });
+
   const schemeA = {
     id: 1,
     name: 'EBC Higher Education Scholarship',
@@ -34,37 +42,27 @@ describe('DocumentAnalysisService - Cross-Scheme Deduplication Suite', () => {
   };
 
   it('deduplicates shared certificates across multiple eligible schemes', () => {
-    const recommendedSchemes = [schemeA, schemeB, schemeC];
-    const testUserId = 99999;
-
     const dashboard = DocumentAnalysisService.getConsolidatedPreparationDashboard(
-      testUserId,
-      recommendedSchemes,
+      99999,
+      [schemeA, schemeB, schemeC],
       'Maharashtra'
     );
 
-    assert.ok(dashboard);
+    expect(dashboard).toBeTruthy();
+    expect(dashboard.totalDistinctDocuments).toBe(5);
+    expect(dashboard.allDocuments).toHaveLength(5);
 
-    // Total raw requirements: 3 + 3 + 2 = 8.
-    // Unique types: INCOME_CERTIFICATE, DOMICILE_CERTIFICATE, AADHAAR_CARD, CASTE_CERTIFICATE, COLLEGE_BONAFIDE = 5 unique documents.
-    assert.equal(dashboard.totalDistinctDocuments, 5);
-    assert.equal(dashboard.allDocuments.length, 5);
-
-    // Verify Income Certificate deduplication
     const incomeDoc = dashboard.allDocuments.find(d => d.documentType === 'INCOME_CERTIFICATE');
-    assert.ok(incomeDoc, 'Income Certificate must be present in consolidated plan');
-    assert.equal(incomeDoc.dependentSchemes.length, 3, 'Income Certificate must be required by all 3 schemes');
+    expect(incomeDoc).toBeDefined();
+    expect(incomeDoc.dependentSchemes).toHaveLength(3);
 
-    // Verify Domicile Certificate deduplication
     const domicileDoc = dashboard.allDocuments.find(d => d.documentType === 'DOMICILE_CERTIFICATE');
-    assert.ok(domicileDoc, 'Domicile Certificate must be present');
-    assert.equal(domicileDoc.dependentSchemes.length, 2, 'Domicile Certificate required by 2 schemes');
+    expect(domicileDoc).toBeDefined();
+    expect(domicileDoc.dependentSchemes).toHaveLength(2);
   });
 
-  it('correctly calculates document readiness percentage for in-hand certificates', () => {
+  it('correctly calculates document readiness percentage for AVAILABLE, MISSING, and NEEDS_VERIFICATION', () => {
     const testUserId = 88888;
-    
-    // Provision 1 in-hand document
     db.insert('userDocuments', {
       userId: testUserId,
       documentType: 'AADHAAR_CARD',
@@ -72,23 +70,47 @@ describe('DocumentAnalysisService - Cross-Scheme Deduplication Suite', () => {
       status: 'AVAILABLE'
     });
 
-    const readiness = DocumentAnalysisService.evaluateSchemeDocuments(schemeA, testUserId, 'Maharashtra');
+    const readiness1 = DocumentAnalysisService.evaluateSchemeDocuments(schemeA, testUserId, 'Maharashtra');
+    expect(readiness1.totalDocuments).toBe(3);
+    expect(readiness1.availableDocuments).toBe(1);
+    expect(readiness1.unknownDocuments).toBe(2);
+    expect(readiness1.readinessPercentage).toBe(33);
+    expect(readiness1.readinessMessage).toContain('not yet been checked');
 
-    assert.equal(readiness.totalDocuments, 3);
-    assert.equal(readiness.availableDocuments, 1);
-    assert.equal(readiness.missingDocuments, 0);
-    assert.equal(readiness.unknownDocuments, 2);
-    assert.equal(readiness.readinessPercentage, 33); // 1 out of 3 = 33%
+    // Add missing doc -> warning message shifts to missing
+    db.insert('userDocuments', {
+      userId: testUserId,
+      documentType: 'INCOME_CERTIFICATE',
+      documentName: 'Income Certificate',
+      status: 'MISSING'
+    });
+    const readiness2 = DocumentAnalysisService.evaluateSchemeDocuments(schemeA, testUserId, 'Maharashtra');
+    expect(readiness2.missingDocuments).toBe(1);
+    expect(readiness2.readinessMessage).toContain('missing 1 required document');
+  });
 
-    // Cleanup
-    const userDocs = db.find('userDocuments', d => d.userId === testUserId);
-    userDocs.forEach(d => db.delete('userDocuments', d.id));
+  it('reports NEEDS_VERIFICATION and 100% ready messages accurately', () => {
+    const testUserId = 66666;
+    db.insert('userDocuments', { userId: testUserId, documentType: 'INCOME_CERTIFICATE', documentName: 'Income Certificate', status: 'AVAILABLE' });
+    db.insert('userDocuments', { userId: testUserId, documentType: 'DOMICILE_CERTIFICATE', documentName: 'Domicile Certificate', status: 'AVAILABLE' });
+    db.insert('userDocuments', { userId: testUserId, documentType: 'AADHAAR_CARD', documentName: 'Aadhaar Card', status: 'NEEDS_VERIFICATION' });
+
+    const rVerify = DocumentAnalysisService.evaluateSchemeDocuments(schemeA, testUserId, 'Maharashtra');
+    expect(rVerify.needsVerificationDocuments).toBe(1);
+    expect(rVerify.readinessMessage).toContain('require renewal or verification');
+
+    // Update Aadhaar to AVAILABLE -> 100% ready
+    const doc = db.findOne('userDocuments', d => d.userId === testUserId && d.documentType === 'AADHAAR_CARD');
+    db.update('userDocuments', doc.id, { status: 'AVAILABLE' });
+    const rReady = DocumentAnalysisService.evaluateSchemeDocuments(schemeA, testUserId, 'Maharashtra');
+    expect(rReady.readinessPercentage).toBe(100);
+    expect(rReady.readinessMessage).toContain('prepared and ready');
   });
 
   it('handles empty recommended schemes list gracefully', () => {
     const dashboard = DocumentAnalysisService.getConsolidatedPreparationDashboard(77777, []);
-    assert.equal(dashboard.totalDistinctDocuments, 0);
-    assert.equal(dashboard.allDocuments.length, 0);
-    assert.equal(dashboard.overallProgress, 100);
+    expect(dashboard.totalDistinctDocuments).toBe(0);
+    expect(dashboard.allDocuments).toHaveLength(0);
+    expect(dashboard.overallProgress).toBe(100);
   });
 });

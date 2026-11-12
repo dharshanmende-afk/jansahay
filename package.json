@@ -18,6 +18,7 @@
     "migrate": "cd server && npm run migrate",
     "test": "cd server && npm test",
     "test:coverage": "cd server && npm run test:coverage",
+    "lint": "cd server && npm run lint",
     "eval:rag": "cd server && npm run eval:rag",
     "generate:pdf": "node scripts/generateProjectReportPdf.js",
     "start": "cd server && npm start"
