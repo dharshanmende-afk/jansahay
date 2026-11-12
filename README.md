@@ -262,7 +262,7 @@ npm run build
 - [x] **Prisma ORM Integration (Phase 2)**: Migrated schema to Prisma ORM with 10 PostgreSQL tables, committed DDL migrations, and random dev credential seeding.
 - [x] **Security & DPDP Privacy (Phase 3)**: JWT refresh token family rotation with reuse detection, Pino structured redacted logging, Zod route validation, DPDP Privacy Policy UI, and `delete-my-data` / `delete-my-account` endpoints.
 - [x] **Vitest Testing & Coverage (Phase 4)**: Vitest + Supertest unit/boundary/integration test suite achieving **84.12% line coverage** on `services/` and ESLint checks.
-- [ ] **Dynamic Conversational AI Agent (Phase 5)**: Multi-turn conversational agent using Gemini function calling with 7 explicit tools, streaming SSE, prompt-injection guards, and 40+ case evaluation benchmarks.
+- [x] **Dynamic Conversational AI Agent (Phase 5)**: Multi-turn conversational agent using Gemini function calling + automatic deterministic multi-tool fallback (`limitedMode`), 7 Zod-validated tools, SSE streaming chat UI, prompt-injection & citation post-check guards, and 55-case multilingual evaluation benchmark ([`AI_EVALUATION.md`](docs/AI_EVALUATION.md)).
 - [ ] **Anonymous Mode & Voice Accessibility (Phase 6)**: Eligibility checks without registration; Web Speech API STT/TTS in Hindi & Marathi; Lighthouse PWA verification.
 - [ ] **Data Governance & State Expansion (Phase 7)**: Automated CI link freshness checker and data-only state expansion framework.
 - [ ] **Cloud Hardening (Phase 8)**: Automated nightly DB backups, Sentry error monitoring, and rootless Docker execution.
