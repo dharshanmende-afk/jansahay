@@ -3,6 +3,7 @@
 > **Production-Quality Government Scheme Discovery & Statutory Document Platform**  
 > An open-source, citizen-centric GovTech platform that bridges the gap between Indian citizens and public welfare programs through deterministic eligibility evaluation, automated document deduplication, statutory 9-point document acquisition roadmaps, and grounded multilingual AI assistance in **English, Marathi (मराठी), and Hindi (हिंदी)**.
 
+[![CI/CD Pipeline](https://github.com/dharshanmende-afk/jansahay/actions/workflows/ci.yml/badge.svg)](https://github.com/dharshanmende-afk/jansahay/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Maintainer](https://img.shields.io/badge/Maintainer-dharshanmende--afk-orange.svg)](https://github.com/dharshanmende-afk)
 [![Frontend](https://img.shields.io/badge/Frontend-React_18_%7C_Vite-61dafb.svg)](client)
@@ -265,7 +266,7 @@ npm run build
 - [x] **Dynamic Conversational AI Agent (Phase 5)**: Multi-turn conversational agent using Gemini function calling + automatic deterministic multi-tool fallback (`limitedMode`), 7 Zod-validated tools, SSE streaming chat UI, prompt-injection & citation post-check guards, and 55-case multilingual evaluation benchmark ([`AI_EVALUATION.md`](docs/AI_EVALUATION.md)).
 - [x] **Real-User Usability, PWA & Voice Accessibility (Phase 6)**: Anonymous eligibility evaluation without registration (`POST /api/recommendations/anonymous-check`), mobile-first `360px` zero-overflow layout with code-split routes, cold-start `"server is waking up"` banner, Web Speech API STT/TTS in Hindi & Marathi with graceful fallback, offline-capable PWA (`sw.js` + `manifest.json`), Scheme/Guide `"Report wrong information"` error reporting (`POST /api/feedback`), and 100/100/100/100 Lighthouse mobile/desktop scores ([`LIGHTHOUSE_AUDIT.md`](docs/LIGHTHOUSE_AUDIT.md)).
 - [x] **Data Governance & State Expansion (Phase 7)**: Canonical structured scheme schema with CI freshness validator (`npm run validate:schemes`, failing on missing `sourceUrl`/`lastVerifiedAt` and warning after 180 days), 100% data-only state expansion ([`states.json`](server/data/states.json), [`CONTRIBUTING_SCHEMES.md`](docs/CONTRIBUTING_SCHEMES.md)), 15 unverified multi-state research templates ([`MANUAL_RESEARCH_NEEDED.md`](docs/MANUAL_RESEARCH_NEEDED.md)), `robots.txt`-respecting sync guard, and PII-free aggregate Admin analytics.
-- [ ] **Cloud Hardening (Phase 8)**: Automated nightly DB backups, Sentry error monitoring, and rootless Docker execution.
+- [x] **DevOps, Cloud Deployment & Observability (Phase 8)**: Multi-stage non-root Dockerfiles (`server/Dockerfile`, root `Dockerfile`, non-root `nginxinc/nginx-unprivileged` `client/Dockerfile` with SSE proxy support & healthchecks), `docker-compose.yml` (`postgres`, `server`, `client`), GitHub Actions CI/CD (ESLint, `validate:schemes`, Vitest + coverage, RAG/AI evals, Vite build, `npm audit`, Gitleaks secret scan, Docker builds, deploy hooks), Render (`render.yaml`), Railway (`railway.toml`), Netlify (`netlify.toml`), PII-redacted Sentry & Plausible hooks, and [`DEPLOYMENT_GUIDE.md`](DEPLOYMENT_GUIDE.md).
 
 ---
 
