@@ -8,10 +8,40 @@ on:
 
 jobs:
   # ==============================================================================
-  # Job 1: Backend Unit, Integration, RAG Evaluation, and Coverage
+  # Job 1: ESLint + Scheme Schema & Citation Validation
+  # ==============================================================================
+  lint-and-data:
+    name: Lint & Scheme Data Validation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          cache: 'npm'
+          cache-dependency-path: server/package-lock.json
+
+      - name: Install Server Dependencies
+        working-directory: ./server
+        run: npm ci
+
+      - name: Run ESLint Check
+        working-directory: ./server
+        run: npm run lint
+
+      - name: Validate Scheme Schema & Citations
+        working-directory: ./server
+        run: npm run validate:schemes
+
+  # ==============================================================================
+  # Job 2: Backend Unit, Integration, AI Agent Evaluation & Coverage
   # ==============================================================================
   backend-tests:
-    name: Backend Tests & Coverage
+    name: Backend Tests & AI Eval
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -32,24 +62,20 @@ jobs:
         working-directory: ./server
         run: npm ci
 
-      - name: Run Unit Tests
-        working-directory: ./server
-        run: npm run test:unit
-
-      - name: Run API Integration Tests
-        working-directory: ./server
-        run: npm run test:integration
-
-      - name: Run RAG Assistant Evaluation Benchmark (31 Cases)
-        working-directory: ./server
-        run: npm run eval:rag
-
-      - name: Verify Code Coverage (Target >70%)
+      - name: Run Vitest Suite & Coverage (Target >=70% on services/)
         working-directory: ./server
         run: npm run test:coverage
 
+      - name: Run RAG Assistant Benchmark
+        working-directory: ./server
+        run: npm run eval:rag
+
+      - name: Run Dynamic AI Agent 55-Case Eval
+        working-directory: ./server
+        run: node scripts/eval-ai.js
+
   # ==============================================================================
-  # Job 2: Frontend Production Build Verification
+  # Job 3: Frontend Production Build Check
   # ==============================================================================
   frontend-build:
     name: Frontend Build Check
@@ -74,51 +100,94 @@ jobs:
         working-directory: ./client
         run: npm run build
         env:
-          VITE_API_BASE_URL: https://jansahay-backend.onrender.com
+          VITE_API_URL: https://jansahay-backend.onrender.com/api
 
   # ==============================================================================
-  # Job 3: Multi-Stage Docker Build Verification
+  # Job 4: Dependency Audit & Secret Scanning
+  # ==============================================================================
+  security-scan:
+    name: npm audit & Secret Scanning
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Audit Server Production Dependencies (Critical Gate + High Report)
+        working-directory: ./server
+        run: |
+          npm audit --audit-level=critical --omit=dev
+          npm audit --audit-level=high --omit=dev || echo "::warning::High severity advisory detected in transitive dependency tree (review logs)."
+
+      - name: Audit Client Production Dependencies
+        working-directory: ./client
+        run: npm audit --audit-level=high --omit=dev
+
+      - name: Secret Scan (Gitleaks CLI)
+        run: docker run --rm -v "${{ github.workspace }}:/repo" ghcr.io/gitleaks/gitleaks:latest git /repo --redact --exit-code 1
+
+  # ==============================================================================
+  # Job 5: Multi-Stage Docker Build & Compose Validation
   # ==============================================================================
   docker-build:
-    name: Docker Multi-Stage Image Builds
+    name: Docker Multi-Stage Builds
     runs-on: ubuntu-latest
-    needs: [ backend-tests, frontend-build ]
+    needs: [ lint-and-data, backend-tests, frontend-build, security-scan ]
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      - name: Validate docker-compose.yml Syntax
+        run: docker compose config -q
+
       - name: Set up Docker Buildx
         uses: actions/setup-buildx-action@v3
 
-      - name: Build Server Docker Image
+      - name: Build Server Docker Image (server/Dockerfile)
         uses: docker/build-push-action@v5
         with:
           context: ./server
           file: ./server/Dockerfile
           push: false
-          tags: jansahay-server:latest
+          tags: jansahay-server:ci
 
-      - name: Build Client Docker Image
+      - name: Build Client Non-Root Nginx Image (client/Dockerfile)
         uses: docker/build-push-action@v5
         with:
           context: ./client
           file: ./client/Dockerfile
           push: false
-          tags: jansahay-client:latest
+          tags: jansahay-client:ci
 
   # ==============================================================================
-  # Job 4: Production Deployment Pipeline (Main Branch)
+  # Job 6: Production Deploy Hooks (Main Branch Only)
   # ==============================================================================
   deploy:
-    name: Deploy to Production
+    name: Deploy to Render & Netlify
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     needs: [ docker-build ]
 
     steps:
-      - name: Deployment Notification
+      - name: Trigger Render Deploy Hook (if configured)
+        env:
+          RENDER_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
         run: |
-          echo "🚀 All CI tests, RAG evaluations, and Docker builds passed successfully!"
-          echo "Frontend auto-deploys via Netlify Git integration to https://creative-mochi-5f7e5c.netlify.app/"
-          echo "Backend auto-deploys via Render/Railway Blueprint."
+          if [ -n "$RENDER_HOOK" ]; then
+            curl -fsSL -X POST "$RENDER_HOOK"
+          else
+            echo "RENDER_DEPLOY_HOOK_URL not configured in GitHub Secrets; relying on Render Git auto-deploy."
+          fi
+
+      - name: Trigger Netlify Build Hook (if configured)
+        env:
+          NETLIFY_HOOK: ${{ secrets.NETLIFY_BUILD_HOOK_URL }}
+        run: |
+          if [ -n "$NETLIFY_HOOK" ]; then
+            curl -fsSL -X POST -d {} "$NETLIFY_HOOK"
+          else
+            echo "NETLIFY_BUILD_HOOK_URL not configured in GitHub Secrets; relying on Netlify Git auto-deploy."
+          fi

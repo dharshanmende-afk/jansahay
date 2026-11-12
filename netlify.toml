@@ -10,8 +10,10 @@
 
 [build.environment]
   NODE_VERSION = "20"
-  # Set VITE_API_BASE_URL in Netlify Site Settings -> Environment Variables
-  # e.g., VITE_API_BASE_URL = "https://jansahay-backend.onrender.com"
+  # Set VITE_API_URL in Netlify Site Settings -> Environment Variables
+  # e.g., VITE_API_URL = "https://jansahay-backend.onrender.com/api"
+  # Optional cookie-free Plausible analytics:
+  # VITE_PLAUSIBLE_DOMAIN = "jansahay.netlify.app"
 
 # SPA Single Page Application catch-all redirect
 [[redirects]]
