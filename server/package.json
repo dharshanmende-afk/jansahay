@@ -18,6 +18,7 @@
     "test:integration": "vitest run tests/integration",
     "test:coverage": "vitest run --coverage",
     "lint": "eslint src tests",
+    "validate:schemes": "node scripts/validate-schemes.js",
     "eval:rag": "node scripts/evalRag.js"
   },
   "dependencies": {

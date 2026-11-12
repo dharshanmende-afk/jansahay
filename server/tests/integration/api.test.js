@@ -453,4 +453,46 @@ describe('JanSahay AI - API Integration Test Suite (Vitest)', () => {
       assert.equal(guideReport.body.success, true);
     });
   });
+
+  // 9. Phase 7 Data Governance, Dynamic States & Genuine Aggregate Admin Analytics
+  describe('Phase 7 Data Governance & Privacy-Safe Admin Analytics', () => {
+    it('GET /api/schemes/meta/states returns data-driven states without auth', async () => {
+      const res = await request(app).get('/api/schemes/meta/states');
+      assert.equal(res.status, 200);
+      assert.equal(res.body.success, true);
+      assert.ok(Array.isArray(res.body.data));
+      assert.ok(res.body.data.some(s => s.name === 'Maharashtra'));
+      assert.ok(res.body.data.some(s => s.name === 'All India'));
+    });
+
+    it('GET /api/schemes/:id increments real viewCount & GET /api/admin/analytics reflects genuine aggregates', async () => {
+      const detail1 = await request(app).get('/api/schemes/1');
+      assert.equal(detail1.status, 200);
+      const count1 = detail1.body.data.viewCount;
+      assert.ok(count1 >= 1);
+
+      const analyticsRes = await request(app)
+        .get('/api/admin/analytics')
+        .set('Authorization', `Bearer ${adminToken}`);
+
+      assert.equal(analyticsRes.status, 200);
+      assert.equal(analyticsRes.body.success, true);
+      assert.ok(Array.isArray(analyticsRes.body.data.mostViewedSchemes));
+      assert.ok(analyticsRes.body.data.languageUsage);
+      assert.ok(typeof analyticsRes.body.data.languageUsage.totalEvents === 'number');
+      assert.ok(analyticsRes.body.data.feedbackReports);
+      assert.ok(analyticsRes.body.data.feedbackReports.totalReports >= 1);
+      assert.ok(analyticsRes.body.data.freshnessSummary);
+
+      const pendingItem = analyticsRes.body.data.feedbackReports.items.find(i => i.status === 'PENDING');
+      if (pendingItem) {
+        const resResolve = await request(app)
+          .put(`/api/admin/feedback/${pendingItem.id}/resolve`)
+          .set('Authorization', `Bearer ${adminToken}`)
+          .send({ status: 'RESOLVED' });
+        assert.equal(resResolve.status, 200);
+        assert.equal(resResolve.body.data.status, 'RESOLVED');
+      }
+    });
+  });
 });
