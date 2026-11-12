@@ -89,6 +89,11 @@ router.get('/analytics', (req, res) => {
     GENERAL_CITIZEN: profiles.filter(p => p.category === 'GENERAL_CITIZEN').length + 14
   };
 
+  const unansweredQueries = (db.getCollection('unansweredAiQueries') || []).slice(-10).reverse();
+  const feedbackItems = db.getCollection('feedback') || [];
+  const aiThumbsUp = feedbackItems.filter(f => f.aiVote === 'up').length;
+  const aiThumbsDown = feedbackItems.filter(f => f.aiVote === 'down').length;
+
   return res.json({
     success: true,
     data: {
@@ -100,6 +105,8 @@ router.get('/analytics', (req, res) => {
       languageUsage,
       categoryCounts,
       citizenCategoryDistribution,
+      unansweredAiQueries: unansweredQueries,
+      aiEvaluationSignals: { thumbsUp: aiThumbsUp, thumbsDown: aiThumbsDown },
       lastAnalyzedAt: new Date().toISOString()
     }
   });

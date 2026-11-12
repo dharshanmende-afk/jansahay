@@ -99,9 +99,11 @@ export const updateChecklistSchema = z.object({
 export const aiChatSchema = z.object({
   question: z.string().trim().min(1, 'Question parameter cannot be empty').max(1000, 'Question exceeds 1000 characters limit').optional(),
   message: z.string().trim().min(1, 'Message parameter cannot be empty').max(1000, 'Message exceeds 1000 characters limit').optional(),
-  sessionId: z.string().optional(),
-  language: z.enum(['en', 'mr', 'hi']).optional().default('en'),
-  schemeId: z.union([z.number(), z.string()]).optional()
+  sessionId: z.string().max(120).optional().nullable(),
+  language: z.enum(['en', 'mr', 'hi']).optional(),
+  schemeId: z.union([z.number(), z.string()]).optional().nullable(),
+  mode: z.enum(['default', 'simpler', 'checklist']).optional(),
+  inHandDocuments: z.array(z.string()).max(50).optional()
 }).refine(data => data.question || data.message, {
   message: 'Either question or message field is required',
   path: ['question']
@@ -109,6 +111,14 @@ export const aiChatSchema = z.object({
 
 export const aiExplainSchema = z.object({
   language: z.enum(['en', 'mr', 'hi']).optional().default('en')
+});
+
+export const aiFeedbackSchema = z.object({
+  sessionId: z.string().max(120).optional().nullable(),
+  messageId: z.union([z.number(), z.string()]).optional().nullable(),
+  rating: z.enum(['up', 'down']),
+  question: z.string().trim().max(400).optional(),
+  comment: z.string().trim().max(1000).optional()
 });
 
 // ==============================================================================

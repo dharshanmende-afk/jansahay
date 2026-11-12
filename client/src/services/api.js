@@ -131,7 +131,59 @@ export const documentGuideService = {
 
 export const aiService = {
   chat: (data) => api.post('/ai/chat', data),
-  explainScheme: (id, language) => api.post(`/ai/explain/${id}`, { language })
+  explainScheme: (id, language) => api.post(`/ai/explain/${id}`, { language }),
+  sendFeedback: (data) => api.post('/ai/feedback', data),
+  submitCorrection: (data) => api.post('/feedback', data),
+  chatStream: async (data, onEvent) => {
+    const token = localStorage.getItem('jansahay_token');
+    const url = `${resolveBaseUrl()}/ai/chat/stream`;
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {})
+      },
+      body: JSON.stringify(data)
+    });
+
+    if (!response.ok || !response.body) {
+      throw new Error(`Stream request failed (${response.status})`);
+    }
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder('utf-8');
+    let buffer = '';
+    let finalPayload = null;
+
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+
+      const blocks = buffer.split('\n\n');
+      buffer = blocks.pop() || '';
+
+      for (const block of blocks) {
+        const lines = block.split('\n');
+        let evtName = 'message';
+        let dataLine = '';
+        for (const line of lines) {
+          if (line.startsWith('event:')) evtName = line.slice(6).trim();
+          else if (line.startsWith('data:')) dataLine += line.slice(5).trim();
+        }
+        if (!dataLine) continue;
+        try {
+          const parsed = JSON.parse(dataLine);
+          if (evtName === 'done') finalPayload = parsed;
+          if (typeof onEvent === 'function') onEvent(evtName, parsed);
+        } catch {
+          // ignore partial malformed frames
+        }
+      }
+    }
+
+    return finalPayload;
+  }
 };
 
 export const updateService = {

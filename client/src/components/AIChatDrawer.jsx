@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import {
-  MessageSquare, X, Send, Bot, User, Sparkles, CheckCircle,
-  ExternalLink, Zap, Globe, AlertCircle, RotateCcw, Trash2
+  X, Send, Bot, Sparkles, CheckCircle, ExternalLink,
+  AlertCircle, RotateCcw, Trash2, ThumbsUp, ThumbsDown, Flag, Info
 } from 'lucide-react';
 import { aiService } from '../services/api';
 import { searchKnowledgeBase, POPULAR_PROMPT_PILLS } from '../services/aiKnowledgeBase';
@@ -11,7 +11,7 @@ function isSafeUrl(url) {
   try {
     const parsed = new URL(url);
     return parsed.protocol === 'http:' || parsed.protocol === 'https:';
-  } catch (e) {
+  } catch {
     return false;
   }
 }
@@ -21,7 +21,6 @@ function SafeMarkdown({ text }) {
   if (!text) return null;
   const lines = text.split('\n');
 
-  // Helper to parse bold **text** and links [label](url) into React elements
   const parseInline = (line) => {
     const parts = [];
     const regex = /(\*\*.*?\*\*|\[.*?\]\(.*?\))/g;
@@ -98,24 +97,34 @@ function SafeMarkdown({ text }) {
 export const AIChatDrawer = ({ currentScheme = null }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [activeScheme, setActiveScheme] = useState(currentScheme);
-  const [language, setLanguage] = useState('en'); // 'en' | 'mr' | 'hi'
+  const [language, setLanguage] = useState('en');
+  const [sessionId, setSessionId] = useState(() => `sess-${Date.now()}`);
+  const [limitedMode, setLimitedMode] = useState(false);
+  const [statusChip, setStatusChip] = useState('');
+  const [streamingText, setStreamingText] = useState('');
+  const [ratings, setRatings] = useState({});
+  const [reportingMsgIdx, setReportingMsgIdx] = useState(null);
+  const [reportText, setReportText] = useState('');
+  const [reportNotice, setReportNotice] = useState('');
 
   const getInitialGreeting = (lang) => {
     if (lang === 'mr') {
-      return `**नमस्ते! जनसहाय AI सहाय्यकामध्ये आपले स्वागत आहे!** 🙏\n\nमी केंद्र व राज्य शासनाच्या **४०+ योजना**, लोकसेवा हक्क कायदा २०१५ अंतर्गत **दाखले काढण्याचे नियम**, पात्रता अटी आणि अधिकृत अर्जांबद्दलच्या सर्व लहान-मोठ्या प्रश्नांची अचूक उत्तरे देण्यासाठी प्रशिक्षित आहे.\n\nखालीलपैकी कोणताही प्रश्न निवडा किंवा तुमचा प्रश्न टाईप करा!`;
+      return `**नमस्ते! जनसहाय AI सहाय्यकामध्ये आपले स्वागत आहे!**\n\nमी तुम्हाला **पडताळलेल्या सरकारी योजना**, **पात्रता तपासणी**, आणि **अधिकृत कागदपत्र प्रक्रिया** याबद्दल सोप्या भाषेत मदत करू शकतो.\n\nतुमची माहिती उदा. *"मी साताऱ्याचा शेतकरी आहे, २ एकर जमीन, उत्पन्न ८०,०००"* अशी लिहा किंवा खालील पर्याय निवडा.`;
     }
     if (lang === 'hi') {
-      return `**नमस्ते! जनसहाय AI सहायक में आपका स्वागत है!** 🙏\n\nमैं केंद्र व राज्य सरकार की **40+ योजनाओं**, **सरकारी प्रमाणपत्र प्रक्रियाओं**, पात्रता नियमों और आधिकारिक आवेदन संबंधी सभी छोटे-बड़े प्रश्नों के उत्तर देने हेतु प्रशिक्षित हूँ।\n\nनीचे दिए गए किसी भी विषय पर क्लिक करें या अपना प्रश्न लिखें!`;
+      return `**नमस्ते! जनसहाय AI सहायक में आपका स्वागत है!**\n\nमैं आपको **सत्यापित सरकारी योजनाओं**, **पात्रता जांच**, और **दस्तावेज़ प्रक्रिया** के बारे में आसान भाषा में मदद कर सकता हूँ।\n\nअपनी जानकारी लिखें जैसे *"मैं महाराष्ट्र का किसान हूँ, आय 80,000"* या नीचे दिए गए विकल्प चुनें।`;
     }
-    return `**Namaste! Welcome to JanSahay AI Assistant!** 🙏\n\nI am trained to answer all small and big questions about **40+ Central & State government schemes**, **statutory certificate procedures** (RTS Act 2015), eligibility calculations, and official application portals.\n\nClick any topic below or type your question in English, Marathi, or Hindi!`;
+    return `**Namaste! Welcome to JanSahay AI Assistant!**\n\nI can search **verified government schemes**, run the **deterministic eligibility engine** on your details, and generate **document checklists**.\n\nTry telling me about yourself (e.g., *"Farmer in Satara, 2 acres, income 80,000"*) or pick a topic below!`;
   };
 
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
       text: getInitialGreeting('en'),
-      provider: 'JanSahay Grounded Engine',
-      sources: []
+      provider: 'JanSahay Dynamic Agent',
+      sources: [],
+      matchedSchemes: [],
+      suggestedActions: ['Explain simpler', 'Give me a checklist']
     }
   ]);
   const [input, setInput] = useState('');
@@ -124,24 +133,18 @@ export const AIChatDrawer = ({ currentScheme = null }) => {
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
-    if (currentScheme) {
-      setActiveScheme(currentScheme);
-    }
+    if (currentScheme) setActiveScheme(currentScheme);
   }, [currentScheme]);
 
-  // Global event listener for any "Ask AI About This Scheme" button across the application
   useEffect(() => {
     const handleGlobalAskAI = (event) => {
       const detail = event.detail || {};
-      if (detail.scheme) {
-        setActiveScheme(detail.scheme);
-      }
+      if (detail.scheme) setActiveScheme(detail.scheme);
       setIsOpen(true);
       if (detail.initialQuestion) {
         handleSend(detail.initialQuestion, detail.scheme || activeScheme);
       }
     };
-
     window.addEventListener('jansahay-open-ai', handleGlobalAskAI);
     return () => window.removeEventListener('jansahay-open-ai', handleGlobalAskAI);
   }, [activeScheme]);
@@ -150,9 +153,8 @@ export const AIChatDrawer = ({ currentScheme = null }) => {
     if (messagesEndRef.current && isOpen) {
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [messages, loading, isOpen]);
+  }, [messages, loading, streamingText, statusChip, isOpen]);
 
-  // Handle switching language
   const handleLanguageChange = (newLang) => {
     setLanguage(newLang);
     if (messages.length <= 1) {
@@ -160,8 +162,9 @@ export const AIChatDrawer = ({ currentScheme = null }) => {
         {
           role: 'assistant',
           text: getInitialGreeting(newLang),
-          provider: 'JanSahay Grounded Engine',
-          sources: []
+          provider: 'JanSahay Dynamic Agent',
+          sources: [],
+          matchedSchemes: []
         }
       ]);
     }
@@ -176,15 +179,14 @@ export const AIChatDrawer = ({ currentScheme = null }) => {
     return language;
   };
 
-  // Suggestions: scheme-specific or curated popular pills
   const schemeName = activeScheme?.schemeName || activeScheme?.name;
   const suggestionPills = activeScheme ? [
-    { label: `Explain ${schemeName?.split(' ')[0]} in simple words`, query: `Explain ${schemeName} in simple words and how it helps me` },
-    { label: `Required Documents`, query: `What documents are needed for ${schemeName}?` },
-    { label: `Official Application Steps`, query: `How to apply officially on govt portal for ${schemeName}?` }
+    { label: `Explain ${schemeName?.split(' ')[0]} simpler`, query: `Explain ${schemeName} in simple words`, mode: 'simpler' },
+    { label: `Checklist for ${schemeName?.split(' ')[0]}`, query: `Give me a document checklist for ${schemeName}`, mode: 'checklist' },
+    { label: 'Am I eligible?', query: `Check my eligibility for ${schemeName}` }
   ] : POPULAR_PROMPT_PILLS;
 
-  const handleSend = async (textToSend, overrideScheme = null) => {
+  const handleSend = async (textToSend, overrideScheme = null, mode = 'default') => {
     const question = (textToSend || input).trim();
     if (!question || loading) return;
 
@@ -192,54 +194,101 @@ export const AIChatDrawer = ({ currentScheme = null }) => {
     setMessages(prev => [...prev, userMsg]);
     setInput('');
     setLoading(true);
+    setStatusChip('Connecting to JanSahay AI...');
+    setStreamingText('');
     setLastFailedQuestion(null);
 
     const schemeToUse = overrideScheme || activeScheme;
     const effectiveLang = detectLanguage(question);
 
     try {
-      // Set a 6.5s timeout race so user gets an instant fallback if Render is cold-starting
-      const timeoutPromise = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error('NETWORK_TIMEOUT')), 6500)
+      let accumulated = '';
+      const payload = await aiService.chatStream(
+        {
+          question,
+          schemeId: schemeToUse?.id || schemeToUse?.schemeId || null,
+          language: effectiveLang,
+          sessionId,
+          mode
+        },
+        (evtName, evtData) => {
+          if (evtName === 'status' && evtData?.message) {
+            setStatusChip(evtData.message);
+          } else if (evtName === 'tool' && evtData?.toolName) {
+            setStatusChip(`Verified via ${evtData.toolName} (${evtData.durationMs}ms)`);
+          } else if (evtName === 'chunk' && evtData?.text) {
+            accumulated += evtData.text;
+            setStreamingText(accumulated);
+          }
+        }
       );
 
-      const netPromise = aiService.chat({
+      if (payload && payload.answer) {
+        if (payload.sessionId) setSessionId(payload.sessionId);
+        if (typeof payload.limitedMode === 'boolean') setLimitedMode(payload.limitedMode);
+
+        setMessages(prev => [
+          ...prev,
+          {
+            role: 'assistant',
+            text: payload.answer,
+            questionAsked: question,
+            messageId: payload.messageId,
+            provider: payload.provider || 'JanSahay Dynamic Agent',
+            limitedMode: payload.limitedMode,
+            sources: payload.sources || [],
+            matchedSchemes: payload.matchedSchemes || [],
+            suggestedActions: payload.suggestedActions || ['Explain simpler', 'Give me a checklist'],
+            toolCalls: payload.toolCalls || [],
+            officialUrl: payload.officialUrl,
+            isVerified: payload.isVerified
+          }
+        ]);
+        return;
+      }
+
+      // Non-streaming fallback if stream yielded empty payload
+      const res = await aiService.chat({
         question,
         schemeId: schemeToUse?.id || schemeToUse?.schemeId || null,
-        language: effectiveLang
+        language: effectiveLang,
+        sessionId,
+        mode
       });
-
-      const res = await Promise.race([netPromise, timeoutPromise]);
-
-      if (res && res.success && res.data) {
+      if (res?.success && res?.data) {
+        setLimitedMode(Boolean(res.data.limitedMode));
         setMessages(prev => [
           ...prev,
           {
             role: 'assistant',
             text: res.data.answer,
-            provider: res.data.provider || 'JanSahay Grounded Engine',
+            questionAsked: question,
+            messageId: res.data.messageId,
+            provider: res.data.provider,
+            limitedMode: res.data.limitedMode,
             sources: res.data.sources || [],
-            dataStatus: res.data.dataStatus,
+            matchedSchemes: res.data.matchedSchemes || [],
+            suggestedActions: res.data.suggestedActions || [],
             officialUrl: res.data.officialUrl
           }
         ]);
         return;
       }
-      throw new Error(res?.message || 'Empty response from server');
+      throw new Error('Empty response from server');
     } catch (err) {
-      console.warn('[AI] Fast fallback triggered:', err.message || err);
-
-      // Check client-side comprehensive knowledge base instantly
+      console.warn('[AI] Stream/API fallback triggered:', err.message || err);
       const fallbackAnswer = searchKnowledgeBase(question, schemeToUse, effectiveLang);
-
       if (fallbackAnswer) {
+        setLimitedMode(true);
         setMessages(prev => [
           ...prev,
           {
             role: 'assistant',
             text: fallbackAnswer,
-            provider: 'JanSahay Grounded Engine',
-            sources: ['Official Gazette & RTS Act 2015', 'Verified Government Portals']
+            questionAsked: question,
+            provider: 'JanSahay Offline Grounded KB (Limited Mode)',
+            limitedMode: true,
+            sources: []
           }
         ]);
       } else {
@@ -248,7 +297,7 @@ export const AIChatDrawer = ({ currentScheme = null }) => {
           ...prev,
           {
             role: 'assistant',
-            text: `⚠️ **Unable to process your request at this moment.**\n\nPlease check your internet connection or click **Retry** below.`,
+            text: `**Unable to reach JanSahay server right now.**\n\nPlease check your connection or click **Retry** below.`,
             provider: 'System Notice',
             isError: true
           }
@@ -256,24 +305,60 @@ export const AIChatDrawer = ({ currentScheme = null }) => {
       }
     } finally {
       setLoading(false);
+      setStatusChip('');
+      setStreamingText('');
+    }
+  };
+
+  const handleRate = async (msgIdx, msg, rating) => {
+    setRatings(prev => ({ ...prev, [msgIdx]: rating }));
+    try {
+      await aiService.sendFeedback({
+        sessionId,
+        messageId: msg.messageId || msgIdx,
+        rating,
+        question: msg.questionAsked || ''
+      });
+    } catch {
+      // keep optimistic UI rating state
+    }
+  };
+
+  const handleReportSubmit = async (e, msg) => {
+    e.preventDefault();
+    if (!reportText.trim()) return;
+    try {
+      await aiService.submitCorrection({
+        schemeId: msg?.matchedSchemes?.[0]?.id || null,
+        feedbackType: 'ERROR_REPORT',
+        comment: `AI Response Report: ${reportText.trim()}`
+      });
+      setReportNotice('Thank you! Correction submitted for admin review.');
+      setReportingMsgIdx(null);
+      setReportText('');
+      setTimeout(() => setReportNotice(''), 3500);
+    } catch {
+      setReportNotice('Could not submit report right now.');
     }
   };
 
   const handleClearChat = () => {
+    setSessionId(`sess-${Date.now()}`);
     setMessages([
       {
         role: 'assistant',
         text: getInitialGreeting(language),
-        provider: 'JanSahay Grounded Engine',
-        sources: []
+        provider: 'JanSahay Dynamic Agent',
+        sources: [],
+        matchedSchemes: []
       }
     ]);
     setLastFailedQuestion(null);
+    setRatings({});
   };
 
   return (
     <>
-      {/* Floating Trigger Button */}
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
@@ -301,17 +386,18 @@ export const AIChatDrawer = ({ currentScheme = null }) => {
         </button>
       )}
 
-      {/* Slide-over Chat Drawer */}
       {isOpen && (
         <div
           className="chat-drawer no-print"
+          role="dialog"
+          aria-label="JanSahay AI Assistant"
           style={{
             position: 'fixed',
             bottom: '20px',
             right: '20px',
-            width: '460px',
+            width: '470px',
             maxWidth: '94vw',
-            height: '650px',
+            height: '670px',
             maxHeight: '90vh',
             backgroundColor: '#ffffff',
             borderRadius: '1rem',
@@ -334,13 +420,12 @@ export const AIChatDrawer = ({ currentScheme = null }) => {
                   JanSahay AI Assistant
                 </h3>
                 <span style={{ fontSize: '0.68rem', color: '#93c5fd', display: 'block', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                  {activeScheme ? `Context: ${schemeName}` : 'Answers all small & big scheme questions'}
+                  {activeScheme ? `Context: ${schemeName}` : 'Tool-Grounded Eligibility & Scheme Agent'}
                 </span>
               </div>
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexShrink: 0 }}>
-              {/* Language Selector */}
               <div style={{ display: 'flex', background: 'rgba(255,255,255,0.18)', borderRadius: '6px', padding: '2px' }}>
                 {[
                   { code: 'en', label: 'EN' },
@@ -381,12 +466,50 @@ export const AIChatDrawer = ({ currentScheme = null }) => {
             </div>
           </div>
 
+          {/* Mandatory AI Guidance Disclaimer */}
+          <div style={{
+            padding: '0.35rem 0.75rem',
+            backgroundColor: '#eff6ff',
+            borderBottom: '1px solid #bfdbfe',
+            fontSize: '0.7rem',
+            color: '#1e40af',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.35rem'
+          }}>
+            <Info size={12} />
+            <span>AI guidance only; confirm eligibility, fees &amp; deadlines on the official portal.</span>
+          </div>
+
+          {/* Limited Mode Banner */}
+          {limitedMode && (
+            <div style={{
+              padding: '0.35rem 0.75rem',
+              backgroundColor: '#fef3c7',
+              borderBottom: '1px solid #fde68a',
+              fontSize: '0.7rem',
+              color: '#92400e',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.35rem'
+            }}>
+              <AlertCircle size={12} />
+              <span>Limited mode: Deterministic verified engine active (external LLM key unavailable or rate-limited).</span>
+            </div>
+          )}
+
+          {reportNotice && (
+            <div style={{ padding: '0.35rem 0.75rem', backgroundColor: '#dcfce7', color: '#166534', fontSize: '0.72rem', fontWeight: 600 }}>
+              {reportNotice}
+            </div>
+          )}
+
           {/* Messages Area */}
           <div style={{ flex: 1, padding: '0.85rem', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '0.85rem', background: '#f8fafc' }}>
             {messages.map((m, idx) => (
               <div key={idx} style={{ display: 'flex', flexDirection: 'column', alignItems: m.role === 'user' ? 'flex-end' : 'flex-start' }}>
                 <div style={{
-                  maxWidth: '92%',
+                  maxWidth: '94%',
                   padding: '0.75rem 0.95rem',
                   borderRadius: '0.75rem',
                   backgroundColor: m.role === 'user' ? '#1e3a8a' : '#ffffff',
@@ -397,23 +520,129 @@ export const AIChatDrawer = ({ currentScheme = null }) => {
                   {m.role === 'user' ? (
                     <div style={{ fontSize: '0.85rem' }}>{m.text}</div>
                   ) : (
-                    <SafeMarkdown text={m.text} />
+                    <>
+                      <SafeMarkdown text={m.text} />
+
+                      {/* Inline Verified Scheme Cards */}
+                      {Array.isArray(m.matchedSchemes) && m.matchedSchemes.length > 0 && (
+                        <div style={{ marginTop: '0.65rem', display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
+                          {m.matchedSchemes.slice(0, 3).map((sc) => (
+                            <div
+                              key={sc.id || sc.name}
+                              style={{
+                                border: '1px solid #cbd5e1',
+                                borderLeft: '3px solid #1e3a8a',
+                                borderRadius: '0.5rem',
+                                padding: '0.5rem 0.65rem',
+                                backgroundColor: '#f8fafc',
+                                fontSize: '0.75rem'
+                              }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.4rem' }}>
+                                <strong style={{ color: '#0f172a' }}>{sc.name}</strong>
+                                {sc.matchType && (
+                                  <span style={{ fontSize: '0.65rem', fontWeight: 700, padding: '1px 6px', borderRadius: '999px', background: '#dbeafe', color: '#1e40af' }}>
+                                    {sc.matchType} ({sc.matchScore}%)
+                                  </span>
+                                )}
+                              </div>
+                              {sc.benefit && <div style={{ color: '#475569', marginTop: '0.2rem' }}>{sc.benefit}</div>}
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0.3rem', fontSize: '0.68rem', color: '#64748b' }}>
+                                <span>Verified: {sc.lastVerifiedAt || 'Official Record'}</span>
+                                {sc.sourceUrl && isSafeUrl(sc.sourceUrl) && (
+                                  <a href={sc.sourceUrl} target="_blank" rel="noreferrer" style={{ color: '#1e3a8a', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '2px' }}>
+                                    Official Portal <ExternalLink size={10} />
+                                  </a>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Quick Action Chips (Explain simpler / Give me a checklist) */}
+                      {idx === messages.length - 1 && m.questionAsked && !loading && (
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem', marginTop: '0.6rem' }}>
+                          <button
+                            type="button"
+                            onClick={() => handleSend(`Explain simpler: ${m.questionAsked}`, null, 'simpler')}
+                            style={{ fontSize: '0.68rem', padding: '2px 8px', borderRadius: '999px', border: '1px solid #cbd5e1', background: '#f1f5f9', color: '#1e3a8a', fontWeight: 600, cursor: 'pointer' }}>
+                            Explain simpler
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleSend(`Give me a checklist: ${m.questionAsked}`, null, 'checklist')}
+                            style={{ fontSize: '0.68rem', padding: '2px 8px', borderRadius: '999px', border: '1px solid #cbd5e1', background: '#f1f5f9', color: '#1e3a8a', fontWeight: 600, cursor: 'pointer' }}>
+                            Give me a checklist
+                          </button>
+                        </div>
+                      )}
+                    </>
                   )}
                 </div>
 
-                {m.provider && (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', marginTop: '0.25rem', fontSize: '0.65rem', color: '#64748b' }}>
-                    <CheckCircle size={10} color="#15803d" />
-                    <span>{m.provider}</span>
+                {/* Provider & Evaluation Controls (Thumbs up/down + Report wrong info) */}
+                {m.role === 'assistant' && m.provider && (
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '94%', marginTop: '0.25rem', fontSize: '0.65rem', color: '#64748b' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                      <CheckCircle size={10} color="#15803d" />
+                      <span>{m.provider}</span>
+                    </div>
+                    {idx > 0 && !m.isError && (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                        <button
+                          type="button"
+                          aria-label="Thumbs up"
+                          onClick={() => handleRate(idx, m, 'up')}
+                          style={{ border: 'none', background: 'transparent', cursor: 'pointer', color: ratings[idx] === 'up' ? '#15803d' : '#64748b', padding: '2px' }}>
+                          <ThumbsUp size={12} />
+                        </button>
+                        <button
+                          type="button"
+                          aria-label="Thumbs down"
+                          onClick={() => handleRate(idx, m, 'down')}
+                          style={{ border: 'none', background: 'transparent', cursor: 'pointer', color: ratings[idx] === 'down' ? '#dc2626' : '#64748b', padding: '2px' }}>
+                          <ThumbsDown size={12} />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setReportingMsgIdx(reportingMsgIdx === idx ? null : idx)}
+                          style={{ border: 'none', background: 'transparent', cursor: 'pointer', color: '#64748b', fontSize: '0.65rem', display: 'inline-flex', alignItems: 'center', gap: '2px' }}>
+                          <Flag size={10} /> Report wrong information
+                        </button>
+                      </div>
+                    )}
                   </div>
+                )}
+
+                {reportingMsgIdx === idx && (
+                  <form onSubmit={(e) => handleReportSubmit(e, m)} style={{ width: '94%', marginTop: '0.35rem', display: 'flex', gap: '0.35rem' }}>
+                    <input
+                      type="text"
+                      value={reportText}
+                      onChange={(e) => setReportText(e.target.value)}
+                      placeholder="Describe incorrect fee, date, or rule..."
+                      style={{ flex: 1, fontSize: '0.72rem', padding: '0.3rem 0.5rem', borderRadius: '0.35rem', border: '1px solid #cbd5e1' }}
+                    />
+                    <button type="submit" style={{ fontSize: '0.7rem', padding: '0.3rem 0.6rem', background: '#dc2626', color: 'white', border: 'none', borderRadius: '0.35rem', cursor: 'pointer' }}>
+                      Send
+                    </button>
+                  </form>
                 )}
               </div>
             ))}
 
+            {/* Live SSE Streaming Preview + Status Chip */}
             {loading && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#64748b', fontSize: '0.8rem', padding: '0.5rem 0.8rem', background: '#ffffff', borderRadius: '0.6rem', border: '1px solid #e2e8f0', alignSelf: 'flex-start' }}>
-                <Sparkles size={14} color="#1e3a8a" className="animate-spin" />
-                <span>Thinking & retrieving official verified data...</span>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', alignSelf: 'flex-start', maxWidth: '94%' }}>
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem', color: '#1e3a8a', fontSize: '0.75rem', fontWeight: 600, padding: '0.35rem 0.7rem', background: '#eff6ff', borderRadius: '9999px', border: '1px solid #bfdbfe', alignSelf: 'flex-start' }}>
+                  <Sparkles size={13} color="#1e3a8a" className="animate-spin" />
+                  <span>{statusChip || 'Searching schemes...'}</span>
+                </div>
+                {streamingText && (
+                  <div style={{ padding: '0.7rem 0.9rem', background: '#ffffff', borderRadius: '0.75rem', border: '1px solid #e2e8f0' }}>
+                    <SafeMarkdown text={streamingText} />
+                  </div>
+                )}
               </div>
             )}
 
@@ -431,7 +660,7 @@ export const AIChatDrawer = ({ currentScheme = null }) => {
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Quick Clickable Question Pills (Scrollable) */}
+          {/* Quick Clickable Question Pills */}
           <div style={{
             padding: '0.4rem 0.6rem',
             borderTop: '1px solid #e2e8f0',
@@ -445,11 +674,12 @@ export const AIChatDrawer = ({ currentScheme = null }) => {
             {suggestionPills.map((pill, idx) => {
               const label = typeof pill === 'string' ? pill : pill.label;
               const query = typeof pill === 'string' ? pill : pill.query;
+              const pillMode = typeof pill === 'object' && pill.mode ? pill.mode : 'default';
               return (
                 <button
                   key={idx}
                   type="button"
-                  onClick={() => handleSend(query)}
+                  onClick={() => handleSend(query, null, pillMode)}
                   disabled={loading}
                   style={{
                     background: '#f1f5f9',
@@ -461,8 +691,7 @@ export const AIChatDrawer = ({ currentScheme = null }) => {
                     fontWeight: 600,
                     cursor: loading ? 'not-allowed' : 'pointer',
                     flexShrink: 0,
-                    opacity: loading ? 0.6 : 1,
-                    transition: 'all 0.15s ease'
+                    opacity: loading ? 0.6 : 1
                   }}>
                   {label}
                 </button>
@@ -478,7 +707,7 @@ export const AIChatDrawer = ({ currentScheme = null }) => {
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Ask any scheme or document question (EN/HI/MR)..."
+              placeholder="Ask in EN / HI / MR or type your profile..."
               disabled={loading}
               maxLength={1000}
               style={{
