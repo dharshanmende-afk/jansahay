@@ -75,14 +75,16 @@ export const SchemeDetailPage = () => {
         setScheme(schemeRes.data);
       }
 
-      // Load readiness from backend
-      try {
-        const readRes = await schemeService.getSchemeDocumentReadiness(id);
-        if (readRes.success && readRes.data) {
-          setReadiness(readRes.data);
+      // Load personal readiness only when signed in
+      if (localStorage.getItem('jansahay_token')) {
+        try {
+          const readRes = await schemeService.getSchemeDocumentReadiness(id);
+          if (readRes.success && readRes.data) {
+            setReadiness(readRes.data);
+          }
+        } catch (e) {
+          console.warn('Document readiness endpoint notice:', e);
         }
-      } catch (e) {
-        console.warn('Document readiness endpoint notice:', e);
       }
     } catch (err) {
       console.error('Error loading scheme:', err);

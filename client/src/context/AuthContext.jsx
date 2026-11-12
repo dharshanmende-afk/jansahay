@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 import { authService } from '../services/api';
 
 const AuthContext = createContext(null);
@@ -8,7 +8,7 @@ export const AuthProvider = ({ children }) => {
     try {
       const saved = localStorage.getItem('jansahay_user');
       return saved ? JSON.parse(saved) : null;
-    } catch (e) {
+    } catch {
       return null;
     }
   });
@@ -27,6 +27,7 @@ export const AuthProvider = ({ children }) => {
     setToken(null);
     localStorage.removeItem('jansahay_user');
     localStorage.removeItem('jansahay_token');
+    localStorage.removeItem('jansahay_refresh_token');
   };
 
   const quickLogin = async (role = 'student') => {

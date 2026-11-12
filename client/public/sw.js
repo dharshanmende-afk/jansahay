@@ -6,7 +6,7 @@
  * 2. Stale-While-Revalidate for scheme catalog, document guides, updates, and preparation checklist API
  */
 
-const CACHE_NAME = 'jansahay-v2';
+const CACHE_NAME = 'jansahay-v3';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -52,7 +52,8 @@ self.addEventListener('fetch', (event) => {
         cache.match(request).then((cachedResponse) => {
           const fetchPromise = fetch(request)
             .then((networkResponse) => {
-              if (networkResponse && networkResponse.status === 200) {
+              const contentType = networkResponse?.headers?.get('content-type') || '';
+              if (networkResponse && networkResponse.status === 200 && contentType.includes('application/json')) {
                 cache.put(request, networkResponse.clone());
               }
               return networkResponse;

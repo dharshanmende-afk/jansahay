@@ -26,16 +26,19 @@ const PageLoader = () => (
 
 export const App = () => {
   const [serverWaking, setServerWaking] = useState(false);
+  const [apiUnavailable, setApiUnavailable] = useState(false);
   const [isOffline, setIsOffline] = useState(
     typeof navigator !== 'undefined' ? !navigator.onLine : false
   );
 
   useEffect(() => {
     const onWaking = (e) => setServerWaking(Boolean(e.detail?.waking));
+    const onApiUnavailable = (e) => setApiUnavailable(Boolean(e.detail?.unavailable));
     const onOnline = () => setIsOffline(false);
     const onOffline = () => setIsOffline(true);
 
     window.addEventListener('jansahay-server-waking', onWaking);
+    window.addEventListener('jansahay-api-unavailable', onApiUnavailable);
     window.addEventListener('online', onOnline);
     window.addEventListener('offline', onOffline);
 
@@ -52,6 +55,7 @@ export const App = () => {
 
     return () => {
       window.removeEventListener('jansahay-server-waking', onWaking);
+      window.removeEventListener('jansahay-api-unavailable', onApiUnavailable);
       window.removeEventListener('online', onOnline);
       window.removeEventListener('offline', onOffline);
     };
@@ -61,6 +65,22 @@ export const App = () => {
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <a href="#main-content" className="skip-link">Skip to main content</a>
       <Navbar />
+
+      {apiUnavailable && (
+        <div
+          role="alert"
+          style={{
+            backgroundColor: '#fef2f2',
+            color: '#991b1b',
+            borderBottom: '1px solid #fecaca',
+            padding: '0.5rem 1rem',
+            fontSize: '0.82rem',
+            fontWeight: 600,
+            textAlign: 'center'
+          }}>
+          Backend API is not connected to this frontend build. Configure VITE_API_URL in Netlify Environment Variables (pointing to your Render/Railway backend) or run the local server on port 5000.
+        </div>
+      )}
 
       {serverWaking && (
         <div

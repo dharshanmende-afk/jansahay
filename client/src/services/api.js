@@ -37,6 +37,18 @@ api.interceptors.response.use(
     if (typeof window !== 'undefined') {
       window.dispatchEvent(new CustomEvent('jansahay-server-waking', { detail: { waking: false } }));
     }
+    const contentType = response.headers?.['content-type'] || '';
+    const isHtmlPayload = contentType.includes('text/html') ||
+      (typeof response.data === 'string' && response.data.trim().startsWith('<'));
+    if (isHtmlPayload) {
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('jansahay-api-unavailable', { detail: { unavailable: true } }));
+      }
+      return Promise.reject(new Error('Backend API returned HTML instead of JSON. Configure VITE_API_URL or start the API server.'));
+    }
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('jansahay-api-unavailable', { detail: { unavailable: false } }));
+    }
     return response.data;
   },
   async (error) => {
