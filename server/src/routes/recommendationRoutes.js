@@ -1,24 +1,23 @@
 import express from 'express';
 import { db } from '../db/database.js';
 import { authMiddleware } from '../middleware/authMiddleware.js';
+import { validate } from '../middleware/validate.js';
+import { anonymousProfileSchema } from '../schemas/validationSchemas.js';
 import { EligibilityEngine } from '../services/eligibilityEngine.js';
 
 const router = express.Router();
 
-// Helper to compute recommendations for a user
-const calculateUserRecommendations = (userId) => {
-  const profile = db.findOne('profiles', p => String(p.userId) === String(userId));
+const evaluateProfileAgainstVerifiedSchemes = (profile) => {
   if (!profile) return [];
 
-  const schemes = db.find('schemes', s => s.active !== false);
+  const schemes = db.find(
+    'schemes',
+    s => s.active !== false && s.verificationStatus !== 'UNVERIFIED' && Boolean(s.sourceUrl)
+  );
 
-  const results = schemes.map(scheme => {
-    return EligibilityEngine.evaluateScheme(scheme, profile);
-  });
+  const results = schemes.map(scheme => EligibilityEngine.evaluateScheme(scheme, profile));
 
-  // Filter out pure non-matches unless requested, and sort by tier and score
-  const order = { 'STRONG_MATCH': 1, 'POTENTIAL_MATCH': 2, 'MORE_INFORMATION_REQUIRED': 3, 'NOT_A_MATCH': 4 };
-
+  const order = { STRONG_MATCH: 1, POTENTIAL_MATCH: 2, MORE_INFORMATION_REQUIRED: 3, NOT_A_MATCH: 4 };
   const filtered = results.filter(r => r.matchType !== 'NOT_A_MATCH');
 
   return filtered.sort((a, b) => {
@@ -27,6 +26,28 @@ const calculateUserRecommendations = (userId) => {
     return b.matchScore - a.matchScore;
   });
 };
+
+// Helper to compute recommendations for a registered user
+const calculateUserRecommendations = (userId) => {
+  const profile = db.findOne('profiles', p => String(p.userId) === String(userId));
+  return evaluateProfileAgainstVerifiedSchemes(profile);
+};
+
+// POST /api/recommendations/anonymous-check (No registration required — instant eligibility check)
+router.post('/anonymous-check', validate(anonymousProfileSchema), (req, res) => {
+  try {
+    const recommendations = evaluateProfileAgainstVerifiedSchemes(req.body);
+    return res.json({
+      success: true,
+      anonymous: true,
+      message: `Computed ${recommendations.length} scheme recommendations in anonymous mode`,
+      data: recommendations
+    });
+  } catch (err) {
+    console.error('[Recommendations] Anonymous check error:', err);
+    return res.status(500).json({ success: false, message: 'Server error computing anonymous recommendations' });
+  }
+});
 
 // GET /api/recommendations
 router.get('/', authMiddleware, (req, res) => {
