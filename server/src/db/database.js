@@ -4,6 +4,7 @@ import crypto from 'crypto';
 import bcrypt from 'bcryptjs';
 import { fileURLToPath } from 'url';
 import { initialSeedData } from './seedData.js';
+import { normalizeSchemeRecord, loadExternalStateSchemes } from '../data/stateExpansionLoader.js';
 import pgClient, { checkPostgresConnectivity, runMigrations } from './pgClient.js';
 import { prisma, checkPrismaConnectivity } from './prismaClient.js';
 
@@ -28,7 +29,10 @@ class Database {
       userDocuments: [],
       updates: [],
       recommendations: [],
-      chat_logs: []
+      chat_logs: [],
+      feedback: [],
+      unansweredAiQueries: [],
+      languageMetrics: { en: 0, hi: 0, mr: 0 }
     };
     this.postgresConnected = false;
     this.prisma = prisma;
@@ -52,6 +56,16 @@ class Database {
           console.log('[DB] Reseeding missing collections with verified datasets...');
           this.seedInitial();
         } else {
+          // Normalize canonical structured scheme metadata and merge any data-only state files
+          this.data.schemes = this.data.schemes.map(normalizeSchemeRecord);
+          const externalSchemes = loadExternalStateSchemes();
+          for (const ext of externalSchemes) {
+            const exists = this.data.schemes.some(s => String(s.name).toLowerCase() === String(ext.name).toLowerCase());
+            if (!exists) {
+              const nextId = Math.max(0, ...this.data.schemes.map(s => Number(s.id) || 0)) + 1;
+              this.data.schemes.push({ ...ext, id: ext.id || nextId });
+            }
+          }
           console.log(`[DB] Loaded existing database: ${this.data.schemes.length} schemes, ${this.data.documentGuides.length} document guides.`);
         }
       } else {
@@ -115,13 +129,19 @@ class Database {
     this.data = {
       users,
       profiles: !isProduction ? (initialSeedData.profiles || []) : [],
-      schemes: initialSeedData.schemes || [],
+      schemes: [
+        ...(initialSeedData.schemes || []).map(normalizeSchemeRecord),
+        ...loadExternalStateSchemes()
+      ],
       scheme_rules: [],
       documentGuides: initialSeedData.documentGuides || [],
       userDocuments: !isProduction ? (initialSeedData.userDocuments || []) : [],
       updates: initialSeedData.updates || [],
       recommendations: [],
-      chat_logs: []
+      chat_logs: [],
+      feedback: [],
+      unansweredAiQueries: [],
+      languageMetrics: { en: 0, hi: 0, mr: 0 }
     };
     this.save();
     console.log(`[DB] Seeded: ${this.data.users.length} users, ${this.data.schemes.length} schemes, ${this.data.documentGuides.length} guides.`);
@@ -209,6 +229,17 @@ class Database {
     };
     this.save();
     return col[index];
+  }
+
+  recordLanguageUsage(lang) {
+    const code = String(lang || 'en').toLowerCase().slice(0, 2);
+    const normalized = ['en', 'hi', 'mr'].includes(code) ? code : 'en';
+    if (!this.data.languageMetrics || typeof this.data.languageMetrics !== 'object') {
+      this.data.languageMetrics = { en: 0, hi: 0, mr: 0 };
+    }
+    this.data.languageMetrics[normalized] = (this.data.languageMetrics[normalized] || 0) + 1;
+    this.save();
+    return this.data.languageMetrics;
   }
 
   delete(collectionName, id) {

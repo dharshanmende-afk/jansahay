@@ -1,0 +1,24 @@
+{
+  "version": "1.0.0",
+  "description": "Data-only state registry for JanSahay AI. Add a new state object here and drop its verified schemes JSON into server/data/states/ to enable a new state with zero code changes.",
+  "states": [
+    {
+      "code": "IN",
+      "name": "All India",
+      "level": "CENTRAL",
+      "status": "ACTIVE",
+      "portalName": "myScheme / National Portal of India",
+      "portalUrl": "https://www.myscheme.gov.in",
+      "rtsPortalUrl": "https://services.india.gov.in"
+    },
+    {
+      "code": "MH",
+      "name": "Maharashtra",
+      "level": "STATE",
+      "status": "ACTIVE",
+      "portalName": "Aaple Sarkar / MahaDBT",
+      "portalUrl": "https://aaplesarkar.mahaonline.gov.in",
+      "rtsPortalUrl": "https://rts.maharashtra.gov.in"
+    }
+  ]
+}

@@ -1,0 +1,313 @@
+{
+  "version": "1.0.0",
+  "note": "Empty structured expansion templates awaiting manual verification from official .gov.in / gazette sources. Never set verificationStatus=VERIFIED or active=true until officialUrl, sourceUrl, rules, benefit, documents, lastVerifiedAt, and verifiedBy are verified directly on an official government portal.",
+  "templates": [
+    {
+      "templateId": "KA-GRUHA-LAKSHMI-01",
+      "name": "Gruha Lakshmi Scheme (Karnataka) — TEMPLATE",
+      "level": "STATE",
+      "state": "Karnataka",
+      "category": "WOMEN_EMPOWERMENT",
+      "description": "PENDING MANUAL RESEARCH: Verify official eligibility rules, benefit amount, and Seva Sindhu guidelines before activation.",
+      "benefit": "",
+      "rules": [],
+      "documents": [],
+      "officialUrl": "",
+      "sourceUrl": "",
+      "lastVerifiedAt": "",
+      "verifiedBy": "",
+      "verificationStatus": "UNVERIFIED",
+      "active": false,
+      "manualResearchNeeded": [
+        "Verify current benefit amount & household head definition on sevasindhugs.karnataka.gov.in",
+        "Confirm Income Tax / GST exclusion criteria from Karnataka WCD Dept GR",
+        "Verify required documents (Ration Card BPL/Antyodaya, Aadhaar-seeded bank account)"
+      ]
+    },
+    {
+      "templateId": "KA-SHAKTI-YOJANA-02",
+      "name": "Shakti Free Bus Travel Scheme (Karnataka) — TEMPLATE",
+      "level": "STATE",
+      "state": "Karnataka",
+      "category": "WELFARE",
+      "description": "PENDING MANUAL RESEARCH: Verify Shakti Smart Card & domicile rules on ksrtc.in / sevasindhu.karnataka.gov.in.",
+      "benefit": "",
+      "rules": [],
+      "documents": [],
+      "officialUrl": "",
+      "sourceUrl": "",
+      "lastVerifiedAt": "",
+      "verifiedBy": "",
+      "verificationStatus": "UNVERIFIED",
+      "active": false,
+      "manualResearchNeeded": [
+        "Confirm Karnataka domicile eligibility & applicable state RTC bus classes",
+        "Verify official Karnataka Transport Department portal URL"
+      ]
+    },
+    {
+      "templateId": "KA-YUVA-NIDHI-03",
+      "name": "Yuva Nidhi Scheme (Karnataka) — TEMPLATE",
+      "level": "STATE",
+      "state": "Karnataka",
+      "category": "EDUCATION",
+      "description": "PENDING MANUAL RESEARCH: Verify graduate/diploma unemployment allowance conditions on sevasindhugs.karnataka.gov.in.",
+      "benefit": "",
+      "rules": [],
+      "documents": [],
+      "officialUrl": "",
+      "sourceUrl": "",
+      "lastVerifiedAt": "",
+      "verifiedBy": "",
+      "verificationStatus": "UNVERIFIED",
+      "active": false,
+      "manualResearchNeeded": [
+        "Verify graduation pass-out year cutoff & monthly allowance duration",
+        "Verify Skill Development, Entrepreneurship and Livelihood Dept order URL"
+      ]
+    },
+    {
+      "templateId": "GJ-MUKHYAMANTRI-YUVA-04",
+      "name": "Mukhyamantri Yuva Swavalamban Yojana (Gujarat) — TEMPLATE",
+      "level": "STATE",
+      "state": "Gujarat",
+      "category": "EDUCATION",
+      "description": "PENDING MANUAL RESEARCH: Verify MYSY percentage cutoffs, income ceiling, and tuition assistance on mysy.guj.nic.in.",
+      "benefit": "",
+      "rules": [],
+      "documents": [],
+      "officialUrl": "",
+      "sourceUrl": "",
+      "lastVerifiedAt": "",
+      "verifiedBy": "",
+      "verificationStatus": "UNVERIFIED",
+      "active": false,
+      "manualResearchNeeded": [
+        "Confirm family annual income ceiling on mysy.guj.nic.in",
+        "Confirm 10th/12th percentile thresholds for Diploma/UG professional courses"
+      ]
+    },
+    {
+      "templateId": "GJ-NAMO-LAKSHMI-05",
+      "name": "Namo Lakshmi Yojana (Gujarat) — TEMPLATE",
+      "level": "STATE",
+      "state": "Gujarat",
+      "category": "EDUCATION",
+      "description": "PENDING MANUAL RESEARCH: Verify Class 9-12 girl student scholarship schedule on Gujarat Education Dept portal.",
+      "benefit": "",
+      "rules": [],
+      "documents": [],
+      "officialUrl": "",
+      "sourceUrl": "",
+      "lastVerifiedAt": "",
+      "verifiedBy": "",
+      "verificationStatus": "UNVERIFIED",
+      "active": false,
+      "manualResearchNeeded": [
+        "Verify income limit & attendance percentage requirement from Gujarat Education Dept circular",
+        "Confirm exact installment breakdown and official portal URL"
+      ]
+    },
+    {
+      "templateId": "TN-KALAIGNAR-MAGALIR-06",
+      "name": "Kalaignar Magalir Urimai Thittam (Tamil Nadu) — TEMPLATE",
+      "level": "STATE",
+      "state": "Tamil Nadu",
+      "category": "WOMEN_EMPOWERMENT",
+      "description": "PENDING MANUAL RESEARCH: Verify KMUT household income, electricity consumption & land limits on kmut.tn.gov.in.",
+      "benefit": "",
+      "rules": [],
+      "documents": [],
+      "officialUrl": "",
+      "sourceUrl": "",
+      "lastVerifiedAt": "",
+      "verifiedBy": "",
+      "verificationStatus": "UNVERIFIED",
+      "active": false,
+      "manualResearchNeeded": [
+        "Confirm age bracket, annual family income cap, and landholding exclusions on kmut.tn.gov.in",
+        "Confirm official TN e-Sevai / KMUT source URL"
+      ]
+    },
+    {
+      "templateId": "TN-PUDHUMAI-PENN-07",
+      "name": "Pudhumai Penn Scheme (Tamil Nadu) — TEMPLATE",
+      "level": "STATE",
+      "state": "Tamil Nadu",
+      "category": "EDUCATION",
+      "description": "PENDING MANUAL RESEARCH: Verify govt school Class 6-12 continuity requirement for higher-ed monthly grant on pms.tn.gov.in.",
+      "benefit": "",
+      "rules": [],
+      "documents": [],
+      "officialUrl": "",
+      "sourceUrl": "",
+      "lastVerifiedAt": "",
+      "verifiedBy": "",
+      "verificationStatus": "UNVERIFIED",
+      "active": false,
+      "manualResearchNeeded": [
+        "Confirm eligible higher education streams & EMIS verification steps on official TN Social Welfare portal"
+      ]
+    },
+    {
+      "templateId": "UP-KANYA-SUMANGALA-08",
+      "name": "Mukhyamantri Kanya Sumangala Yojana (Uttar Pradesh) — TEMPLATE",
+      "level": "STATE",
+      "state": "Uttar Pradesh",
+      "category": "WOMEN_EMPOWERMENT",
+      "description": "PENDING MANUAL RESEARCH: Verify updated 6-stage grant schedule & family income limit on mksy.up.gov.in.",
+      "benefit": "",
+      "rules": [],
+      "documents": [],
+      "officialUrl": "",
+      "sourceUrl": "",
+      "lastVerifiedAt": "",
+      "verifiedBy": "",
+      "verificationStatus": "UNVERIFIED",
+      "active": false,
+      "manualResearchNeeded": [
+        "Confirm current total grant figure, maximum two girl children rule, and income limit on mksy.up.gov.in"
+      ]
+    },
+    {
+      "templateId": "UP-ABHYUDAYA-COACHING-09",
+      "name": "Mukhyamantri Abhyudaya Yojana (Uttar Pradesh) — TEMPLATE",
+      "level": "STATE",
+      "state": "Uttar Pradesh",
+      "category": "EDUCATION",
+      "description": "PENDING MANUAL RESEARCH: Verify free UPSC/JEE/NEET coaching eligibility on abhyuday.up.gov.in.",
+      "benefit": "",
+      "rules": [],
+      "documents": [],
+      "officialUrl": "",
+      "sourceUrl": "",
+      "lastVerifiedAt": "",
+      "verifiedBy": "",
+      "verificationStatus": "UNVERIFIED",
+      "active": false,
+      "manualResearchNeeded": [
+        "Confirm UP domicile, academic qualification rules, and official abhyuday.up.gov.in portal link"
+      ]
+    },
+    {
+      "templateId": "MP-LADLI-BEHNA-10",
+      "name": "Mukhyamantri Ladli Behna Yojana (Madhya Pradesh) — TEMPLATE",
+      "level": "STATE",
+      "state": "Madhya Pradesh",
+      "category": "WOMEN_EMPOWERMENT",
+      "description": "PENDING MANUAL RESEARCH: Verify age/marital status, income cap, and land exclusions on cmladlibahna.mp.gov.in.",
+      "benefit": "",
+      "rules": [],
+      "documents": [],
+      "officialUrl": "",
+      "sourceUrl": "",
+      "lastVerifiedAt": "",
+      "verifiedBy": "",
+      "verificationStatus": "UNVERIFIED",
+      "active": false,
+      "manualResearchNeeded": [
+        "Confirm Samagra ID / Aadhaar e-KYC mandate & exact current monthly benefit on cmladlibahna.mp.gov.in"
+      ]
+    },
+    {
+      "templateId": "RJ-CHIRANJEEVI-RGHS-11",
+      "name": "Mukhyamantri Ayushman Arogya Yojana (Rajasthan) — TEMPLATE",
+      "level": "STATE",
+      "state": "Rajasthan",
+      "category": "HEALTH",
+      "description": "PENDING MANUAL RESEARCH: Verify updated Jan Aadhaar family health cover on maa.rajasthan.gov.in.",
+      "benefit": "",
+      "rules": [],
+      "documents": [],
+      "officialUrl": "",
+      "sourceUrl": "",
+      "lastVerifiedAt": "",
+      "verifiedBy": "",
+      "verificationStatus": "UNVERIFIED",
+      "active": false,
+      "manualResearchNeeded": [
+        "Confirm paid vs free category premium & Jan Aadhaar rules on Rajasthan Health portal"
+      ]
+    },
+    {
+      "templateId": "WB-KANYASHREE-12",
+      "name": "Kanyashree Prakalpa (West Bengal) — TEMPLATE",
+      "level": "STATE",
+      "state": "West Bengal",
+      "category": "EDUCATION",
+      "description": "PENDING MANUAL RESEARCH: Verify K1/K2 scholarship age & marital conditions on wbkanyashree.gov.in.",
+      "benefit": "",
+      "rules": [],
+      "documents": [],
+      "officialUrl": "",
+      "sourceUrl": "",
+      "lastVerifiedAt": "",
+      "verifiedBy": "",
+      "verificationStatus": "UNVERIFIED",
+      "active": false,
+      "manualResearchNeeded": [
+        "Confirm K1 annual scholarship and K2 one-time grant rules & institution upload flow on wbkanyashree.gov.in"
+      ]
+    },
+    {
+      "templateId": "TS-RYTHU-BHAROSA-13",
+      "name": "Rythu Bharosa Farmer Investment Support (Telangana) — TEMPLATE",
+      "level": "STATE",
+      "state": "Telangana",
+      "category": "AGRICULTURE",
+      "description": "PENDING MANUAL RESEARCH: Verify per-acre Kharif/Rabi assistance & Dharani/Bhu Bharati land rules.",
+      "benefit": "",
+      "rules": [],
+      "documents": [],
+      "officialUrl": "",
+      "sourceUrl": "",
+      "lastVerifiedAt": "",
+      "verifiedBy": "",
+      "verificationStatus": "UNVERIFIED",
+      "active": false,
+      "manualResearchNeeded": [
+        "Confirm official Telangana Agriculture Dept GO & landholding cap before publishing"
+      ]
+    },
+    {
+      "templateId": "BR-STUDENT-CREDIT-14",
+      "name": "Bihar Student Credit Card Yojana — TEMPLATE",
+      "level": "STATE",
+      "state": "Bihar",
+      "category": "EDUCATION",
+      "description": "PENDING MANUAL RESEARCH: Verify max education loan cap, interest rates & DRCC verification on 7nishchay-yuvaupmission.bihar.gov.in.",
+      "benefit": "",
+      "rules": [],
+      "documents": [],
+      "officialUrl": "",
+      "sourceUrl": "",
+      "lastVerifiedAt": "",
+      "verifiedBy": "",
+      "verificationStatus": "UNVERIFIED",
+      "active": false,
+      "manualResearchNeeded": [
+        "Confirm Bihar domicile, 12th pass institute accreditation list, and repayment moratorium rules"
+      ]
+    },
+    {
+      "templateId": "IN-PM-INTERNSHIP-15",
+      "name": "PM Internship Scheme (Ministry of Corporate Affairs) — TEMPLATE",
+      "level": "CENTRAL",
+      "state": "All India",
+      "category": "EDUCATION",
+      "description": "PENDING MANUAL RESEARCH: Verify age bracket, family income cap, and stipend share on pminternship.mca.gov.in.",
+      "benefit": "",
+      "rules": [],
+      "documents": [],
+      "officialUrl": "",
+      "sourceUrl": "",
+      "lastVerifiedAt": "",
+      "verifiedBy": "",
+      "verificationStatus": "UNVERIFIED",
+      "active": false,
+      "manualResearchNeeded": [
+        "Confirm eligibility exclusions (govt employee families, IIT/IIM/CA/income >8L) on pminternship.mca.gov.in"
+      ]
+    }
+  ]
+}
