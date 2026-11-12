@@ -13,6 +13,17 @@ export const SchemesCatalogPage = () => {
   const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedLevel, setSelectedLevel] = useState('');
   const [selectedState, setSelectedState] = useState('');
+  const [availableStates, setAvailableStates] = useState(['Maharashtra', 'All India']);
+
+  useEffect(() => {
+    schemeService.getStates()
+      .then(res => {
+        if (res?.success && Array.isArray(res.data) && res.data.length > 0) {
+          setAvailableStates(res.data.map(s => s.name));
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     loadSchemes();
@@ -178,10 +189,9 @@ export const SchemesCatalogPage = () => {
                 onChange={(e) => setSelectedState(e.target.value)}
                 style={{ width: '100%', padding: '0.55rem 0.75rem', borderRadius: '0.375rem', border: '1px solid #cbd5e1', fontSize: '0.85rem' }}>
                 <option value="">All India & States</option>
-                <option value="Maharashtra">Maharashtra</option>
-                <option value="Karnataka">Karnataka</option>
-                <option value="Gujarat">Gujarat</option>
-                <option value="Uttar Pradesh">Uttar Pradesh</option>
+                {availableStates.filter(st => st !== 'All India').map(st => (
+                  <option key={st} value={st}>{st}</option>
+                ))}
               </select>
             </div>
           </div>

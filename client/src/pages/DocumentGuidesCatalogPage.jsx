@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { documentGuideService } from '../services/api';
+import { documentGuideService, schemeService } from '../services/api';
 import { DocumentGuideModal } from '../components/DocumentGuideModal';
 import { FileText, Building, Clock, ArrowRight, ShieldCheck, Search } from 'lucide-react';
 import { ReportWrongInfoButton } from '../components/ReportWrongInfoButton';
@@ -8,7 +8,18 @@ export const DocumentGuidesCatalogPage = () => {
   const [guides, setGuides] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedState, setSelectedState] = useState('');
+  const [availableStates, setAvailableStates] = useState(['Maharashtra', 'All India']);
   const [activeGuide, setActiveGuide] = useState(null);
+
+  useEffect(() => {
+    schemeService.getStates()
+      .then(res => {
+        if (res?.success && Array.isArray(res.data) && res.data.length > 0) {
+          setAvailableStates(res.data.map(s => s.name));
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     loadGuides();
@@ -44,23 +55,21 @@ export const DocumentGuidesCatalogPage = () => {
           </p>
         </div>
 
-        {/* State Filter Buttons */}
-        <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '2rem' }}>
+        {/* State Filter Buttons (Data-driven from states.json & verified guides) */}
+        <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
           <button
             onClick={() => setSelectedState('')}
             className={`btn btn-sm ${selectedState === '' ? 'btn-primary' : 'btn-outline'}`}>
             All States & Central
           </button>
-          <button
-            onClick={() => setSelectedState('Maharashtra')}
-            className={`btn btn-sm ${selectedState === 'Maharashtra' ? 'btn-primary' : 'btn-outline'}`}>
-            Maharashtra (Aaple Sarkar / Revenue)
-          </button>
-          <button
-            onClick={() => setSelectedState('All India')}
-            className={`btn btn-sm ${selectedState === 'All India' ? 'btn-primary' : 'btn-outline'}`}>
-            Central / National (Udyam, UDID, Aadhaar)
-          </button>
+          {availableStates.map(st => (
+            <button
+              key={st}
+              onClick={() => setSelectedState(st)}
+              className={`btn btn-sm ${selectedState === st ? 'btn-primary' : 'btn-outline'}`}>
+              {st === 'All India' ? 'Central / National Portals' : st}
+            </button>
+          ))}
         </div>
 
         {/* Guides Grid */}

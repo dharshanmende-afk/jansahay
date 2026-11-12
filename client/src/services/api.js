@@ -118,6 +118,7 @@ export const profileService = {
 
 export const schemeService = {
   getSchemes: (params) => api.get('/schemes', { params }),
+  getStates: () => api.get('/schemes/meta/states'),
   getSchemeById: (id) => api.get(`/schemes/${id}`),
   getSchemeDocuments: (id) => api.get(`/schemes/${id}/documents`),
   getSchemeDocumentReadiness: (id) => api.get(`/schemes/${id}/document-readiness`),
@@ -219,6 +220,7 @@ export const adminService = {
   updateScheme: (id, data) => api.put(`/admin/schemes/${id}`, data),
   deleteScheme: (id) => api.delete(`/admin/schemes/${id}`),
   getDocumentGuides: () => api.get('/admin/document-guides'),
+  resolveFeedback: (id, status = 'RESOLVED') => api.put(`/admin/feedback/${id}/resolve`, { status }),
   createDocumentGuide: (data) => api.post('/admin/document-guides', data),
   updateDocumentGuide: (id, data) => api.put(`/admin/document-guides/${id}`, data),
   verifyDocumentGuide: (id, status) => api.put(`/admin/document-guides/${id}/verify`, { status }),

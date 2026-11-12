@@ -4,6 +4,8 @@ import { authMiddleware } from '../middleware/authMiddleware.js';
 import { adminMiddleware } from '../middleware/adminMiddleware.js';
 import { GovDataService } from '../services/govDataService.js';
 import { RAGService } from '../services/ragService.js';
+import { normalizeSchemeRecord } from '../data/stateExpansionLoader.js';
+import { validateSchemesDataset } from '../../scripts/validate-schemes.js';
 
 const router = express.Router();
 
@@ -37,41 +39,93 @@ router.get('/dashboard', (req, res) => {
 });
 
 
-// GET /api/admin/analytics (Phase 7 - Administrative Policy Intelligence & Citizen Metrics)
+// GET /api/admin/analytics (Phase 7 - Genuine, Privacy-Safe Aggregate Policy Metrics)
 router.get('/analytics', (req, res) => {
   const users = db.getCollection('users') || [];
   const profiles = db.getCollection('profiles') || [];
-  const schemes = db.getCollection('schemes') || [];
+  const schemes = (db.getCollection('schemes') || []).map(normalizeSchemeRecord);
   const documentGuides = db.getCollection('documentGuides') || [];
   const userDocuments = db.getCollection('userDocuments') || [];
 
-  // 1. Most-Viewed / In-Demand Schemes
+  // 1. Top Schemes Viewed (real aggregate counter from GET /api/schemes/:id)
   const mostViewedSchemes = schemes
     .map(s => ({
       id: s.id,
       name: s.name,
       category: s.category,
       governmentLevel: s.governmentLevel,
-      viewCount: s.viewCount || Math.floor(Math.abs(Math.sin(s.id * 997)) * 1420 + 250),
-      lastVerified: s.lastVerified || s.lastVerifiedAt || '2026-03-01'
+      viewCount: Number(s.viewCount) || 0,
+      lastVerified: s.lastVerifiedAt || s.lastVerified || ''
     }))
-    .sort((a, b) => b.viewCount - a.viewCount)
-    .slice(0, 6);
+    .sort((a, b) => (b.viewCount - a.viewCount) || (Number(a.id) - Number(b.id)))
+    .slice(0, 8);
 
-  // 2. Most Common Missing Documents across registered citizens
-  const baselineMissing = [
-    { documentName: 'Income Certificate (Tehsildar)', documentType: 'INCOME_CERTIFICATE', missingCount: 24, issuingAuthority: 'Revenue Dept (Tehsildar)', rtsTimeline: '15 Days' },
-    { documentName: 'Caste Validity Certificate (CCVIS / Barti)', documentType: 'CASTE_VALIDITY', missingCount: 19, issuingAuthority: 'District Caste Scrutiny Committee', rtsTimeline: '90 Days' },
-    { documentName: 'Non-Creamy Layer Certificate (NCL)', documentType: 'NON_CREAMY_LAYER', missingCount: 15, issuingAuthority: 'Sub-Divisional Officer / Tehsildar', rtsTimeline: '21 Days' },
-    { documentName: '7/12 & 8A Land Record Extract', documentType: 'LAND_7_12_EXTRACT', missingCount: 12, issuingAuthority: 'Talathi / Mahabhumi Portal', rtsTimeline: 'Immediate (Digital)' },
-    { documentName: 'Domicile / Nationality Certificate', documentType: 'DOMICILE_CERTIFICATE', missingCount: 9, issuingAuthority: 'Tehsildar / SDO', rtsTimeline: '15 Days' }
-  ];
+  // 2. Most Common Missing Documents (real aggregate across userDocuments + active profiles)
+  const missingCounter = new Map();
+  const guideByType = new Map();
+  for (const g of documentGuides) {
+    if (g.documentType) guideByType.set(g.documentType.toUpperCase(), g);
+  }
 
-  // 3. Language Usage Distribution
+  for (const ud of userDocuments) {
+    if (ud.status && ud.status !== 'AVAILABLE') {
+      const key = String(ud.documentType || ud.documentName || 'UNKNOWN').toUpperCase();
+      const guide = guideByType.get(key);
+      const entry = missingCounter.get(key) || {
+        documentType: key,
+        documentName: guide?.title || ud.documentName || key,
+        missingCount: 0,
+        issuingAuthority: guide?.issuingAuthority || 'Notified Issuing Authority',
+        rtsTimeline: guide?.expectedProcessingTime || 'Per State RTS SLA'
+      };
+      entry.missingCount += 1;
+      missingCounter.set(key, entry);
+    }
+  }
+
+  // Also aggregate in-hand gaps inferred from saved profile inHandDocuments vs active verified schemes
+  for (const p of profiles) {
+    const owned = new Set((p.inHandDocuments || []).map(d => String(d).toLowerCase()));
+    const seenForProfile = new Set();
+    for (const s of schemes) {
+      if (s.active === false) continue;
+      for (const reqDoc of (s.requiredDocuments || [])) {
+        const docName = typeof reqDoc === 'string' ? reqDoc : reqDoc.documentName;
+        const docType = String((typeof reqDoc === 'object' ? reqDoc.documentType : docName) || docName).toUpperCase();
+        if (!docName || seenForProfile.has(docType)) continue;
+        if (!owned.has(docName.toLowerCase()) && !owned.has(docType.toLowerCase())) {
+          seenForProfile.add(docType);
+          const guide = guideByType.get(docType);
+          const entry = missingCounter.get(docType) || {
+            documentType: docType,
+            documentName: guide?.title || docName,
+            missingCount: 0,
+            issuingAuthority: guide?.issuingAuthority || 'Notified Issuing Authority',
+            rtsTimeline: guide?.expectedProcessingTime || 'Per State RTS SLA'
+          };
+          entry.missingCount += 1;
+          missingCounter.set(docType, entry);
+        }
+      }
+    }
+  }
+
+  const mostCommonMissingDocuments = Array.from(missingCounter.values())
+    .sort((a, b) => b.missingCount - a.missingCount)
+    .slice(0, 8);
+
+  // 3. Language Usage Distribution (real recorded events in db.data.languageMetrics)
+  const rawLang = db.data?.languageMetrics || { en: 0, hi: 0, mr: 0 };
+  const enCount = Number(rawLang.en) || 0;
+  const hiCount = Number(rawLang.hi) || 0;
+  const mrCount = Number(rawLang.mr) || 0;
+  const totalLangEvents = enCount + hiCount + mrCount;
   const languageUsage = {
-    english: 46,
-    marathi: 34,
-    hindi: 20
+    english: totalLangEvents > 0 ? Math.round((enCount / totalLangEvents) * 100) : 0,
+    marathi: totalLangEvents > 0 ? Math.round((mrCount / totalLangEvents) * 100) : 0,
+    hindi: totalLangEvents > 0 ? Math.round((hiCount / totalLangEvents) * 100) : 0,
+    counts: { en: enCount, mr: mrCount, hi: hiCount },
+    totalEvents: totalLangEvents
   };
 
   // 4. Scheme Category Breakdown
@@ -81,18 +135,35 @@ router.get('/analytics', (req, res) => {
     categoryCounts[cat] = (categoryCounts[cat] || 0) + 1;
   });
 
-  // 5. Citizen Distribution by Category
+  // 5. Real Citizen Distribution by Category (no synthetic padding)
   const citizenCategoryDistribution = {
-    STUDENT: profiles.filter(p => p.category === 'STUDENT').length + 32,
-    FARMER: profiles.filter(p => p.category === 'FARMER').length + 26,
-    BUSINESS_OWNER: profiles.filter(p => p.category === 'BUSINESS_OWNER').length + 18,
-    GENERAL_CITIZEN: profiles.filter(p => p.category === 'GENERAL_CITIZEN').length + 14
+    STUDENT: profiles.filter(p => p.category === 'STUDENT').length,
+    FARMER: profiles.filter(p => p.category === 'FARMER').length,
+    BUSINESS_OWNER: profiles.filter(p => p.category === 'BUSINESS_OWNER').length,
+    GENERAL_CITIZEN: profiles.filter(p => p.category === 'GENERAL_CITIZEN').length
   };
 
-  const unansweredQueries = (db.getCollection('unansweredAiQueries') || []).slice(-10).reverse();
+  // 6. Unanswered / Low-Confidence AI Queries & Feedback Reports (privacy-safe)
+  const unansweredQueries = (db.getCollection('unansweredAiQueries') || []).slice(-15).reverse();
   const feedbackItems = db.getCollection('feedback') || [];
   const aiThumbsUp = feedbackItems.filter(f => f.aiVote === 'up').length;
   const aiThumbsDown = feedbackItems.filter(f => f.aiVote === 'down').length;
+  const citizenErrorReports = feedbackItems
+    .filter(f => f.feedbackType === 'ERROR_REPORT' || f.feedbackType === 'CORRECTION' || f.feedbackType === 'SUGGESTION')
+    .slice(-20)
+    .reverse()
+    .map(f => ({
+      id: f.id,
+      schemeId: f.schemeId || null,
+      guideId: f.guideId || null,
+      feedbackType: f.feedbackType,
+      comment: f.comment,
+      status: f.status || 'PENDING',
+      createdAt: f.createdAt
+    }));
+
+  // 7. Data Freshness & Verification Hygiene Report
+  const freshnessReport = validateSchemesDataset({ schemes });
 
   return res.json({
     success: true,
@@ -100,16 +171,41 @@ router.get('/analytics', (req, res) => {
       totalSchemes: schemes.length,
       totalGuides: documentGuides.length,
       totalRegisteredCitizens: users.length,
+      totalProfiles: profiles.length,
       mostViewedSchemes,
-      mostCommonMissingDocuments: baselineMissing,
+      mostCommonMissingDocuments,
       languageUsage,
       categoryCounts,
       citizenCategoryDistribution,
       unansweredAiQueries: unansweredQueries,
       aiEvaluationSignals: { thumbsUp: aiThumbsUp, thumbsDown: aiThumbsDown },
+      feedbackReports: {
+        totalReports: citizenErrorReports.length,
+        pendingReports: citizenErrorReports.filter(r => r.status === 'PENDING').length,
+        items: citizenErrorReports
+      },
+      freshnessSummary: {
+        activeVerifiedCount: freshnessReport.activeCount,
+        missingMetadataErrors: freshnessReport.errors.length,
+        staleOver180DaysCount: freshnessReport.staleWarnings.length
+      },
       lastAnalyzedAt: new Date().toISOString()
     }
   });
+});
+
+// PUT /api/admin/feedback/:id/resolve (Mark citizen error report reviewed/resolved)
+router.put('/feedback/:id/resolve', (req, res) => {
+  const report = db.findById('feedback', req.params.id);
+  if (!report) {
+    return res.status(404).json({ success: false, message: 'Feedback report not found' });
+  }
+  const nextStatus = req.body?.status === 'PENDING' ? 'PENDING' : 'RESOLVED';
+  const updated = db.update('feedback', report.id, {
+    status: nextStatus,
+    resolvedAt: nextStatus === 'RESOLVED' ? new Date().toISOString() : null
+  });
+  return res.json({ success: true, message: `Report marked as ${nextStatus}`, data: updated });
 });
 
 // POST /api/admin/sync-and-analyze (Live Scheme Pipeline & RAG Knowledge Sync)
@@ -167,27 +263,54 @@ router.get('/schemes', (req, res) => {
 
 // POST /api/admin/schemes
 router.post('/schemes', (req, res) => {
-  const { name, description, category, governmentLevel, state, benefit, sourceUrl, rules, requiredDocuments, applicationGuides } = req.body;
-  if (!name || !description || !category || !governmentLevel) {
-    return res.status(400).json({ success: false, message: 'Name, description, category, and governmentLevel are required' });
+  const {
+    name,
+    description,
+    category,
+    governmentLevel,
+    level,
+    state,
+    benefit,
+    sourceUrl,
+    officialUrl,
+    lastVerifiedAt,
+    verifiedBy,
+    rules,
+    requiredDocuments,
+    documents,
+    applicationGuides
+  } = req.body;
+  const effectiveLevel = level || governmentLevel;
+  if (!name || !description || !category || !effectiveLevel) {
+    return res.status(400).json({ success: false, message: 'Name, description, category, and level/governmentLevel are required' });
   }
 
-  const newScheme = db.insert('schemes', {
+  const effectiveSourceUrl = (sourceUrl || officialUrl || '').trim();
+  const hasOfficialSource = Boolean(effectiveSourceUrl);
+  const verifiedDate = hasOfficialSource ? (lastVerifiedAt || new Date().toISOString().split('T')[0]) : '';
+
+  const newScheme = db.insert('schemes', normalizeSchemeRecord({
     name: name.trim(),
     description: description.trim(),
     category,
-    governmentLevel,
+    level: effectiveLevel,
+    governmentLevel: effectiveLevel,
     state: state || 'All India',
     benefit: benefit || '',
-    sourceUrl: sourceUrl || '',
-    lastVerified: new Date().toISOString().split('T')[0],
-    active: true,
+    officialUrl: effectiveSourceUrl,
+    sourceUrl: effectiveSourceUrl,
+    lastVerified: verifiedDate,
+    lastVerifiedAt: verifiedDate,
+    verifiedBy: verifiedBy || (hasOfficialSource ? (req.user?.email || 'JanSahay Admin') : ''),
+    active: hasOfficialSource,
     isDemoData: false,
-    verificationStatus: 'VERIFIED',
+    verificationStatus: hasOfficialSource ? 'VERIFIED' : 'UNVERIFIED',
     rules: rules || [],
-    requiredDocuments: requiredDocuments || [],
-    applicationGuides: applicationGuides || []
-  });
+    documents: documents || requiredDocuments || [],
+    requiredDocuments: requiredDocuments || documents || [],
+    applicationGuides: applicationGuides || [],
+    viewCount: 0
+  }));
 
   return res.status(201).json({ success: true, message: 'Scheme created successfully', data: newScheme });
 });

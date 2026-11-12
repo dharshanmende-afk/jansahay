@@ -112,6 +112,88 @@ async function boundedFetch(url, timeoutMs = 8000, opts = {}) {
 }
 
 // ── Helper: Content hashing to detect substantive changes ───────────────────
+// ?? Helper: robots.txt compliance parser & checker ???????????????????????????
+const robotsCache = new Map();
+
+export function parseRobotsTxt(robotsText, targetPath = '/', userAgent = 'JanSahay') {
+  if (!robotsText || typeof robotsText !== 'string') return { allowed: true, matchedRule: null };
+
+  const lines = robotsText.split(/\r?\n/);
+  const groups = [];
+  let currentAgents = [];
+  let currentRules = [];
+
+  for (const rawLine of lines) {
+    const clean = rawLine.split('#')[0].trim();
+    if (!clean) continue;
+    const colonIdx = clean.indexOf(':');
+    if (colonIdx === -1) continue;
+
+    const directive = clean.slice(0, colonIdx).trim().toLowerCase();
+    const value = clean.slice(colonIdx + 1).trim();
+
+    if (directive === 'user-agent') {
+      if (currentRules.length > 0) {
+        groups.push({ agents: currentAgents, rules: currentRules });
+        currentAgents = [];
+        currentRules = [];
+      }
+      currentAgents.push(value.toLowerCase());
+    } else if (directive === 'disallow' || directive === 'allow') {
+      currentRules.push({ type: directive, pattern: value });
+    }
+  }
+  if (currentAgents.length > 0 || currentRules.length > 0) {
+    groups.push({ agents: currentAgents, rules: currentRules });
+  }
+
+  const uaLower = userAgent.toLowerCase();
+  const specific = groups.filter(g => g.agents.some(a => a !== '*' && uaLower.includes(a)));
+  const wildcard = groups.filter(g => g.agents.includes('*'));
+  const activeGroups = specific.length > 0 ? specific : wildcard;
+
+  let bestMatch = null;
+  for (const grp of activeGroups) {
+    for (const rule of grp.rules) {
+      if (!rule.pattern) continue;
+      if (targetPath.startsWith(rule.pattern)) {
+        if (!bestMatch || rule.pattern.length > bestMatch.pattern.length ||
+            (rule.pattern.length === bestMatch.pattern.length && rule.type === 'allow')) {
+          bestMatch = rule;
+        }
+      }
+    }
+  }
+
+  if (bestMatch && bestMatch.type === 'disallow') {
+    return { allowed: false, matchedRule: `Disallow: ${bestMatch.pattern}` };
+  }
+  return { allowed: true, matchedRule: bestMatch ? `${bestMatch.type}: ${bestMatch.pattern}` : null };
+}
+
+export async function checkRobotsAllowed(targetUrl) {
+  try {
+    const parsed = new URL(targetUrl);
+    const origin = parsed.origin;
+    const targetPath = (parsed.pathname || '/') + (parsed.search || '');
+
+    let robotsText = robotsCache.get(origin);
+    if (robotsText === undefined) {
+      try {
+        const res = await boundedFetch(`${origin}/robots.txt`, 3500);
+        robotsText = res && res.status === 200 ? await res.text() : '';
+      } catch {
+        robotsText = '';
+      }
+      robotsCache.set(origin, robotsText);
+    }
+
+    return parseRobotsTxt(robotsText, targetPath, 'JanSahay');
+  } catch {
+    return { allowed: false, matchedRule: 'Invalid or undocumented source URL; manual update required' };
+  }
+}
+
 function calculateContentHash(obj) {
   const str = typeof obj === 'string' ? obj : JSON.stringify(obj);
   return crypto.createHash('sha256').update(str).digest('hex').substring(0, 16);
@@ -142,6 +224,10 @@ function parseGovDate(dateText) {
 }
 
 export class GovDataService {
+  static parseRobotsTxt = parseRobotsTxt;
+  static checkRobotsAllowed = checkRobotsAllowed;
+  static clearRobotsCache() { robotsCache.clear(); }
+
   /**
    * Status check for all official portals
    */
@@ -203,7 +289,15 @@ export class GovDataService {
     };
 
     try {
-      const res = await boundedFetch('https://pib.gov.in/allRel.aspx', 7000);
+      const pibUrl = 'https://pib.gov.in/allRel.aspx';
+      const robotsCheck = await checkRobotsAllowed(pibUrl);
+      if (!robotsCheck.allowed) {
+        report.status = 'MANUAL_UPDATE_REQUIRED';
+        report.syncMode = 'MANUAL_UPDATE';
+        report.error = `Skipped per robots.txt (${robotsCheck.matchedRule}). Manual update required.`;
+        return { report, items: [] };
+      }
+      const res = await boundedFetch(pibUrl, 7000);
       if (!res || res.status !== 200) {
         report.error = `HTTP ${res?.status || 'No Response'}`;
         return { report, items: [] };
@@ -334,6 +428,16 @@ export class GovDataService {
 
     for (const portal of targetPortals) {
       try {
+        const robotsCheck = await checkRobotsAllowed(portal.url);
+        if (!robotsCheck.allowed) {
+          report.recordsSkipped++;
+          errors.push(`${portal.name}: Skipped per robots.txt (${robotsCheck.matchedRule}); manual update required.`);
+          const existing = db.findOne('schemes', s => s.sourceUrl && portal.url.includes(new URL(s.sourceUrl).hostname));
+          if (existing) {
+            db.update('schemes', existing.id, { syncMode: 'MANUAL_UPDATE', portalStatus: 'ROBOTS_DISALLOWED' });
+          }
+          continue;
+        }
         const res = await boundedFetch(portal.url, 6000);
         if (res && res.status === 200) {
           const html = await res.text();
@@ -400,7 +504,14 @@ export class GovDataService {
       }
     }
 
-    report.status = successCount === targetPortals.length ? 'SUCCESS' : successCount > 0 ? 'PARTIAL' : 'FAILED';
+    report.status = successCount === targetPortals.length
+      ? 'SUCCESS'
+      : successCount > 0
+        ? 'PARTIAL'
+        : report.recordsSkipped === targetPortals.length
+          ? 'MANUAL_UPDATE_REQUIRED'
+          : 'FAILED';
+    if (report.status === 'MANUAL_UPDATE_REQUIRED') report.syncMode = 'MANUAL_UPDATE';
     if (successCount > 0) report.lastSuccessAt = new Date().toISOString();
     if (errors.length > 0) report.error = errors.join('; ');
 
@@ -427,6 +538,13 @@ export class GovDataService {
     const hitsFound = [];
     const errors = [];
 
+    const mySchemeRobots = await checkRobotsAllowed('https://api.myscheme.gov.in/search/v4/schemes');
+    if (!mySchemeRobots.allowed) {
+      report.status = 'MANUAL_UPDATE_REQUIRED';
+      report.syncMode = 'MANUAL_UPDATE';
+      report.error = `Skipped per robots.txt (${mySchemeRobots.matchedRule}). Manual update required.`;
+      return { report, items: [] };
+    }
     for (const kw of keywords) {
       try {
         const url = `https://api.myscheme.gov.in/search/v4/schemes?lang=en&q=${encodeURIComponent(kw)}`;

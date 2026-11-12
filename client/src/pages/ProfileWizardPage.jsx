@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { profileService } from '../services/api';
+import { profileService, schemeService } from '../services/api';
 import { ShieldCheck, User, MapPin, GraduationCap, DollarSign, Briefcase, Sparkles, ArrowRight, Check, FileText, CheckCircle2, Plus, X } from 'lucide-react';
 
 const COMMON_DOCUMENTS = [
@@ -32,6 +32,17 @@ export const ProfileWizardPage = () => {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [customDocInput, setCustomDocInput] = useState('');
+  const [supportedStates, setSupportedStates] = useState(['Maharashtra', 'All India']);
+
+  useEffect(() => {
+    schemeService.getStates()
+      .then(res => {
+        if (res?.success && Array.isArray(res.data) && res.data.length > 0) {
+          setSupportedStates(res.data.map(s => s.name));
+        }
+      })
+      .catch(() => {});
+  }, []);
   const [formData, setFormData] = useState({
     category: 'STUDENT',
     state: 'Maharashtra',
@@ -263,14 +274,10 @@ export const ProfileWizardPage = () => {
                       value={formData.state}
                       onChange={handleChange}
                       style={{ width: '100%', padding: '0.65rem 0.85rem', borderRadius: '0.5rem', border: '1px solid #cbd5e1', fontSize: '0.9rem' }}>
-                      <option value="Maharashtra">Maharashtra</option>
-                      <option value="Karnataka">Karnataka</option>
-                      <option value="Gujarat">Gujarat</option>
-                      <option value="Madhya Pradesh">Madhya Pradesh</option>
-                      <option value="Uttar Pradesh">Uttar Pradesh</option>
-                      <option value="Tamil Nadu">Tamil Nadu</option>
-                      <option value="Delhi">Delhi</option>
-                      <option value="Other">Other State</option>
+                      {supportedStates.filter(s => s !== 'All India').map(st => (
+                        <option key={st} value={st}>{st}</option>
+                      ))}
+                      <option value="Other">Other State (Central Schemes Only)</option>
                     </select>
                   </div>
 

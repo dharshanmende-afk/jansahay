@@ -98,6 +98,15 @@ export const AdminDashboardPage = () => {
     }
   };
 
+  const handleResolveFeedback = async (id, nextStatus = 'RESOLVED') => {
+    try {
+      await adminService.resolveFeedback(id, nextStatus);
+      loadAdminData();
+    } catch (e) {
+      alert('Error updating report status');
+    }
+  };
+
   const handleDeleteGuide = async (id) => {
     if (window.confirm('Delete this document acquisition guide from the official knowledge base?')) {
       try {
@@ -384,7 +393,13 @@ export const AdminDashboardPage = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {analytics.mostCommonMissingDocuments.map((doc, idx) => (
+                      {analytics.mostCommonMissingDocuments.length === 0 ? (
+                        <tr>
+                          <td colSpan={3} style={{ padding: '1rem 0.5rem', color: '#64748b', textAlign: 'center' }}>
+                            No missing statutory documents recorded across current citizen profiles yet.
+                          </td>
+                        </tr>
+                      ) : analytics.mostCommonMissingDocuments.map((doc, idx) => (
                         <tr key={idx} style={{ borderBottom: '1px solid #f1f5f9' }}>
                           <td style={{ padding: '0.65rem 0.5rem' }}>
                             <div style={{ fontWeight: 600, color: '#0f172a' }}>{doc.documentName}</div>
@@ -417,7 +432,7 @@ export const AdminDashboardPage = () => {
                   </h3>
                 </div>
                 <p style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '1.25rem' }}>
-                  Conversational query distribution and language preferences across English, Marathi, and Hindi.
+                  Real aggregate AI query breakdown ({analytics.languageUsage?.totalEvents || 0} recorded interactions across EN/MR/HI).
                 </p>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
@@ -498,6 +513,84 @@ export const AdminDashboardPage = () => {
                     <div style={{ fontSize: '0.75rem', color: '#64748b' }}>Ladki Bahin, Ayushman, Ujjwala</div>
                   </div>
                 </div>
+              </div>
+            </div>
+
+            {/* Row 3: Unanswered AI Questions, Citizen Error Reports & Freshness Hygiene */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 340px), 1fr))', gap: '1.5rem' }}>
+              {/* Unanswered / Low-Confidence AI Queries */}
+              <div className="card" style={{ padding: '1.5rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                  <Activity size={18} color="#7c3aed" />
+                  <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0f172a', margin: 0 }}>
+                    Unanswered / Low-Confidence AI Queries ({(analytics.unansweredAiQueries || []).length})
+                  </h3>
+                </div>
+                <p style={{ fontSize: '0.82rem', color: '#64748b', marginBottom: '1rem' }}>
+                  Anonymized citizen questions where no verified scheme or guide matched, plus AI thumbs signals (?? {analytics.aiEvaluationSignals?.thumbsUp || 0} / ?? {analytics.aiEvaluationSignals?.thumbsDown || 0}).
+                </p>
+                {(analytics.unansweredAiQueries || []).length === 0 ? (
+                  <div style={{ padding: '1rem', background: '#f8fafc', borderRadius: '0.5rem', color: '#64748b', fontSize: '0.85rem' }}>
+                    No unanswered AI questions logged yet.
+                  </div>
+                ) : (
+                  <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.6rem', maxHeight: '260px', overflowY: 'auto' }}>
+                    {analytics.unansweredAiQueries.map((q, idx) => (
+                      <li key={q.id || idx} style={{ padding: '0.65rem 0.75rem', background: '#f8fafc', borderRadius: '0.5rem', border: '1px solid #e2e8f0', fontSize: '0.82rem' }}>
+                        <div style={{ fontWeight: 600, color: '#0f172a' }}>{q.question || q.query}</div>
+                        <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '0.2rem' }}>
+                          Lang: {(q.language || 'en').toUpperCase()} ? {q.reason || 'Low confidence'}
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+
+              {/* Citizen Feedback & Wrong Info Reports */}
+              <div className="card" style={{ padding: '1.5rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem', gap: '0.5rem', flexWrap: 'wrap' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <AlertTriangle size={18} color="#b91c1c" />
+                    <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0f172a', margin: 0 }}>
+                      Citizen Feedback & Error Reports ({analytics.feedbackReports?.pendingReports || 0} pending)
+                    </h3>
+                  </div>
+                  {analytics.freshnessSummary && (
+                    <span className="badge" style={{ background: analytics.freshnessSummary.staleOver180DaysCount > 0 ? '#fef3c7' : '#dcfce7', color: analytics.freshnessSummary.staleOver180DaysCount > 0 ? '#92400e' : '#166534', fontSize: '0.72rem' }}>
+                      Stale (&gt;180d): {analytics.freshnessSummary.staleOver180DaysCount} schemes
+                    </span>
+                  )}
+                </div>
+                <p style={{ fontSize: '0.82rem', color: '#64748b', marginBottom: '1rem' }}>
+                  Issues flagged via &ldquo;Report wrong information&rdquo; buttons on schemes and guides.
+                </p>
+                {(analytics.feedbackReports?.items || []).length === 0 ? (
+                  <div style={{ padding: '1rem', background: '#f8fafc', borderRadius: '0.5rem', color: '#64748b', fontSize: '0.85rem' }}>
+                    No citizen error reports submitted yet.
+                  </div>
+                ) : (
+                  <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.6rem', maxHeight: '260px', overflowY: 'auto' }}>
+                    {analytics.feedbackReports.items.map(rep => (
+                      <li key={rep.id} style={{ padding: '0.65rem 0.75rem', background: rep.status === 'PENDING' ? '#fef2f2' : '#f0fdf4', borderRadius: '0.5rem', border: `1px solid ${rep.status === 'PENDING' ? '#fecaca' : '#bbf7d0'}`, fontSize: '0.82rem' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.5rem' }}>
+                          <div>
+                            <span style={{ fontWeight: 700, color: '#0f172a' }}>{rep.feedbackType}</span>
+                            {rep.schemeId ? ` ? Scheme #${rep.schemeId}` : rep.guideId ? ` ? Guide #${rep.guideId}` : ''}
+                            <div style={{ color: '#334155', marginTop: '0.2rem' }}>{rep.comment}</div>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => handleResolveFeedback(rep.id, rep.status === 'PENDING' ? 'RESOLVED' : 'PENDING')}
+                            className="btn btn-outline btn-sm"
+                            style={{ fontSize: '0.72rem', flexShrink: 0 }}>
+                            {rep.status === 'PENDING' ? 'Mark Resolved' : 'Reopen'}
+                          </button>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
             </div>
           </div>

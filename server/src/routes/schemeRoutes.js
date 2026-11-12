@@ -4,6 +4,7 @@ import { authMiddleware } from '../middleware/authMiddleware.js';
 import { validate } from '../middleware/validate.js';
 import { idParamSchema } from '../schemas/validationSchemas.js';
 import { DocumentAnalysisService } from '../services/documentAnalysisService.js';
+import { getSupportedStates, normalizeSchemeRecord } from '../data/stateExpansionLoader.js';
 
 const router = express.Router();
 
@@ -58,15 +59,27 @@ router.get('/', (req, res) => {
   }
 });
 
+// GET /api/schemes/meta/states (Data-driven active states registry)
+router.get('/meta/states', (req, res) => {
+  const schemes = db.find('schemes', s => s.active !== false);
+  const guides = db.find('documentGuides', g => g.publicationStatus !== 'ARCHIVED');
+  return res.json({
+    success: true,
+    data: getSupportedStates(schemes, guides)
+  });
+});
+
 // GET /api/schemes/:id
 router.get('/:id', validate(idParamSchema, 'params'), (req, res) => {
   const scheme = db.findById('schemes', req.params.id);
   if (!scheme) {
     return res.status(404).json({ success: false, message: 'Scheme record not found' });
   }
+  const nextViews = (Number(scheme.viewCount) || 0) + 1;
+  const updated = db.update('schemes', scheme.id, { viewCount: nextViews }) || scheme;
   return res.json({
     success: true,
-    data: scheme
+    data: normalizeSchemeRecord(updated)
   });
 });
 

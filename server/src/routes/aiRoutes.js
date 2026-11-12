@@ -70,6 +70,8 @@ router.post('/chat', aiLimiter, validate(aiChatSchema), async (req, res) => {
       inHandDocuments: inHandDocuments || []
     });
 
+    db.recordLanguageUsage(result.language || validatedLanguage || 'en');
+
     return res.json({
       success: true,
       data: {
@@ -148,6 +150,8 @@ router.post('/chat/stream', aiLimiter, validate(aiChatSchema), async (req, res) 
       const piece = tokens.slice(i, i + chunkSize).join('');
       if (piece) sendSse('chunk', { text: piece });
     }
+
+    db.recordLanguageUsage(result.language || validatedLanguage || 'en');
 
     sendSse('done', result);
     return res.end();
