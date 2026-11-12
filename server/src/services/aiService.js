@@ -25,6 +25,7 @@ import { db } from '../db/database.js';
 import { config } from '../config.js';
 import { EligibilityEngine } from './eligibilityEngine.js';
 import { RAGService } from './ragService.js';
+import { AgentService } from './ai/agentService.js';
 import axios from 'axios';
 
 export class AIService {
@@ -736,9 +737,8 @@ export class AIService {
 
   /**
    * Main Answering Pipeline
-   * 1. Deterministic Fast-Path for greetings & metadata
-   * 2. Semantic RAG Engine (top-k chunk retrieval + Gemini 1.5 Flash / grounded synthesis + citations)
-   * 3. Deterministic Grounded Engine fallback
+   * Delegates conversational queries to the Phase 5 dynamic tool-calling AgentService
+   * while preserving deterministic greetings fast-path & backward-compatible envelope.
    */
   static async answerQuestion(question, schemeId, userId, language = 'en') {
     const profile = userId ? db.findOne('profiles', p => String(p.userId) === String(userId)) : null;
@@ -752,14 +752,19 @@ export class AIService {
       return this.generateDeterministicAnswer(question, schemeId, detectedLang, profile);
     }
 
-    // 2. Primary RAG Pipeline: Semantic Top-K retrieval across all 30+ schemes and 10 RTS guides
+    // 2. Dynamic Agent Pipeline (Gemini Function Calling + RAG + Deterministic Engine Tools)
     try {
-      const ragResult = await RAGService.answerWithRag(question, detectedLang, schemeId);
-      if (ragResult && ragResult.answer) {
-        return ragResult;
+      const agentResult = await AgentService.runConversation({
+        question,
+        userId,
+        language: detectedLang,
+        schemeId
+      });
+      if (agentResult && agentResult.answer) {
+        return agentResult;
       }
-    } catch (ragErr) {
-      console.warn('[AI] RAG Pipeline exception, falling back to deterministic engine:', ragErr.message);
+    } catch (agentErr) {
+      console.warn('[AI] Agent Pipeline exception, falling back to deterministic engine:', agentErr.message);
     }
 
     // 3. Fallback: Deterministic grounded engine

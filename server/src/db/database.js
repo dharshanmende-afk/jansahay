@@ -39,21 +39,8 @@ class Database {
     return await checkPrismaConnectivity();
   }
 
-  async init() {
-    // 1. Check PostgreSQL connectivity
-    try {
-      this.postgresConnected = await checkPostgresConnectivity();
-      if (this.postgresConnected) {
-        console.log('🐘 [DB] Connected to PostgreSQL. Migrations and relational tables active.');
-        await runMigrations().catch(err => console.warn('[DB] Migration note:', err.message));
-      } else {
-        console.log('📂 [DB] PostgreSQL not configured or offline. Running on high-performance local database.');
-      }
-    } catch (e) {
-      this.postgresConnected = false;
-    }
-
-    // 2. Load / initialize data store
+  init() {
+    // 1. Load / initialize data store synchronously first so callers never race during startup
     try {
       if (fs.existsSync(DB_FILE)) {
         const raw = fs.readFileSync(DB_FILE, 'utf-8');
@@ -75,6 +62,21 @@ class Database {
       console.error('[DB] Error loading database, initializing fresh seed:', err);
       this.seedInitial();
     }
+
+    // 2. Check PostgreSQL connectivity asynchronously
+    checkPostgresConnectivity()
+      .then(connected => {
+        this.postgresConnected = connected;
+        if (connected) {
+          console.log('🐘 [DB] Connected to PostgreSQL. Migrations and relational tables active.');
+          return runMigrations().catch(err => console.warn('[DB] Migration note:', err.message));
+        } else {
+          console.log('📂 [DB] PostgreSQL not configured or offline. Running on high-performance local database.');
+        }
+      })
+      .catch(() => {
+        this.postgresConnected = false;
+      });
   }
 
   seedInitial() {
