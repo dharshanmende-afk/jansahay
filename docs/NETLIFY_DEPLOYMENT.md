@@ -18,7 +18,7 @@
 
 1. Log in to **[Netlify Dashboard](https://app.netlify.com)** and select **Add new site → Import an existing project**.
 2. Connect GitHub repository: `dharshanmende-afk/jansahay` (`main` branch).
-3. Netlify reads `netlify.toml` automatically (`Base directory: client`, `Build command: npm run build`, `Publish directory: client/dist`).
+3. Leave **Base directory** blank in the Netlify import UI so Netlify reads root `netlify.toml` cleanly (`base = "client"`, `NPM_FLAGS = "--workspaces=false"`, `command = "npm run build"`, `publish = "dist"`).
 4. Under **Environment variables**, add:
    - `VITE_API_URL` = `https://<your-render-or-railway-backend>.onrender.com/api`
    - `VITE_PLAUSIBLE_DOMAIN` *(optional cookie-free analytics domain)*
