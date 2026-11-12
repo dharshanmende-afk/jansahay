@@ -9,7 +9,7 @@
 [![Frontend](https://img.shields.io/badge/Frontend-React_18_%7C_Vite-61dafb.svg)](client)
 [![Backend](https://img.shields.io/badge/Backend-Node.js_%7C_Express-339933.svg)](server)
 [![Database](https://img.shields.io/badge/Database-PostgreSQL_%7C_Prisma_ORM-4169e1.svg)](server/prisma/schema.prisma)
-[![Tests](https://img.shields.io/badge/Tests-66_Passing-brightgreen.svg)](server/tests)
+[![Tests](https://img.shields.io/badge/Tests-90_Passing-brightgreen.svg)](server/tests)
 [![Coverage](https://img.shields.io/badge/Services_Coverage-84.1%25-brightgreen.svg)](server/vitest.config.js)
 [![Catalog](https://img.shields.io/badge/Catalog-50_Schemes_%7C_14_RTS_Guides-success.svg)](server/data/jansahay-db.json)
 [![Docker](https://img.shields.io/badge/DevOps-Docker_%7C_Compose-2496ed.svg)](docker-compose.yml)
@@ -279,7 +279,8 @@ Detailed technical documents are maintained in the [`docs/`](docs) folder:
 * 🗄️ [**DATABASE_DESIGN.md**](docs/DATABASE_DESIGN.md) — Relational schema and entities
 * 🔌 [**API_DOCUMENTATION.md**](docs/API_DOCUMENTATION.md) — Complete REST API reference
 * 🚀 [**SETUP_GUIDE.md**](docs/SETUP_GUIDE.md) — Developer setup manual
-* 🌐 [**NETLIFY_DEPLOYMENT.md**](docs/NETLIFY_DEPLOYMENT.md) — Production deployment instructions
+* ☁️ [**DEPLOYMENT_GUIDE.md**](DEPLOYMENT_GUIDE.md) — Production cloud deployment guide (Render, Railway, Netlify, Docker)
+* 🌐 [**NETLIFY_DEPLOYMENT.md**](docs/NETLIFY_DEPLOYMENT.md) — Netlify frontend deployment notes
 * 📘 [**RUNBOOK.md**](RUNBOOK.md) — Operations and disaster recovery guide
 
 ---
